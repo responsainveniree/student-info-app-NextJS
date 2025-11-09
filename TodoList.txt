@@ -1,0 +1,2 @@
+1. Pahami cara kerja ZOD
+2. Buat singup system dengan API
