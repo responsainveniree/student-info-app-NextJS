@@ -9,7 +9,6 @@ generator client {
 }
 
 // enum
-
 enum Role {
     student
     teacher
@@ -37,7 +36,7 @@ enum Semester {
     second
 }
 
-enum Type {
+enum AssessmentType {
     schoolwork
     homework
     quiz
@@ -46,8 +45,20 @@ enum Type {
     group
 }
 
-// student model
+enum problemPointCategory {
+    discipline
+    academic
+    social
+    other
+}
 
+enum AttendanceType {
+    absent
+    sick
+    permission
+}
+
+// student model
 model Student {
     id            String      @id @default(cuid())
     name          String
@@ -66,6 +77,8 @@ model Student {
 
     studentSubjects String[]
     subjectMarks    SubjectMark[]
+    attendances     StudentAttendance[]
+    problemPoints   ProblemPoint[]
 
     otp             String?
     otpExpiresAt    DateTime?
@@ -88,11 +101,23 @@ model SubjectMark {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
-    @@unique([subjectName, studentId])
 }
 
-model Description {
+model Mark {
+    id            Int         @id @default(autoincrement())
+    subjectMarkId Int
+    subjectMark   SubjectMark @relation(fields: [subjectMarkId], references: [id])
+
+    type          AssessmentType
+    number        Int
+    descriptionId Int
+    description   MarkDescription @relation(fields: [descriptionId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model MarkDescription {
     id          Int      @id @default(autoincrement())
     givenAt     DateTime @default(now())
     dueAt       DateTime
@@ -101,18 +126,27 @@ model Description {
     marks Mark[]
 }
 
-model Mark {
-    id            Int         @id @default(autoincrement())
-    subjectMarkId Int
-    subjectMark   SubjectMark @relation(fields: [subjectMarkId], references: [id])
+model StudentAttendance {
+    id        Int     @id @default(autoincrement())
+    studentId String
+    student   Student @relation(fields: [studentId], references: [id])
 
-    type          Type
-    number        Int
-    descriptionId Int
-    description   Description @relation(fields: [descriptionId], references: [id])
+    date        DateTime
+    type        AttendanceType
+    description String?
+}
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model ProblemPoint {
+    id        Int     @id @default(autoincrement())
+    studentId String
+    student   Student @relation(fields: [studentId], references: [id])
+
+    point       Int
+    category    problemPointCategory
+    description String
+    recordedBy  String
+    teacher     Teacher              @relation(fields: [recordedBy], references: [id])
+    date        DateTime
 }
 
 // teacher model
@@ -127,8 +161,9 @@ model Teacher {
     homeroomClassGrade Grade
     homeroomclassMajor Major
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    problemPoints ProblemPoint[]
 }
 
 model Session {
