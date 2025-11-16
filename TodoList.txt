@@ -1,2 +1,9 @@
-1. Buta model student poin
-2. selesaikan model teacher
+1. Teacher signup belum kelar
+    -> Masih harus urus mapel, walkel, teaching grades
+
+2. Student SignUp
+    ->  subjectMarks    SubjectMark[]
+        attendances     StudentAttendance[]
+        problemPoints   ProblemPoint[]
+
+        Bagian ini agak bingung sih, apakah perlu langsung di buat juga model nya atau gimana 

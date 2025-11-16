@@ -9,14 +9,10 @@
     "lint": "eslint",
     "prisma:migrate-dev": "npx prisma migrate dev",
     "prisma:migrate-prod": "npx prisma migrate deploy",
-    "prisma:delete-migration": "rm -rf ./lib/prisma/migrations",
+    "prisma:delete-migration": "rm -rf ./prisma/migrations",
     "prisma:reset": "npx prisma migrate reset",
     "prisma:generate": "npx prisma generate",
     "prisma:studio": "npx prisma studio"
-  },
-  "prisma": {
-    "schema": "lib/prisma/schema-postgresql.prisma",
-    "seed": "node lib/prisma/seed.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
