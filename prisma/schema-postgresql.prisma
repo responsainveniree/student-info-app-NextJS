@@ -65,7 +65,6 @@ model Student {
     password      String?
     emailVerified DateTime?
     isVerified    Boolean
-    image         String?
     sessions      StudentSession[]
     role          StudentRole      @default(student)
 
@@ -163,11 +162,9 @@ model Teacher {
 
     teachingAssignments TeachingAssignment[]
 
-    teachingClass   TeachingClass[]
-    teachingClassId Int?
+    teachingClasses TeachingClass[]
 
     sessions        TeacherSession[]
-    image           String?
     students        Student[]
     problemPoints   ProblemPoint[]
     otp             String?
@@ -184,9 +181,11 @@ model TeachingClass {
     id          Int   @id @default(autoincrement())
     grade       Grade
     major       Major
-    classNumber Int
+    classNumber Int?
 
     teachers Teacher[]
+
+    @@unique([grade, major, classNumber])
 }
 
 model HomeroomClass {
@@ -196,6 +195,8 @@ model HomeroomClass {
     classNumber Int?
     teacherId   String  @unique
     teacher     Teacher @relation(fields: [teacherId], references: [id])
+
+    @@unique([grade, major, classNumber])
 }
 
 model TeachingAssignment {

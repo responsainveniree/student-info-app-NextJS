@@ -36,14 +36,6 @@ export async function POST(req: Request) {
         name: data.username,
         email: data.email,
         password: hashedPassword,
-
-        homeroomClass: {
-          create: {
-            grade: data.homeroomClass.grade,
-            major: data.homeroomClass.major,
-            classNumber: data.homeroomClass.classNumber ?? null,
-          },
-        },
       },
       select: {
         id: true,
@@ -53,13 +45,68 @@ export async function POST(req: Request) {
       },
     });
 
-    let teachingClasses;
+    if (data.homeroomClass.grade != null && data.homeroomClass.major != null) {
+      const homeroomClassObject = await prisma.homeroomClass.upsert({
+        where: {
+          grade_major_classNumber: {
+            grade: data.homeroomClass.grade,
+            major: data.homeroomClass.major,
+            classNumber: data.homeroomClass.classNumber ?? null,
+          },
+        },
+        update: {},
+        create: {
+          grade: data.homeroomClass.grade,
+          major: data.homeroomClass.major,
+          classNumber: data.homeroomClass.classNumber ?? null,
+          teacherId: user.id,
+        },
+      });
+
+      await prisma.teacher.update({
+        where: { id: user.id },
+        data: {
+          homeroomClass: {
+            connect: { id: homeroomClassObject.id },
+          },
+        },
+      });
+    }
 
     if (
-      !Array.isArray(data.teachingClasses) ||
-      data.teachingClasses?.length != 0
+      Array.isArray(data.teachingClasses) &&
+      data.teachingClasses.length > 0
     ) {
-      console.log("BELUM SELESAI");
+      const teachingClasses = await Promise.all(
+        data.teachingClasses.map(async (teachingClass) => {
+          return await prisma.teachingClass.upsert({
+            where: {
+              grade_major_classNumber: {
+                grade: teachingClass.grade,
+                major: teachingClass.major,
+                classNumber: teachingClass.classNumber,
+              },
+            },
+            update: {},
+            create: {
+              grade: teachingClass.grade,
+              major: teachingClass.major,
+              classNumber: teachingClass.classNumber ?? null,
+            },
+          });
+        })
+      );
+
+      await prisma.teacher.update({
+        where: { id: user.id },
+        data: {
+          teachingClasses: {
+            connect: teachingClasses.map((teachingClass) => ({
+              id: teachingClass.id,
+            })),
+          },
+        },
+      });
     }
 
     return Response.json(

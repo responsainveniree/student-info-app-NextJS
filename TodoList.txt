@@ -1,5 +1,5 @@
 1. Teacher signup belum kelar
-    -> Masih harus urus mapel, walkel, teaching grades
+    -> Masih harus urus mapel
     -> Model teaching class dan teaching assginment
 2. Student SignUp
     ->  subjectMarks    SubjectMark[]
@@ -7,3 +7,7 @@
         problemPoints   ProblemPoint[]
 
         Bagian ini agak bingung sih, apakah perlu langsung di buat juga model nya atau gimana -> kalau butuh, cuman masih belum dapat usecase
+
+NOTES: 
+1. Pahami relasi antar table, terutama yang pakai connect, dll
+2. Belajar baca error message
