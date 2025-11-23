@@ -11,3 +11,5 @@
 NOTES: 
 1. Pahami relasi antar table, terutama yang pakai connect, dll
 2. Belajar baca error message
+3. Jangan lupa untuk di recheck lagi model systemnya, pakai aja claude untuk kasih gambaran biar code diusahkan selevel dengan production standard, kalau refactornya belakang, serasanya overwhelming
+4. Atur prisma workspace jadi veris 6 coba

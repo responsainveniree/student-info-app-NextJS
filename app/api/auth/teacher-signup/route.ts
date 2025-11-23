@@ -5,6 +5,7 @@ import {
   zodTeacherSignUp,
   zodTeacherSignUpSchema,
 } from "@/lib/utils/zodSchema";
+import Subject from "@/lib/types/subjectType";
 
 export async function POST(req: Request) {
   try {
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
       throw badRequest("All field must be filled");
     }
 
-    const user = await prisma.teacher.create({
+    const teacher = await prisma.teacher.create({
       data: {
         role: "teacher",
         name: data.username,
@@ -44,6 +45,20 @@ export async function POST(req: Request) {
         createdAt: true,
       },
     });
+
+    const existingHomeroomClass = await prisma.homeroomClass.findUnique({
+      where: {
+        grade_major_classNumber: {
+          grade: data.homeroomClass.grade,
+          major: data.homeroomClass.major,
+          classNumber: data.homeroomClass.classNumber,
+        },
+      },
+    });
+
+    if (existingHomeroomClass) {
+      throw badRequest("There has already a homeroom teacher in this class");
+    }
 
     if (data.homeroomClass.grade != null && data.homeroomClass.major != null) {
       const homeroomClassObject = await prisma.homeroomClass.upsert({
@@ -59,12 +74,12 @@ export async function POST(req: Request) {
           grade: data.homeroomClass.grade,
           major: data.homeroomClass.major,
           classNumber: data.homeroomClass.classNumber ?? null,
-          teacherId: user.id,
+          teacherId: teacher.id,
         },
       });
 
       await prisma.teacher.update({
-        where: { id: user.id },
+        where: { id: teacher.id },
         data: {
           homeroomClass: {
             connect: { id: homeroomClassObject.id },
@@ -98,7 +113,7 @@ export async function POST(req: Request) {
       );
 
       await prisma.teacher.update({
-        where: { id: user.id },
+        where: { id: teacher.id },
         data: {
           teachingClasses: {
             connect: teachingClasses.map((teachingClass) => ({
@@ -109,10 +124,69 @@ export async function POST(req: Request) {
       });
     }
 
+    let subjects: Subject[];
+
+    const subjectsName =
+      data.teachingAssignment?.map((t) => t.subjectName) ?? [];
+
+    if (subjectsName.length != 0) {
+      subjects = await Promise.all(
+        subjectsName.map(async (subjectName) => {
+          return await prisma.subject.upsert({
+            where: {
+              subjectName,
+            },
+            update: {},
+            create: { subjectName: subjectName },
+          });
+        })
+      );
+    }
+
+    if (
+      Array.isArray(data.teachingAssignment) &&
+      data.teachingAssignment.length > 0
+    ) {
+      const teachingAssignments = await Promise.all(
+        data.teachingAssignment.map(async (teachingAssignment, i) => {
+          return await prisma.teachingAssignment.upsert({
+            where: {
+              teacherId_subjectId_grade_major_classNumber: {
+                teacherId: teacher.id,
+                subjectId: subjects[i].id as number,
+                grade: "tenth",
+                major: "accounting",
+                classNumber: 0,
+              },
+            },
+            update: {},
+            create: {
+              teacherId: teacher.id,
+              subjectId: 1,
+              grade: "tenth",
+              major: "accounting",
+              classNumber: 0,
+            },
+          });
+        })
+      );
+
+      await prisma.teacher.update({
+        where: { id: teacher.id },
+        data: {
+          teachingAssignments: {
+            connect: teachingAssignments.map((teachingAssignment) => ({
+              id: teachingAssignment.id,
+            })),
+          },
+        },
+      });
+    }
+
     return Response.json(
       {
         message: "Successfully signed up",
-        data: { user },
+        data: { teacher },
       },
       { status: 201 }
     );

@@ -6,9 +6,10 @@ const MajorEnum = z.enum(["accounting", "softwareEngineering"]);
 const classTeachingAssignment = z.object({
   teacherId: z.string(),
   subjectId: z.number(),
-  Grade: GradeEnum,
-  Major: MajorEnum,
+  grade: GradeEnum,
+  major: MajorEnum,
   classNumber: z.number().optional(),
+  subjectName: z.string(),
 });
 
 const ClassInfoSchema = z.object({

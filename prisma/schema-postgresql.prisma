@@ -210,7 +210,7 @@ model TeachingAssignment {
 
     grade       Grade
     major       Major
-    classNumber Int
+    classNumber Int?
 
     @@unique([teacherId, subjectId, grade, major, classNumber])
 }
