@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "../../prisma/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -14,7 +13,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/sign-in",
   },
   providers: [
-    Google,
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -51,7 +49,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("Invalid email or password");
         }
 
-        return user;
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        };
       },
     }),
   ],

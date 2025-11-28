@@ -9,8 +9,8 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
-import { ChangeEvent, FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { redirect, useRouter } from "next/navigation";
 import axios from "axios";
 import { Upload, UserPlus, FileSpreadsheet, GraduationCap } from "lucide-react";
 
@@ -25,7 +25,6 @@ const CreateStudentAccount = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string>("");
-
   const [data, setData] = useState({
     username: "",
     email: "",
@@ -174,8 +173,8 @@ const CreateStudentAccount = () => {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                  Username
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Username <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Input
                   name="username"
@@ -191,8 +190,9 @@ const CreateStudentAccount = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   Email Address
+                  <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Input
                   name="email"
@@ -207,12 +207,14 @@ const CreateStudentAccount = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   Grade
+                  <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Select
                   onValueChange={(v: any) => setData({ ...data, grade: v })}
                   disabled={loading}
+                  required
                 >
                   <SelectTrigger className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                     <SelectValue placeholder="Select your grade" />
@@ -229,12 +231,14 @@ const CreateStudentAccount = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   Major
+                  <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Select
                   onValueChange={(v: any) => setData({ ...data, major: v })}
                   disabled={loading}
+                  required
                 >
                   <SelectTrigger className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                     <SelectValue placeholder="Select your major" />
@@ -251,14 +255,16 @@ const CreateStudentAccount = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   Class Number
+                  <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Select
                   onValueChange={(v: any) =>
                     setData({ ...data, classNumber: v })
                   }
                   disabled={loading}
+                  required
                 >
                   <SelectTrigger className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                     <SelectValue placeholder="Select class number" />
@@ -277,14 +283,16 @@ const CreateStudentAccount = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   Homeroom Teacher
+                  <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Select
                   onValueChange={(v: any) =>
                     setData({ ...data, teacherName: v })
                   }
                   disabled={loading}
+                  required
                 >
                   <SelectTrigger className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                     <SelectValue placeholder="Select your teacher" />
@@ -301,8 +309,9 @@ const CreateStudentAccount = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   Password
+                  <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Input
                   name="password"
@@ -318,8 +327,9 @@ const CreateStudentAccount = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   Confirm Password
+                  <span className="ml-2 text-red-500">*</span>
                 </label>
                 <Input
                   name="confirmPassword"
@@ -337,7 +347,7 @@ const CreateStudentAccount = () => {
             {/* Submit Button */}
             <div className="pt-6">
               <Button
-                className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                className="w-full h-14 bg-gradient-to-r  from-[#FBBF24] to-[#ffbc12] hover:from-[#FBBF24] hover:to-[#fdb808] text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
                 type="submit"
                 disabled={loading}
               >

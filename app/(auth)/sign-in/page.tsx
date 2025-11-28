@@ -1,6 +1,5 @@
 import { auth } from "@/lib/auth/authNode";
 import { signIn } from "@/lib/auth/authNode";
-import { GoogleSignIn } from "@/components/auth/GoogleSignin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { executeAction } from "@/lib/actions/executeActions";
@@ -16,10 +15,6 @@ const Page = async () => {
       <div className="flex flex-col h-full max-w-md justify-center mx-auto ">
         <div className="shadow-md p-4 space-y-6 bg-white rounded-md">
           <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
-
-          <div className="cursor-pointer">
-            <GoogleSignIn />
-          </div>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

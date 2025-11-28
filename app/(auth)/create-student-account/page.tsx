@@ -1,6 +1,14 @@
 import CreateStudentAccount from "@/components/auth/CreateStudentAccount";
+import { auth } from "@/lib/auth/authNode";
+import { redirect } from "next/navigation";
 
-const Page = () => {
+const Page = async () => {
+  const session = await auth();
+
+  if (!session) redirect("/sign-in");
+
+  console.log(session);
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background */}

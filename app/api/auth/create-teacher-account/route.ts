@@ -51,7 +51,7 @@ export async function POST(req: Request) {
         grade_major_classNumber: {
           grade: data.homeroomClass.grade,
           major: data.homeroomClass.major,
-          classNumber: data.homeroomClass.classNumber,
+          classNumber: data.homeroomClass.classNumber as string,
         },
       },
     });
@@ -66,7 +66,9 @@ export async function POST(req: Request) {
           grade_major_classNumber: {
             grade: data.homeroomClass.grade,
             major: data.homeroomClass.major,
-            classNumber: data.homeroomClass.classNumber ?? null,
+            classNumber: ((data.homeroomClass.classNumber as string) === "none"
+              ? null
+              : (data.homeroomClass.classNumber as string)) as any,
           },
         },
         update: {},
@@ -99,7 +101,10 @@ export async function POST(req: Request) {
               grade_major_classNumber: {
                 grade: teachingClass.grade,
                 major: teachingClass.major,
-                classNumber: teachingClass.classNumber,
+                classNumber:
+                  (teachingClass.classNumber as string) === "none"
+                    ? null
+                    : (teachingClass.classNumber as string as any),
               },
             },
             update: {},
@@ -154,9 +159,12 @@ export async function POST(req: Request) {
               teacherId_subjectId_grade_major_classNumber: {
                 teacherId: teacher.id,
                 subjectId: subjects[i].id as number,
-                grade: "tenth",
-                major: "accounting",
-                classNumber: 0,
+                grade: teachingAssignment.grade,
+                major: teachingAssignment.major,
+                classNumber:
+                  (teachingAssignment.classNumber as string) === "none"
+                    ? null
+                    : (teachingAssignment.classNumber as string as any),
               },
             },
             update: {},
@@ -165,7 +173,10 @@ export async function POST(req: Request) {
               subjectId: 1,
               grade: "tenth",
               major: "accounting",
-              classNumber: 0,
+              classNumber:
+                (teachingAssignment.classNumber as string) === "none"
+                  ? null
+                  : (teachingAssignment.classNumber as string as any),
             },
           });
         })

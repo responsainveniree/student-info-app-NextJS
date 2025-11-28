@@ -8,15 +8,17 @@ const classTeachingAssignment = z.object({
   subjectId: z.number(),
   grade: GradeEnum,
   major: MajorEnum,
-  classNumber: z.number().optional(),
+  classNumber: z.string().optional(),
   subjectName: z.string(),
 });
 
 const ClassInfoSchema = z.object({
   grade: GradeEnum,
   major: MajorEnum,
-  classNumber: z.number().max(2),
+  classNumber: z.string().optional(),
 });
+
+// Main
 
 const zodStudentSignUp = z.object({
   username: z.string().min(3),
