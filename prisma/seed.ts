@@ -4,17 +4,23 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash("YOUR_SUPER_SECRETTTTT", 12);
+  const passwordHash = await bcrypt.hash("YOUR_SUPER_SECRET_PASSWORD", 12);
 
   await prisma.teacher.upsert({
     where: { email: "anothergoat@gmail.com" },
     update: {},
     create: {
-      id: "TCH09221232341",
       name: "WhoIsHer",
       email: "anothergoat@gmail.com",
       password: passwordHash,
       role: "teacher",
+      homeroomClass: {
+        create: {
+          grade: "eleventh",
+          major: "softwareEngineering",
+          classNumber: null,
+        },
+      },
     },
   });
 
@@ -29,7 +35,7 @@ async function main() {
       grade: "eleventh",
       major: "softwareEngineering",
       isVerified: true,
-      teacherId: "TCH09221232341",
+      teacherId: "cmiit3zb70000uqy06lc8kdmt",
     },
   });
 

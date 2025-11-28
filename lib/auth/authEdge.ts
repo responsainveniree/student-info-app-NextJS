@@ -9,9 +9,10 @@ export const { auth: authEdge } = NextAuth({
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnSignIn = nextUrl.pathname.startsWith("/sign-in");
-      const isOnSignUp = nextUrl.pathname.startsWith("/sign-up");
 
-      if (isOnSignIn || isOnSignUp) {
+      console.log(isLoggedIn);
+
+      if (isOnSignIn) {
         if (isLoggedIn) return Response.redirect(new URL("/", nextUrl));
         return true;
       }

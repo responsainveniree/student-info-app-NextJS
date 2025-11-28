@@ -1,25 +1,28 @@
 import React from "react";
-import SignIn from "@/components/auth/SignIn";
+import StudentDashboard from "@/components/dashboard/StudentDashboard";
+
 import { auth } from "@/lib/auth/authNode";
 import { redirect } from "next/navigation";
 
 const page = async () => {
   const session = await auth();
 
-  if (session?.user.role === "student") {
-    redirect("/student-dashboard");
-  } else if (session?.user.role === "teacher") {
+  if (!session) redirect("/sign-in");
+
+  if (session.user.role === "teacher") {
     redirect("/teacher-dashboard");
-  } else if (
-    session?.user.role === "vicePrincipal" ||
-    session?.user.role === "principal"
+  }
+
+  if (
+    session.user.role === "vicePrincipal" ||
+    session.user.role === "principal"
   ) {
     redirect("/staff-dashboard");
   }
 
   return (
     <div>
-      <SignIn />
+      <StudentDashboard />
     </div>
   );
 };

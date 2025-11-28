@@ -1,5 +1,5 @@
 import React from "react";
-import CreateTeacherAccount from "@/components/auth/CreateTeacherAccount";
+import CreateTeacherAccount from "@/components/createUser/CreateTeacherAccount";
 
 const page = () => {
   return (

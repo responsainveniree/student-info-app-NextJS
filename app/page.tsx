@@ -1,22 +1,7 @@
-import { SignOut } from "@/components/auth/SignOut";
-import { auth } from "@/lib/auth/authNode";
-import { redirect } from "next/navigation";
+import React from "react";
 
-const Page = async () => {
-  const session = await auth();
-
-  if (!session) redirect("/sign-in");
-
-  return (
-    <>
-      <div className="bg-gray-100 rounded-lg p-4 text-center mb-6">
-        <p className="text-gray-600">Signed in as:</p>
-        <p className="font-medium">{session!.user?.email}</p>
-      </div>
-
-      <SignOut />
-    </>
-  );
+const page = () => {
+  return <div>hi</div>;
 };
 
-export default Page;
+export default page;

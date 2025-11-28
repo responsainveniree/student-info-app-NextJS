@@ -1,4 +1,4 @@
-import CreateStudentAccount from "@/components/auth/CreateStudentAccount";
+import CreateStudentAccount from "@/components/createUser/CreateStudentAccount";
 import { auth } from "@/lib/auth/authNode";
 import { redirect } from "next/navigation";
 

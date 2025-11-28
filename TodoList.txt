@@ -3,15 +3,18 @@ BE
     -> Masih harus urus mapel
     -> Model teaching class dan teaching assginment
     -> Belum kelar, masih ada error di bagian classNumber soalnya diubah kestring
+    -> Urus students relation
 2. Student SignUp
     ->  subjectMarks    SubjectMark[]
         attendances     StudentAttendance[]
         problemPoints   ProblemPoint[]
 
         Bagian ini agak bingung sih, apakah perlu langsung di buat juga model nya atau gimana -> kalau butuh, cuman masih belum dapat usecase
+3. Pelajari relasi di postgre
 
 FE
 1. tambahin notif login berhasil, gaperlu redirect
+2. buat tempat kalau akses salah url, jadinya kasih tau untuk ux. Terus kasih navbar juga penting ini
 
 NOTES: 
 1. Pahami relasi antar table, terutama yang pakai connect, dll
