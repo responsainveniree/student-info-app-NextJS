@@ -1,23 +1,23 @@
-BE
-1. Teacher signup belum kelar
-    -> Masih harus urus mapel
-    -> Model teaching class dan teaching assginment
-    -> Belum kelar, masih ada error di bagian classNumber soalnya diubah kestring
-    -> Urus students relation
-2. Student SignUp
-    ->  subjectMarks    SubjectMark[]
-        attendances     StudentAttendance[]
-        problemPoints   ProblemPoint[]
+TODO List
+====================================
+Type: Backend
+# Start, 13-20/12/25 #
+Goal: Make a full authentication feature
+        1. Bulk insert route (3)
+            1.1: Bulk insert student
+            1.2: Bulk insert teacher
+        2. Forget Password route
+        3. Reset Password route 
+# End, 13-20/12/25 #
 
-        Bagian ini agak bingung sih, apakah perlu langsung di buat juga model nya atau gimana -> kalau butuh, cuman masih belum dapat usecase
-3. Pelajari relasi di postgre
+====================================
+Type: Frontend
+# Start, 13-20/12/25 #
+Goal: Make a full authentication feature
+        1. implement toast for every event ✔ NOTES: Just make sure every action have a toast message
+        2. Create Teacher Account Page (2)
+        3. Create forgot password Page
+        4. Create Reset Password page
 
-FE
-1. tambahin notif login berhasil, gaperlu redirect
-2. buat tempat kalau akses salah url, jadinya kasih tau untuk ux. Terus kasih navbar juga penting ini
-
-NOTES: 
-1. Pahami relasi antar table, terutama yang pakai connect, dll
-2. Belajar baca error message
-3. Jangan lupa untuk di recheck lagi model systemnya, pakai aja claude untuk kasih gambaran biar code diusahkan selevel dengan production standard, kalau refactornya belakang, serasanya overwhelming
-4. Atur prisma workspace jadi veris 6 coba  ✔
+# End, 13-20/12/25 #
+=====================================

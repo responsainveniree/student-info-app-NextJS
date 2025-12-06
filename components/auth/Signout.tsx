@@ -2,10 +2,19 @@
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 const SignOut = () => {
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/sign-in" });
+    toast.success("Successfully signed out, redirecting...");
+
+    setTimeout(async () => {
+      try {
+        await signOut({ callbackUrl: "/sign-in" });
+      } catch (error) {
+        toast.error("Failed to sign out");
+      }
+    }, 2000);
   };
 
   return (

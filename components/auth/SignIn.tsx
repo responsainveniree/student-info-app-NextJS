@@ -1,11 +1,41 @@
-import { signIn } from "@/lib/auth/authNode";
+"use client";
+
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { executeAction } from "@/lib/actions/executeActions";
 import Link from "next/link";
 import { LogIn, Mail, Lock, GraduationCap } from "lucide-react";
+import { toast } from "sonner";
 
 const SignIn = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+
+    const result = await signIn("credentials", {
+      redirect: false,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    });
+
+    if (result?.error) {
+      console.error("Sign in failed:", result.error);
+      setLoading(false);
+    } else {
+      toast.success("Succesfully signed in, redirecting...");
+      setTimeout(() => {
+        router.push("/teacher-dashboard");
+        router.refresh(); // Refresh to update session
+      }, 2000);
+    }
+  };
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#F9FAFB]">
       {/* Animated Background */}
@@ -39,17 +69,7 @@ const SignIn = () => {
 
           {/* Form */}
           <div className="p-8">
-            <form
-              className="space-y-6"
-              action={async (formData) => {
-                "use server";
-                await executeAction({
-                  actionFn: async () => {
-                    await signIn("credentials", formData);
-                  },
-                });
-              }}
-            >
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Email Input */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-[#111827] flex items-center">
@@ -105,6 +125,7 @@ const SignIn = () => {
               <Button
                 className="w-full h-12 bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] hover:from-[#1E3A8A]/90 hover:to-[#3B82F6]/90 text-white font-semibold text-base rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
                 type="submit"
+                disabled={loading}
               >
                 <LogIn className="w-5 h-5 mr-2" />
                 Sign In

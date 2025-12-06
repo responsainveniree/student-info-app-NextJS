@@ -9,10 +9,11 @@ import {
   SelectContent,
   SelectValue,
 } from "@/components/ui/select";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Upload, UserPlus, FileSpreadsheet, GraduationCap } from "lucide-react";
+import { toast } from "sonner";
 
 const grades = ["tenth", "eleventh", "twelfth"];
 const majors = ["softwareEngineering", "accounting"];
@@ -47,8 +48,10 @@ const CreateStudentAccount = () => {
     setError("");
 
     try {
-      await axios.post("/api/auth/create-student-account", data);
-      router.push("/sign-in");
+      const res = await axios.post("/api/auth/create-student-account", data);
+      if (res.status === 201) {
+        toast.success("Student has been created.");
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || "Terjadi kesalahan, coba lagi");
     } finally {
