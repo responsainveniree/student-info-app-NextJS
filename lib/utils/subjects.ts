@@ -1,8 +1,8 @@
-const subjects = {
+export const subjects = {
   tenth: {
     major: {
       accounting: [
-        "fundamentals_of_fluency",
+        "fundamentals_of_fluency_accounting",
         "english",
         "civic_education",
         "math",
@@ -20,7 +20,7 @@ const subjects = {
         "math",
         "english",
         "mandarin",
-        "fundamentals_of_fluency",
+        "fundamentals_of_fluency_swe",
         "civic_education",
         "physical_education",
         "religion",
@@ -38,7 +38,7 @@ const subjects = {
       accounting: [
         "indonesian",
         "ap",
-        "creative_entrepreneurial_products",
+        "creative_entrepreneurial_products_accounting",
         "english",
         "physical_education",
         "history",
@@ -68,7 +68,7 @@ const subjects = {
         "history",
         "conversation",
         "indonesian",
-        "creative_entrepreneurial_products",
+        "creative_entrepreneurial_products_swe",
         "microsoft",
       ],
     },
@@ -90,7 +90,7 @@ const subjects = {
         "religion",
       ],
       softwareEngineering: [
-        "creative_entrepreneurial_products",
+        "creative_entrepreneurial_products_swe",
         "oop",
         "database",
         "web",
@@ -106,4 +106,24 @@ const subjects = {
   },
 };
 
-export default subjects;
+export const subjectCategories = {
+  software_engineering: [
+    "web",
+    "database",
+    "oop",
+    "mobile",
+    "fundamentals_of_fluency_swe",
+    "creative_entrepreneurial_products_swe",
+  ],
+
+  accounting: [
+    "ap",
+    "computerized_accounting",
+    "financial_accounting",
+    "banking",
+    "taxation",
+    "fundamentals_of_fluency_accounting",
+    "creative_entrepreneurial_products_accounting",
+    "pal",
+  ],
+};

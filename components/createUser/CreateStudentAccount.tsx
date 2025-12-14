@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Upload, UserPlus, FileSpreadsheet, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
@@ -19,10 +18,8 @@ const grades = ["tenth", "eleventh", "twelfth"];
 const majors = ["softwareEngineering", "accounting"];
 const classNumbers = [1, 2];
 //Ubah jadi fetch API
-const teachers = ["WhoIsHer", "Danny"];
 
 const CreateStudentAccount = () => {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string>("");
@@ -34,7 +31,6 @@ const CreateStudentAccount = () => {
     grade: "",
     major: "",
     classNumber: "",
-    teacherName: "",
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -51,9 +47,14 @@ const CreateStudentAccount = () => {
       const res = await axios.post("/api/auth/create-student-account", data);
       if (res.status === 201) {
         toast.success("Student has been created.");
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Terjadi kesalahan, coba lagi");
+      toast.error("Something went wrong. Read the message above.");
     } finally {
       setLoading(false);
     }
@@ -273,7 +274,7 @@ const CreateStudentAccount = () => {
                     <SelectValue placeholder="Select class number" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
 
                     {classNumbers.map((num) => (
                       <SelectItem key={num} value={String(num)}>
@@ -284,31 +285,7 @@ const CreateStudentAccount = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700 flex items-center">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                  Homeroom Teacher
-                  <span className="ml-2 text-red-500">*</span>
-                </label>
-                <Select
-                  onValueChange={(v: any) =>
-                    setData({ ...data, teacherName: v })
-                  }
-                  disabled={loading}
-                  required
-                >
-                  <SelectTrigger className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-                    <SelectValue placeholder="Select your teacher" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teachers.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <div></div>
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">

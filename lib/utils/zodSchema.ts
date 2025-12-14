@@ -30,8 +30,6 @@ const zodStudentSignUp = z.object({
   grade: GradeEnum,
   major: MajorEnum,
   classNumber: z.string().optional(),
-
-  teacherName: z.string(),
 });
 
 const zodTeacherSignUp = z.object({

@@ -8,9 +8,10 @@ import {
   SelectItem,
   SelectContent,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
 } from "@/components/ui/select";
-import { ChangeEvent, FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { ChangeEvent, ErrorInfo, FormEvent, useState } from "react";
 import axios from "axios";
 import {
   Upload,
@@ -22,7 +23,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
-import subjects from "@/lib/utils/subjects";
+import { subjects, subjectCategories } from "@/lib/utils/subjects";
 
 const grades = ["tenth", "eleventh", "twelfth"];
 const majors = ["softwareEngineering", "accounting"];
@@ -39,6 +40,31 @@ const getAllSubjects = () => {
   return Array.from(allSubjects).sort();
 };
 
+type GroupedSubjects = Record<string, string[]>;
+
+const groupSubjects = (subjectKeys: string[]): GroupedSubjects => {
+  const grouped: GroupedSubjects = {
+    general: [],
+    accounting: [],
+    software_engineering: [],
+  };
+
+  const sweKeys = new Set(subjectCategories.software_engineering);
+  const accountingKeys = new Set(subjectCategories.accounting);
+
+  subjectKeys.forEach((key) => {
+    if (sweKeys.has(key)) {
+      grouped.software_engineering.push(key);
+    } else if (accountingKeys.has(key)) {
+      grouped.accounting.push(key);
+    } else {
+      grouped.general.push(key);
+    }
+  });
+
+  return grouped;
+};
+
 interface TeachingAssignment {
   subjectName: string;
   grade: string;
@@ -53,7 +79,6 @@ interface TeachingClass {
 }
 
 const CreateTeacherAccount = () => {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string>("");
@@ -119,9 +144,7 @@ const CreateTeacherAccount = () => {
 
   // Remove teaching assignment
   const removeTeachingAssignment = (index: number) => {
-    if (teachingAssignments.length > 1) {
-      setTeachingAssignments(teachingAssignments.filter((_, i) => i !== index));
-    }
+    setTeachingAssignments(teachingAssignments.filter((_, i) => i !== index));
   };
 
   // Update teaching assignment
@@ -163,6 +186,10 @@ const CreateTeacherAccount = () => {
       const res = await axios.post("/api/auth/create-teacher-account", payload);
       if (res.status === 201) {
         toast.success("Teacher account created successfully!");
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "An error occurred, try again");
@@ -184,7 +211,8 @@ const CreateTeacherAccount = () => {
   };
 
   const subjectLabels: Record<string, string> = {
-    fundamentals_of_fluency: "Fundamentals of Fluency",
+    fundamentals_of_fluency_swe: "Fundamentals of Fluency SWE",
+    fundamentals_of_fluency_accounting: "Fundamentals of Fluency Accounting",
     english: "English",
     civic_education: "Civic Education",
     math: "Mathematics",
@@ -198,7 +226,10 @@ const CreateTeacherAccount = () => {
     fundamentals_of_science_and_social: "Fundamentals of Science & Social",
     mandarin: "Mandarin",
     ap: "Accounting Principles",
-    creative_entrepreneurial_products: "Creative Entrepreneurial Products",
+    creative_entrepreneurial_products_swe:
+      "Creative Entrepreneurial Products SWE",
+    creative_entrepreneurial_products_accounting:
+      "Creative Entrepreneurial Products Accounting",
     pal: "PAL",
     computerized_accounting: "Computerized Accounting",
     financial_accounting: "Financial Accounting",
@@ -212,6 +243,8 @@ const CreateTeacherAccount = () => {
   };
 
   const availableSubjects = getAllSubjects();
+
+  const sortedAndGroupedSubjects = groupSubjects(availableSubjects);
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden">
@@ -425,7 +458,6 @@ const CreateTeacherAccount = () => {
                         <SelectValue placeholder="Select grade" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
                         {grades.map((g) => (
                           <SelectItem key={g} value={g}>
                             {gradeLabels[g]}
@@ -449,7 +481,6 @@ const CreateTeacherAccount = () => {
                         <SelectValue placeholder="Select major" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
                         {majors.map((m) => (
                           <SelectItem key={m} value={m}>
                             {majorLabels[m]}
@@ -664,11 +695,29 @@ const CreateTeacherAccount = () => {
                               <SelectValue placeholder="Select subject" />
                             </SelectTrigger>
                             <SelectContent>
-                              {availableSubjects.map((subject) => (
-                                <SelectItem key={subject} value={subject}>
-                                  {subjectLabels[subject] || subject}
-                                </SelectItem>
-                              ))}
+                              {Object.entries(sortedAndGroupedSubjects).map(
+                                ([categoryName, subjectKeysArray]) => (
+                                  <SelectGroup key={categoryName}>
+                                    <SelectLabel>
+                                      {categoryName === "general"
+                                        ? "General Subjects"
+                                        : categoryName === "accounting"
+                                        ? "Accounting Subjects"
+                                        : "Software Engineering Subjects"}
+                                    </SelectLabel>
+                                    {subjectKeysArray.map(
+                                      (subjectKey: string) => (
+                                        <SelectItem
+                                          key={subjectKey}
+                                          value={subjectKey}
+                                        >
+                                          {subjectLabels[subjectKey]}
+                                        </SelectItem>
+                                      )
+                                    )}
+                                  </SelectGroup>
+                                )
+                              )}
                             </SelectContent>
                           </Select>
                         </div>
