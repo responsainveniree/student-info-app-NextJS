@@ -3,6 +3,10 @@ import { z } from "zod";
 const GradeEnum = z.enum(["tenth", "eleventh", "twelfth"]);
 const MajorEnum = z.enum(["accounting", "softwareEngineering"]);
 
+const zodForgotPassword = z.object({
+  email: z.string().email({ message: "Please input a correct format" }),
+});
+
 // Schema for frontend data (what we send from CreateTeacherAccount)
 const TeachingAssignmentInput = z.object({
   subjectName: z.string(),
@@ -47,12 +51,15 @@ const zodTeacherSignUp = z.object({
   teachingClasses: z.array(ClassInfoSchema).optional(),
 });
 
-type zodStudentSignUpSchema = z.infer<typeof zodStudentSignUp>;
-type zodTeacherSignUpSchema = z.infer<typeof zodTeacherSignUp>;
+type StudentSignUpInput = z.infer<typeof zodStudentSignUp>;
+type TeacherSignUpInput = z.infer<typeof zodTeacherSignUp>;
+type EmailSchema = z.infer<typeof zodForgotPassword>;
 
 export {
   zodStudentSignUp,
   zodTeacherSignUp,
-  type zodStudentSignUpSchema,
-  type zodTeacherSignUpSchema,
+  zodForgotPassword,
+  type StudentSignUpInput,
+  type TeacherSignUpInput,
+  type EmailSchema,
 };

@@ -13,12 +13,12 @@ import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import axios from "axios";
 import { Upload, UserPlus, FileSpreadsheet, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
-import { Spinner } from "../ui/spinner";
+import { Spinner } from "../../ui/spinner";
+import { Eye, EyeOff } from "lucide-react";
 
 const grades = ["tenth", "eleventh", "twelfth"];
 const majors = ["softwareEngineering", "accounting"];
 const classNumbers = [1, 2];
-//Ubah jadi fetch API
 
 const CreateStudentAccount = () => {
   const [error, setError] = useState("");
@@ -33,6 +33,8 @@ const CreateStudentAccount = () => {
     major: "",
     classNumber: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -74,7 +76,7 @@ const CreateStudentAccount = () => {
 
           setError(errorMsg);
 
-          toast.warning(errorMsg);
+          toast.warning("Something went wrong. Read the message above.");
         } else {
           toast.success(`Successfully created ${results.success} student(s)!`);
         }
@@ -360,37 +362,71 @@ const CreateStudentAccount = () => {
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
                   <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                  Password
-                  <span className="ml-2 text-red-500">*</span>
+                  Password <span className="ml-2 text-red-500">*</span>
                 </label>
-                <Input
-                  name="password"
-                  placeholder="Minimum 8 characters"
-                  type="password"
-                  minLength={8}
-                  required
-                  disabled={loading}
-                  onChange={handleChange}
-                  className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                />
+
+                <div className="relative">
+                  <Input
+                    name="password"
+                    placeholder="Minimum 8 characters"
+                    type={showPassword ? "text" : "password"}
+                    minLength={8}
+                    required
+                    disabled={loading}
+                    onChange={handleChange}
+                    className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all pr-12"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
                   <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                  Confirm Password
-                  <span className="ml-2 text-red-500">*</span>
+                  Confirm Password <span className="ml-2 text-red-500">*</span>
                 </label>
-                <Input
-                  name="confirmPassword"
-                  placeholder="Re-enter your password"
-                  type="password"
-                  minLength={8}
-                  required
-                  disabled={loading}
-                  onChange={handleChange}
-                  className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                />
+
+                <div className="relative">
+                  <Input
+                    name="confirmPassword"
+                    placeholder="Re-enter your password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    minLength={8}
+                    required
+                    disabled={loading}
+                    onChange={handleChange}
+                    className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all pr-12"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600"
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 

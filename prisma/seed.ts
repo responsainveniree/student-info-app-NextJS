@@ -18,26 +18,26 @@ async function main() {
         create: {
           grade: "eleventh",
           major: "softwareEngineering",
-          classNumber: null,
+          classNumber: "none",
         },
       },
     },
   });
 
-  await prisma.student.upsert({
-    where: { email: "thegoat@gmail.com" },
-    update: {},
-    create: {
-      name: "WhoIsHim?",
-      email: "thegoat@gmail.com",
-      password: passwordHash,
-      role: "student",
-      grade: "eleventh",
-      major: "softwareEngineering",
-      isVerified: true,
-      teacherId: "cmiit3zb70000uqy06lc8kdmt",
-    },
-  });
+  // await prisma.student.upsert({
+  //   where: { email: "thegoat@gmail.com" },
+  //   update: {},
+  //   create: {
+  //     name: "WhoIsHim?",
+  //     email: "thegoat@gmail.com",
+  //     password: passwordHash,
+  //     role: "student",
+  //     grade: "eleventh",
+  //     major: "softwareEngineering",
+  //     isVerified: true,
+  //     teacherId: "cmiit3zb70000uqy06lc8kdmt",
+  //   },
+  // });
 
   console.log("Succesfully seeded");
 }

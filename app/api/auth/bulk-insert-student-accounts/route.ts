@@ -92,7 +92,7 @@ export async function POST(req: Request) {
               password: hashedPassword,
               grade: row.grade,
               major: row.major,
-              classNumber: row.classNumber,
+              classNumber: row.classNumber as string,
               isVerified: true,
               teacherId: homeroomClass.teacherId,
             },

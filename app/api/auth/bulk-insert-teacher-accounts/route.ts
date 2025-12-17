@@ -107,7 +107,7 @@ export async function POST(req: Request) {
           }
 
           // Handle Teaching Classes
-          if (row.teachingClasses) {
+          if (row.teachingClasses && row.teachingSubjects) {
             const classesArray = row.teachingClasses
               .split(",")
               .map((c) => c.trim());
@@ -143,7 +143,7 @@ export async function POST(req: Request) {
           }
 
           // Handle Teaching Assignments
-          if (row.teachingSubjects) {
+          if (row.teachingSubjects && row.teachingClasses) {
             const subjectsArray = row.teachingSubjects
               .split(",")
               .map((s) => s.trim());

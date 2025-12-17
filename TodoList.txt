@@ -3,10 +3,10 @@ TODO List
 Type: Backend
 # Start, 13-20/12/25 #
 Goal: Make a full authentication feature
-        1. Bulk insert route (3)
+        1. Bulk insert route ✔
             1.1: Bulk insert student | NOTES: Pahami codenya
             1.2: Bulk insert teacher | NOTES: Pahami codenya
-        2. Forget Password route
+        2. Forgot Password route
         3. Reset Password route
         4. Make teaching assignment validation ✔
         5. If something went wrong, cut off the proses immediately ✔
@@ -24,3 +24,6 @@ Goal: Make a full authentication feature
 
 # End, 13-20/12/25 #
 =====================================
+
+// Checking harus di BE dan FE
+kalau teachingclass di isi, berarti teaching assignment harus di isi dan sebaliknya

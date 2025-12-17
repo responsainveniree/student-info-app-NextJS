@@ -1,243 +1,208 @@
-// app/api/auth/bulk-create-teachers/route.ts
 import { badRequest, handleError } from "@/lib/errors";
 import { prisma } from "@/prisma/prisma";
 import hashing from "@/lib/utils/hashing";
+import { zodTeacherSignUp, TeacherSignUpInput } from "@/lib/utils/zodSchema";
 import { subjects as subjectsData } from "@/lib/utils/subjects";
-import * as XLSX from "xlsx";
-
-interface TeacherRow {
-  username: string;
-  email: string;
-  password: string;
-  homeroomGrade?: string;
-  homeroomMajor?: string;
-  homeroomClassNumber?: string;
-  teachingSubjects?: string; // Comma-separated: "math:tenth:accounting:1,english:eleventh:softwareEngineering:2"
-  teachingClasses?: string; // Comma-separated: "tenth:accounting:1,eleventh:softwareEngineering:2"
-}
-
-type Grade = keyof typeof subjectsData;
-
-type Major = keyof (typeof subjectsData)[Grade]["major"];
 
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const data: TeacherSignUpInput = await req.json();
 
-    if (!file) {
-      throw badRequest("No file uploaded");
+    zodTeacherSignUp.parse(data);
+
+    if (data.password !== data.confirmPassword) {
+      throw badRequest("Password and confirm password must be the same");
     }
 
-    // Read Excel file
-    const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer);
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(worksheet) as TeacherRow[];
+    const existingTeacher = await prisma.teacher.findUnique({
+      where: { email: data.email },
+    });
 
-    if (data.length === 0) {
-      throw badRequest("Excel file is empty");
+    if (existingTeacher) {
+      throw badRequest("Email already registered");
     }
 
-    const results = {
-      success: 0,
-      failed: 0,
-      errors: [] as Array<{ row: number; email: string; error: string }>,
-    };
+    const hashedPassword = await hashing(data.password);
 
-    // Process each teacher
-    for (let i = 0; i < data.length; i++) {
-      const row = data[i];
-      const rowNumber = i + 2;
+    await prisma.$transaction(async (tx) => {
+      // create teacher account
+      const teacher = await tx.teacher.create({
+        data: {
+          role: "teacher",
+          name: data.username,
+          email: data.email,
+          password: hashedPassword,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true,
+        },
+      });
 
-      try {
-        // Validate required fields
-        if (!row.username || !row.email || !row.password) {
-          throw new Error("Missing required fields");
-        }
-
-        await prisma.$transaction(async (tx) => {
-          // Check if teacher already exists
-          const existingTeacher = await tx.teacher.findUnique({
-            where: { email: row.email },
-          });
-
-          if (existingTeacher) {
-            throw new Error("Email already registered");
-          }
-
-          // Hash password
-          const hashedPassword = await hashing(row.password);
-
-          // Create teacher
-          const teacher = await tx.teacher.create({
-            data: {
-              role: "teacher",
-              name: row.username,
-              email: row.email,
-              password: hashedPassword,
-            },
-            select: {
-              id: true,
-            },
-          });
-
-          // Handle Homeroom Class
-          if (row.homeroomGrade && row.homeroomMajor) {
-            const existingHomeroomClass = await tx.homeroomClass.findFirst({
-              where: {
-                grade: row.homeroomGrade as any,
-                major: row.homeroomMajor as any,
-                classNumber: row.homeroomClassNumber || null,
-              },
-            });
-
-            if (existingHomeroomClass) {
-              throw new Error("Homeroom class already has a teacher");
-            }
-
-            await tx.homeroomClass.create({
-              data: {
-                grade: row.homeroomGrade as any,
-                major: row.homeroomMajor as any,
-                classNumber: row.homeroomClassNumber || null,
-                teacherId: teacher.id,
-              },
-            });
-          }
-
-          // Handle Teaching Classes
-          if (row.teachingClasses) {
-            const classesArray = row.teachingClasses
-              .split(",")
-              .map((c) => c.trim());
-            const teachingClasses = await Promise.all(
-              classesArray.map(async (classStr) => {
-                const [grade, major, classNumber] = classStr.split(":");
-                return await tx.teachingClass.upsert({
-                  where: {
-                    grade_major_classNumber: {
-                      grade: grade as any,
-                      major: major as any,
-                      classNumber: classNumber,
-                    },
-                  },
-                  update: {},
-                  create: {
-                    grade: grade as any,
-                    major: major as any,
-                    classNumber: classNumber,
-                  },
-                });
-              })
-            );
-
-            await tx.teacher.update({
-              where: { id: teacher.id },
-              data: {
-                teachingClasses: {
-                  connect: teachingClasses.map((tc) => ({ id: tc.id })),
-                },
-              },
-            });
-          }
-
-          // Handle Teaching Assignments
-          if (row.teachingSubjects) {
-            const subjectsArray = row.teachingSubjects
-              .split(",")
-              .map((s) => s.trim());
-            const subjects = await Promise.all(
-              subjectsArray.map(async (subjectStr) => {
-                const [subjectName] = subjectStr.split(":");
-                return await tx.subject.upsert({
-                  where: { subjectName },
-                  update: {},
-                  create: { subjectName },
-                });
-              })
-            );
-
-            const teachingAssignments = await Promise.all(
-              subjectsArray.map(async (subjectStr, idx) => {
-                const [subjectName, gradeRaw, majorRaw, classNumber] =
-                  subjectStr.split(":");
-
-                if (
-                  !gradeRaw ||
-                  !majorRaw ||
-                  !(gradeRaw in subjectsData) ||
-                  !(majorRaw in subjectsData[gradeRaw as Grade].major)
-                ) {
-                  throw new Error(
-                    `Invalid grade or major: ${gradeRaw}-${majorRaw}`
-                  );
-                }
-
-                const grade = gradeRaw as Grade;
-                const major = majorRaw as Major;
-
-                const allowedSubjects = subjectsData[grade].major[major];
-
-                if (!allowedSubjects.includes(subjectName)) {
-                  throw new Error(
-                    `${subjectName} not allowed for ${grade}-${major}`
-                  );
-                }
-
-                return await tx.teachingAssignment.upsert({
-                  where: {
-                    teacherId_subjectId_grade_major_classNumber: {
-                      teacherId: teacher.id,
-                      subjectId: subjects[idx].id,
-                      grade: grade as any,
-                      major: major as any,
-                      classNumber: classNumber,
-                    },
-                  },
-                  update: {},
-                  create: {
-                    teacherId: teacher.id,
-                    subjectId: subjects[idx].id,
-                    grade: grade as any,
-                    major: major as any,
-                    classNumber: classNumber,
-                  },
-                });
-              })
-            );
-
-            await tx.teacher.update({
-              where: { id: teacher.id },
-              data: {
-                teachingAssignments: {
-                  connect: teachingAssignments.map((ta) => ({ id: ta.id })),
-                },
-              },
-            });
-          }
+      // Handle homeroom class
+      if (data.homeroomClass?.grade && data.homeroomClass.major) {
+        const existingHomeroomClass = await tx.homeroomClass.findFirst({
+          where: {
+            grade: data.homeroomClass.grade,
+            major: data.homeroomClass.major,
+            classNumber: data.homeroomClass.classNumber,
+          },
         });
 
-        results.success++;
-      } catch (error: any) {
-        results.failed++;
-        results.errors.push({
-          row: rowNumber,
-          email: row.email || "N/A",
-          error: error.message || "Unknown error",
+        if (existingHomeroomClass) {
+          throw badRequest(
+            `There is already a homeroom teacher in ${
+              data.homeroomClass.grade === "twelfth"
+                ? "12"
+                : data.homeroomClass.grade === "eleventh"
+                ? "11"
+                : "10"
+            }-${
+              data.homeroomClass.major === "softwareEngineering"
+                ? "Software Engineering"
+                : "Accounting"
+            } ${
+              data.homeroomClass.classNumber === "none"
+                ? ""
+                : data.homeroomClass.classNumber
+            }`
+          );
+        }
+        await tx.homeroomClass.create({
+          data: {
+            grade: data.homeroomClass.grade,
+            major: data.homeroomClass.major,
+            classNumber: data.homeroomClass.classNumber,
+
+            teacherId: teacher.id,
+          },
         });
       }
-    }
+
+      // Handle teaching classes
+      if (
+        Array.isArray(data.teachingClasses) &&
+        data.teachingClasses.length > 0
+      ) {
+        const teachingClasses = await Promise.all(
+          data.teachingClasses.map(async (teachingClass) => {
+            return await tx.teachingClass.upsert({
+              where: {
+                grade_major_classNumber: {
+                  grade: teachingClass.grade,
+                  major: teachingClass.major,
+                  classNumber: teachingClass.classNumber as string,
+                },
+              },
+              update: {},
+              create: {
+                grade: teachingClass.grade,
+                major: teachingClass.major,
+                classNumber: teachingClass.classNumber,
+              },
+            });
+          })
+        );
+
+        await tx.teacher.update({
+          where: { id: teacher.id },
+          data: {
+            teachingClasses: {
+              connect: teachingClasses.map((teachingClass) => ({
+                id: teachingClass.id,
+              })),
+            },
+          },
+        });
+      }
+
+      // Handle Teaching Assignments
+      if (
+        Array.isArray(data.teachingAssignment) &&
+        data.teachingAssignment.length > 0
+      ) {
+        // First, get or create all subjects
+        const subjects = await Promise.all(
+          data.teachingAssignment.map(async (assignment) => {
+            return await tx.subject.upsert({
+              where: {
+                subjectName: assignment.subjectName,
+              },
+              update: {},
+              create: { subjectName: assignment.subjectName },
+            });
+          })
+        );
+
+        // Create teaching assignments with correct data
+        const teachingAssignments = await Promise.all(
+          data.teachingAssignment.map(async (assignment, i) => {
+            return await tx.teachingAssignment.upsert({
+              where: {
+                teacherId_subjectId_grade_major_classNumber: {
+                  teacherId: teacher.id,
+                  subjectId: subjects[i].id,
+                  grade: assignment.grade,
+                  major: assignment.major,
+                  classNumber: assignment.classNumber as string,
+                },
+              },
+              update: {},
+              create: {
+                teacherId: teacher.id,
+                subjectId: subjects[i].id,
+                grade: assignment.grade,
+                major: assignment.major,
+                classNumber: assignment.classNumber,
+              },
+            });
+          })
+        );
+
+        for (const assignment of data.teachingAssignment) {
+          const allowedSubjects =
+            subjectsData[assignment.grade].major[assignment.major];
+
+          if (!allowedSubjects.includes(assignment.subjectName)) {
+            throw badRequest(
+              `Class ${
+                assignment.grade === "twelfth"
+                  ? "12"
+                  : assignment.grade === "eleventh"
+                  ? "11"
+                  : "10"
+              }-${
+                assignment.major === "accounting"
+                  ? "Accounting"
+                  : "Software Engineer"
+              } does not have ${assignment.subjectName}`
+            );
+          }
+        }
+
+        await tx.teacher.update({
+          where: { id: teacher.id },
+          data: {
+            teachingAssignments: {
+              connect: teachingAssignments.map((assignment) => ({
+                id: assignment.id,
+              })),
+            },
+          },
+        });
+      }
+    });
 
     return Response.json(
       {
-        message: `Bulk import completed. Success: ${results.success}, Failed: ${results.failed}`,
-        results,
+        message: "Successfully create teacher account",
       },
-      { status: 200 }
+      { status: 201 }
     );
   } catch (error) {
-    console.error("❌ Error bulk creating teachers:", error);
+    console.error("❌ Error creating teacher:", error);
     return handleError(error);
   }
 }
