@@ -81,11 +81,49 @@ export async function POST(req: Request) {
         });
       }
 
-      // Handle teaching classes
       if (
         Array.isArray(data.teachingClasses) &&
-        data.teachingClasses.length > 0
+        data.teachingClasses.length > 0 &&
+        Array.isArray(data.teachingAssignment) &&
+        data.teachingAssignment.length > 0
       ) {
+        const subjectAvailable = data.teachingClasses.flatMap((tc) => {
+          return subjectsData[tc.grade].major[tc.major];
+        });
+
+        for (const [
+          i,
+          teachingAssignment,
+        ] of data.teachingAssignment.entries()) {
+          // Validation for checking the correlation between the class who get teach and teacher teaching assignment subject
+          if (!subjectAvailable.includes(teachingAssignment.subjectName)) {
+            throw badRequest(
+              `Miss match! This teacher teach ${
+                data.teachingClasses[i].grade === "twelfth"
+                  ? "12"
+                  : data.teachingClasses[i].grade === "eleventh"
+                  ? "11"
+                  : "10"
+              }-${
+                data.teachingClasses[i].major === "accounting"
+                  ? "Accounting"
+                  : "Software Engineering"
+              } and it doesn't have ${
+                teachingAssignment.subjectName
+              }, please check your Teaching Classes or Teaching Assignment`
+            );
+          }
+        }
+
+        data.teachingClasses.some((tc, i) => {
+          tc.grade === data.teachingAssignment![i].grade ||
+            tc.major === data.teachingAssignment![i].major ||
+            tc.classNumber === data.teachingAssignment![i].classNumber;
+        });
+
+        console.log(data.teachingClasses);
+
+        // Handle teaching classes
         const teachingClasses = await Promise.all(
           data.teachingClasses.map(async (teachingClass) => {
             return await tx.teachingClass.upsert({
@@ -116,13 +154,9 @@ export async function POST(req: Request) {
             },
           },
         });
-      }
 
-      // Handle Teaching Assignments
-      if (
-        Array.isArray(data.teachingAssignment) &&
-        data.teachingAssignment.length > 0
-      ) {
+        // Handle Teaching Assignments
+
         // First, get or create all subjects
         const subjects = await Promise.all(
           data.teachingAssignment.map(async (assignment) => {

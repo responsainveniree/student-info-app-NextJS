@@ -228,9 +228,9 @@ const CreateTeacherAccount = () => {
       const res = await axios.post("/api/auth/create-teacher-account", payload);
       if (res.status === 201) {
         toast.success("Teacher account created successfully!");
-        setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 3000);
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "An error occurred, try again");
@@ -662,8 +662,8 @@ const CreateTeacherAccount = () => {
 
               {/* Teaching Classes */}
               <div className="border-t-2 border-gray-200 pt-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="mb-4">
                     <h3 className="text-xl font-bold text-gray-800">
                       Teaching Classes (Optional)
                     </h3>
@@ -675,7 +675,7 @@ const CreateTeacherAccount = () => {
                     type="button"
                     onClick={addTeachingClass}
                     disabled={loading}
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                    className="min-w-[150px] max-w-[180px] bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Class
@@ -775,12 +775,12 @@ const CreateTeacherAccount = () => {
 
               {/* Teaching Assignments */}
               <div className="border-t-2 border-gray-200 pt-8">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">
                       Teaching Assignments (Optional)
                     </h3>
-                    <p className="text-gray-600 text-sm mt-1">
+                    <p className="text-gray-600 text-sm mt-1 mb-4">
                       Subject and class combinations you teach
                     </p>
                   </div>
@@ -788,7 +788,7 @@ const CreateTeacherAccount = () => {
                     type="button"
                     onClick={addTeachingAssignment}
                     disabled={loading}
-                    className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                    className="min-w-[150px] max-w-[180px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Assignment
@@ -924,6 +924,13 @@ const CreateTeacherAccount = () => {
                       </div>
                     </div>
                   ))}
+
+                  {teachingAssignments.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      No teaching Assignments added yet. Click "Add teaching
+                      Assignment" to add one.
+                    </div>
+                  )}
                 </div>
               </div>
 

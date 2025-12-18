@@ -26,4 +26,4 @@ Goal: Make a full authentication feature
 =====================================
 
 // Checking harus di BE dan FE
-kalau teachingclass di isi, berarti teaching assignment harus di isi dan sebaliknya
+kalau teachingclass di isi, berarti teaching assignment harus di isi dan sebaliknya | NOTES: tinggal validasi teaching class sama teaching class yang ada di teaching assignment aja

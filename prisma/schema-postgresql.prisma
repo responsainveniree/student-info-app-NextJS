@@ -152,7 +152,7 @@ model ProblemPoint {
 
 model Teacher {
     id       String @id @default(cuid())
-    name     String @unique
+    name     String 
     email    String @unique
     password String
 
