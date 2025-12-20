@@ -87,66 +87,51 @@ export async function POST(req: Request) {
         Array.isArray(data.teachingAssignment) &&
         data.teachingAssignment.length > 0
       ) {
-        const subjectAvailable = data.teachingClasses.flatMap((tc) => {
-          return subjectsData[tc.grade].major[tc.major];
-        });
+        // VALIDATION 1: Check if every teaching assignment matches one of the teaching classes
+        for (const ta of data.teachingAssignment) {
+          const matchingClass = data.teachingClasses.find(
+            (tc) =>
+              tc.grade === ta.grade &&
+              tc.major === ta.major &&
+              tc.classNumber === ta.classNumber
+          );
 
-        for (const teachingAssignment of data.teachingAssignment) {
-          // Validation for checking the correlation between the class who get teach and teacher teaching assignment subject
-          if (!subjectAvailable.includes(teachingAssignment.subjectName)) {
-            console.log(teachingAssignment.grade);
+          if (!matchingClass) {
+            const gradeLabel =
+              ta.grade === "tenth"
+                ? "10"
+                : ta.grade === "eleventh"
+                ? "11"
+                : "12";
+            const majorLabel =
+              ta.major === "accounting" ? "Accounting" : "Software Engineering";
+            const classLabel = ta.classNumber === "none" ? "" : ta.classNumber;
+
             throw badRequest(
-              `Miss match! This teacher teaches ${data.teachingClasses.map(
-                (tc) =>
-                  ` ${
-                    tc.grade == "tenth"
-                      ? "10"
-                      : tc.grade == "eleventh"
-                      ? "11"
-                      : "12"
-                  }-${
-                    tc.major == "accounting"
-                      ? "Accounting"
-                      : "Software Engineering"
-                  } ${tc.classNumber == "none" ? "" : tc.classNumber}`
-              )} and it doesn't have ${
-                teachingAssignment.subjectName
-              }, please check your Teaching Classes or Teaching Assignment`
+              `Teaching Assignment mismatch! You have an assignment for ${gradeLabel}-${majorLabel} ${classLabel}, but this class is not in your Teaching Classes list. Please add it to Teaching Classes first.`
             );
           }
         }
 
-        // Validation for checking are teaching assignments having the same value with teaching classes
-        // ta = teachingAssignment(s)
-        // tc = teachingClass(es)
-        let isTaAndTcMatch: boolean = false;
-        data.teachingClasses.forEach((tc, i) => {
-          let result: boolean = false;
-          data.teachingAssignment?.every((ta) => {
-            if (
-              tc.classNumber === ta.classNumber &&
-              tc.grade === ta.grade &&
-              tc.major === ta.major
-            ) {
-              result = true;
-              return true;
-            } else {
-              result = false;
-              return false;
-            }
-          });
+        // VALIDATION 2: Check if the subject is valid for that specific class
+        for (const ta of data.teachingAssignment) {
+          const allowedSubjects = subjectsData[ta.grade].major[ta.major];
 
-          if (i === 0) {
-            isTaAndTcMatch = result;
-          } else {
-            isTaAndTcMatch = isTaAndTcMatch && result;
+          if (!allowedSubjects.includes(ta.subjectName)) {
+            const gradeLabel =
+              ta.grade === "tenth"
+                ? "10"
+                : ta.grade === "eleventh"
+                ? "11"
+                : "12";
+            const majorLabel =
+              ta.major === "accounting" ? "Accounting" : "Software Engineering";
+            const classLabel = ta.classNumber === "none" ? "" : ta.classNumber;
+
+            throw badRequest(
+              `Subject mismatch! The subject "${ta.subjectName}" is not available for ${gradeLabel}-${majorLabel} ${classLabel}. Please check the curriculum.`
+            );
           }
-        });
-
-        if (!isTaAndTcMatch) {
-          throw badRequest(
-            "Miss match! Please check your teaching classes and teaching assignments. You're teaching in the wrong class(es)!"
-          );
         }
 
         // Handle teaching classes
@@ -182,8 +167,6 @@ export async function POST(req: Request) {
         });
 
         // Handle Teaching Assignments
-
-        // First, get or create all subjects
         const subjects = await Promise.all(
           data.teachingAssignment.map(async (assignment) => {
             return await tx.subject.upsert({
@@ -196,7 +179,6 @@ export async function POST(req: Request) {
           })
         );
 
-        // Create teaching assignments with correct data
         const teachingAssignments = await Promise.all(
           data.teachingAssignment.map(async (assignment, i) => {
             return await tx.teachingAssignment.upsert({
@@ -221,27 +203,6 @@ export async function POST(req: Request) {
           })
         );
 
-        for (const assignment of data.teachingAssignment) {
-          const allowedSubjects =
-            subjectsData[assignment.grade].major[assignment.major];
-
-          if (!allowedSubjects.includes(assignment.subjectName)) {
-            throw badRequest(
-              `Class ${
-                assignment.grade === "twelfth"
-                  ? "12"
-                  : assignment.grade === "eleventh"
-                  ? "11"
-                  : "10"
-              }-${
-                assignment.major === "accounting"
-                  ? "Accounting"
-                  : "Software Engineer"
-              } does not have ${assignment.subjectName}`
-            );
-          }
-        }
-
         await tx.teacher.update({
           where: { id: teacher.id },
           data: {
@@ -257,7 +218,7 @@ export async function POST(req: Request) {
 
     return Response.json(
       {
-        message: "Successfully create teacher account",
+        message: "Successfully created teacher account",
       },
       { status: 201 }
     );
