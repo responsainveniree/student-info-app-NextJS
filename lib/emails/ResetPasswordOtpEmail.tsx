@@ -5,6 +5,7 @@ import {
   Container,
   Section,
   Text,
+  Link,
 } from "@react-email/components";
 
 type ResetPasswordOtpEmailProps = {
@@ -13,6 +14,7 @@ type ResetPasswordOtpEmailProps = {
   userEmail: string;
   otpCode: string;
   currentYear: number;
+  currentTime: Date;
 };
 
 export default function ResetPasswordOtpEmail({
@@ -21,6 +23,7 @@ export default function ResetPasswordOtpEmail({
   userEmail,
   otpCode,
   currentYear,
+  currentTime,
 }: ResetPasswordOtpEmailProps) {
   return (
     <Html lang="en">
@@ -54,6 +57,19 @@ export default function ResetPasswordOtpEmail({
               <Text style={styles.otpValidity}>Valid for 15 minutes</Text>
             </Section>
 
+            <Section style={styles.resetLinkBox}>
+              <Text style={styles.resetText}>
+                Click the button below to reset your password directly:
+              </Text>
+
+              <Link
+                href={`http://localhost:3000/reset-password?token=${otpCode}`}
+                style={styles.resetButton}
+              >
+                Reset Password
+              </Link>
+            </Section>
+
             {/* Warning */}
             <Section style={styles.warningBox}>
               <Text style={styles.warningText}>
@@ -82,6 +98,7 @@ export default function ResetPasswordOtpEmail({
             <Text style={styles.footerText}>
               This is an automated email. Please do not reply.
             </Text>
+            <Text>{currentTime.toLocaleString()}</Text>
           </Section>
         </Container>
       </Body>
@@ -96,6 +113,28 @@ const styles = {
       "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
     padding: "20px",
   },
+  resetLinkBox: {
+    textAlign: "center" as const,
+    margin: "30px 0",
+  },
+
+  resetText: {
+    fontSize: "14px",
+    color: "#4B5563",
+    marginBottom: "15px",
+  },
+
+  resetButton: {
+    display: "inline-block",
+    backgroundColor: "#1E3A8A",
+    color: "#FFFFFF",
+    padding: "12px 24px",
+    borderRadius: "6px",
+    textDecoration: "none",
+    fontWeight: "600",
+    fontSize: "14px",
+  },
+
   container: {
     maxWidth: "600px",
     backgroundColor: "#FFFFFF",

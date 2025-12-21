@@ -6,8 +6,8 @@ Goal: Make a full authentication feature
         1. Bulk insert route ✔
             1.1: Bulk insert student | NOTES: Pahami codenya 
             1.2: Bulk insert teacher | NOTES: Pahami codenya dan juga kayaknya butuh validasi tambahan kayak di create-teacher-account dengan cara manual
-        2. Forgot Password route | NOTES: Belum selesai masih error, kayak nya di bagian redisnya
-        3. Reset Password route
+        2. Forgot Password route ✔
+        3. Reset Password route ✔
         4. Make teaching assignment validation ✔
         5. If something went wrong, cut off the proses immediately ✔
 # End, 13-20/12/25 #
@@ -18,8 +18,8 @@ Type: Frontend
 Goal: Make a full authentication feature
         1. implement toast for every event ✔ NOTES: Just make sure every action have a toast message
         2. Create Teacher Account Page ✔ NOTES: Review the code you modified.
-        3. Create forgot password Page
-        4. Create Reset Password page
+        3. Create forgot password Page ✔
+        4. Create Reset Password page ✔
         5. Create Category list in teaching assignment, let's say General: Math, PE, etc | Software Engineering: DB, Web, etc | Accounting: PAL, Accounting Principal ✔ 
 
 # End, 13-20/12/25 #

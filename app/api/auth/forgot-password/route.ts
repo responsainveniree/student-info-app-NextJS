@@ -67,6 +67,7 @@ export async function POST(req: Request) {
         userEmail: user.email,
         otpCode: otp,
         currentYear: new Date().getFullYear(),
+        currentTime: new Date(),
       })
     );
 
