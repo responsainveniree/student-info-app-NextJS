@@ -17,6 +17,7 @@ enum StaffRole {
 
 enum StudentRole {
     student
+    classSecretary
 }
 
 enum Grade {
@@ -68,11 +69,11 @@ model Student {
     sessions      StudentSession[]
     role          StudentRole      @default(student)
 
-    grade           Grade
-    major           Major
-    classNumber     String
-    teacherId       String
-    homeroomTeacher Teacher @relation(fields: [teacherId], references: [id])
+    grade             Grade
+    major             Major
+    classNumber       String
+    homeroomTeacherId String
+    homeroomTeacher   Teacher @relation(fields: [homeroomTeacherId], references: [id])
 
     studentSubjects Subject[]           @relation("SubjectStudents")
     subjectMarks    SubjectMark[]

@@ -2,6 +2,7 @@ import { string, z } from "zod";
 
 const GradeEnum = z.enum(["tenth", "eleventh", "twelfth"]);
 const MajorEnum = z.enum(["accounting", "softwareEngineering"]);
+const StudentRoleEnum = z.enum(["student", "classSecretary"]);
 
 // Schema for frontend data (what we send from CreateTeacherAccount)
 const TeachingAssignmentInput = z.object({
@@ -29,6 +30,7 @@ const zodStudentSignUp = z.object({
   grade: GradeEnum,
   major: MajorEnum,
   classNumber: z.string({ message: "Must be filled" }),
+  role: StudentRoleEnum,
 });
 
 const zodTeacherSignUp = z.object({

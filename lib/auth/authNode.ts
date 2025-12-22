@@ -28,11 +28,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         user = await prisma.student.findUnique({
           where: { email },
+          select: {
+            email: true,
+            name: true,
+            role: true,
+            homeroomTeacherId: true,
+            password: true,
+          },
         });
 
         if (!user) {
           user = await prisma.teacher.findUnique({
             where: { email },
+            select: {
+              email: true,
+              name: true,
+              role: true,
+              password: true,
+            },
           });
         }
 
@@ -51,6 +64,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
+          homeroomTeacherId:
+            user.role == "student" || user.role == "classSecretary"
+              ? user.homeroomTeacherId
+              : null,
         };
       },
     }),
@@ -60,13 +77,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
+
+        if (user.role === "student" || user.role === "classSecretary") {
+          token.homeroomTeacherId = user.homeroomTeacherId;
+        }
       }
+
       return token;
     },
     // Callback Session - menambahkan role ke session
     async session({ session, token }) {
       if (token) {
         session.user.role = token.role as string;
+      }
+      if (
+        session.user.role === "student" ||
+        session.user.role === "classSecretary"
+      ) {
+        session.user.homeroomTeacherId = token.homeroomTeacherId as string;
       }
       return session;
     },

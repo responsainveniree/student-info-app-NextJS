@@ -48,7 +48,8 @@ export async function POST(req: Request) {
           major: data.major,
           classNumber: data.classNumber,
           isVerified: true,
-          teacherId: homeroomClass?.teacherId as string,
+          homeroomTeacherId: homeroomClass?.teacherId as string,
+          role: data.role,
         },
         select: {
           id: true,

@@ -19,6 +19,7 @@ import { Eye, EyeOff } from "lucide-react";
 const grades = ["tenth", "eleventh", "twelfth"];
 const majors = ["softwareEngineering", "accounting"];
 const classNumbers = [1, 2];
+const studentRoles = ["student", "classSecretary"];
 
 const CreateStudentAccount = () => {
   const [error, setError] = useState("");
@@ -32,6 +33,7 @@ const CreateStudentAccount = () => {
     grade: "",
     major: "",
     classNumber: "",
+    role: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -107,7 +109,7 @@ const CreateStudentAccount = () => {
     try {
       const res = await axios.post("/api/auth/create-student-account", data);
       if (res.status === 201) {
-        toast.success("Student has been created.");
+        toast.success("Student account created successfully.");
 
         setTimeout(() => {
           window.location.reload();
@@ -121,6 +123,11 @@ const CreateStudentAccount = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const roleLabels: Record<string, string> = {
+    student: "Student",
+    classSecretary: "Class Secretary",
   };
 
   const gradeLabels: Record<string, string> = {
@@ -357,7 +364,29 @@ const CreateStudentAccount = () => {
                 </Select>
               </div>
 
-              <div></div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Role
+                  <span className="ml-2 text-red-500">*</span>
+                </label>
+                <Select
+                  onValueChange={(v: any) => setData({ ...data, role: v })}
+                  disabled={loading}
+                  required
+                >
+                  <SelectTrigger className="h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                    <SelectValue placeholder="Select class number" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {studentRoles.map((role) => (
+                      <SelectItem key={role} value={String(role)}>
+                        {roleLabels[role]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center">
