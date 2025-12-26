@@ -16,37 +16,48 @@ interface DashboardProps {
   session: Session;
 }
 
-type AttendanceStats = { type: string; _count: number };
+type AttendanceStats = { type: string; date: number | Date };
 
 const StudentDashboard = ({ session }: DashboardProps) => {
   // Fetch Attendance Stats
   const [attendanceStats, setAttendanceStats] = useState({
-    sick: 0,
-    permission: 0,
-    alpha: 0,
+    sick: [],
+    permission: [],
+    alpha: [],
   });
 
+  console.log(attendanceStats);
+
   const chartData = [
-    { name: "Sick", value: attendanceStats.sick, color: "#FBBF24" },
-    { name: "Permission", value: attendanceStats.permission, color: "#3B82F6" },
-    { name: "Alpha", value: attendanceStats.alpha, color: "#DC2626" },
+    { name: "Sick", value: attendanceStats.sick.length, color: "#FBBF24" },
+    {
+      name: "Permission",
+      value: attendanceStats.permission.length,
+      color: "#3B82F6",
+    },
+    { name: "Alpha", value: attendanceStats.alpha.length, color: "#DC2626" },
   ];
 
   const totalAbsence =
-    attendanceStats.sick + attendanceStats.permission + attendanceStats.alpha;
+    attendanceStats.sick.length +
+    attendanceStats.permission.length +
+    attendanceStats.alpha.length;
 
   useEffect(() => {
     try {
       const fetchData = async () => {
         const res = await axios.get(
-          `api/student-attendance/get-student-attendance-data?studentId=${session.id}`
+          `api/student-attendance/student-attendance-data?studentId=${session.id}`
         );
 
         if (res.status === 200) {
           res.data.data.forEach((stat: AttendanceStats) => {
             setAttendanceStats((prev) => ({
               ...prev,
-              [stat.type]: stat._count,
+              [stat.type]: [
+                ...(prev[stat.type as keyof typeof prev] || []),
+                stat,
+              ],
             }));
           });
         }
@@ -164,16 +175,93 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           </div>
         </div>
 
-        {/* Recent Activities */}
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
-            Attendance Information
-          </h3>
-          <div className="space-y-4">
-            <p className="text-gray-500 text-sm italic">
-              No recent activities.
-            </p>
-          </div>
+        {/* Attendance Information */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold mb-4">Attendance Information</h2>
+          {totalAbsence === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No absence records found</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Sick */}
+              {attendanceStats.sick.length > 0 && (
+                <div className="border-l-4 border-yellow-500 bg-yellow-50 p-3 rounded">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <h3 className="font-semibold text-yellow-800">
+                      Sick ({attendanceStats.sick.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-1 ml-4">
+                    {attendanceStats.sick.map((stat: { date: Date }, index) => (
+                      <div key={index} className="text-sm text-yellow-700">
+                        {new Date(stat.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Permission */}
+              {attendanceStats.permission.length > 0 && (
+                <div className="border-l-4 border-blue-500 bg-blue-50 p-3 rounded">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <h3 className="font-semibold text-blue-800">
+                      Permission ({attendanceStats.permission.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-1 ml-4">
+                    {attendanceStats.permission.map(
+                      (stat: { date: Date }, index) => (
+                        <div key={index} className="text-sm text-blue-700">
+                          {new Date(stat.date).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Alpha */}
+              {attendanceStats.alpha.length > 0 && (
+                <div className="border-l-4 border-red-500 bg-red-50 p-3 rounded">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <h3 className="font-semibold text-red-800">
+                      Alpha/Unexcused ({attendanceStats.alpha.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-1 ml-4">
+                    {attendanceStats.alpha.map(
+                      (stat: { date: Date }, index) => (
+                        <div key={index} className="text-sm text-red-700">
+                          {new Date(stat.date).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -5,9 +5,16 @@ import { redirect } from "next/navigation";
 const Page = async () => {
   const session = await auth();
 
-  if (!session) redirect("/sign-in");
+  if (!session) return redirect("/sign-in");
 
-  console.log(session);
+  switch (session.user.role) {
+    case "student":
+      return redirect("/student-dashboard");
+    case "classSecretary":
+      return redirect("/student-dashboard");
+    case "teacher":
+      return redirect("/teacher-dashboard");
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden">

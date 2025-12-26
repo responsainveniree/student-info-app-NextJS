@@ -16,7 +16,6 @@ Goal: Make a full authentication feature
 Goal: Make a full attendance feature
         1. Make a attendance route
             1.1: Make a attendance route for student ✔ | NOTES: review the code I modified 
-                Updated (25/12/25): aku udah ubah beberapa hal seperti di studentdashboard yang awalnya server component dan fetch db jadinya aku ubah menjadi client component dan buat api baru (api/student-attendance/get-student-attendance-data), tapi attendance manager belum aku pahami samsek, sama kayak untuk present nanti mau ubah jadi nanti bakal di hitung dulu alpha, sick, permission dulu, baru nanti total student di kurang total alpha, sick, permission lalu hasil akhir dijadikan present
             1.2: Give every route an documentation    
 # Start, 22-25/12/25 #
 ====================================
@@ -30,9 +29,16 @@ Goal: Make a full authentication feature
         5. Create Category list in teaching assignment, let's say General: Math, PE, etc | Software Engineering: DB, Web, etc | Accounting: PAL, Accounting Principal ✔ 
 # End, 13-20/12/25 #
 
-# Start, 22-25/12/25 #
+# Start, 22-28/12/25 #
 Goal: Make a full attendance feature
         1. Make a attendance UI
-            1.1: Make a attendance UI for student ✔ | NOTES: Review the code I modified
+            1.1: Make a attendance UI for student ✔ | NOTES: Review the code I modified, Updated (25/12/25): belum aku sentuh sepenuhnya, 
+            1.1.a: atur ukuran tombol, ubah posisi attendance type jadi grid 2x2✔
+            1.1.b: untuk present nanti mau ubah jadi nanti bakal di hitung dulu alpha, sick, permission dulu, baru nanti total student di kurang total alpha, sick, permission lalu hasil akhir dijadikan present ✔
+            1.2: Pelajari useSession ✔ | NOTES: I deleted it. I choose full auth.js
+        2. I need to make layout guard in every group files. Also I need to re-consider about my role checking system, if in the future I need to add some more role it would be time wasting to adding it one by one
+        3. Make a skeleton loading
+        4. Provide attendance information so users can see when they were absent. ✔
+
 # Start, 22-25/12/25 #
 =====================================

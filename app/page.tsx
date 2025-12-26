@@ -6,28 +6,22 @@ import { redirect } from "next/navigation";
 const page = async () => {
   const session = await auth();
 
-  if (!session) redirect("/sign-in");
+  if (!session) return redirect("/sign-in");
 
-  if (session.user.role === "student") {
-    redirect("/student-dashboard");
+  switch (session.user.role) {
+    case "student":
+      return redirect("/student-dashboard");
+    case "classSecretary":
+      return redirect("/student-dashboard");
+    case "teacher":
+      return redirect("/teacher-dashboard");
+    case "vicePrincipal":
+      return redirect("/staff-dashboard");
+    case "principal":
+      return redirect("/staff-dashboard");
   }
 
-  if (session.user.role === "classSecretary") {
-    redirect("/student-dashboard");
-  }
-
-  if (session.user.role === "teacher") {
-    redirect("/teacher-dashboard");
-  }
-
-  if (
-    session.user.role === "vicePrincipal" ||
-    session.user.role === "principal"
-  ) {
-    redirect("/staff-dashboard");
-  }
-
-  return <div>hi</div>;
+  return <div></div>;
 };
 
 export default page;

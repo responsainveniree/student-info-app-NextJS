@@ -1,5 +1,4 @@
-import { deepStrictEqual } from "assert";
-import { string, z } from "zod";
+import { z } from "zod";
 
 const GradeEnum = z.enum(["tenth", "eleventh", "twelfth"]);
 const MajorEnum = z.enum(["accounting", "softwareEngineering"]);

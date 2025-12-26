@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
@@ -30,8 +29,20 @@ interface AttendanceStats {
   alpha: number;
 }
 
-export function AttendanceManager() {
-  const { data: session, status } = useSession();
+type Session = {
+  id: string;
+  name: string;
+  role: string;
+  homeroomTeacherId: string | null;
+};
+
+interface AttendanceManagerProps {
+  session: Session;
+}
+
+import React from "react";
+
+const AttendanceManager = ({ session }: AttendanceManagerProps) => {
   const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,43 +60,50 @@ export function AttendanceManager() {
   const isValidDate = !isFutureDate;
 
   // Calculate statistics
-  const stats: AttendanceStats = {
-    total: students.length,
-    present: Object.values(attendanceMap).filter((r) => r.type === "present")
-      .length,
-    sick: Object.values(attendanceMap).filter((r) => r.type === "sick").length,
-    permission: Object.values(attendanceMap).filter(
-      (r) => r.type === "permission"
-    ).length,
-    alpha: Object.values(attendanceMap).filter((r) => r.type === "alpha")
-      .length,
-  };
+  const stats = useMemo<AttendanceStats>(() => {
+    const records = Object.values(attendanceMap);
+
+    let sick = 0;
+    let permission = 0;
+    let alpha = 0;
+
+    for (const r of records) {
+      if (r.type === "sick") sick++;
+      else if (r.type === "permission") permission++;
+      else if (r.type === "alpha") alpha++;
+    }
+
+    return {
+      total: students.length,
+      sick,
+      permission,
+      alpha,
+      present: students.length - (sick + permission + alpha),
+    };
+  }, [students, attendanceMap]);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/sign-in");
+    if (session?.role !== "classSecretary") {
+      if (session.role === "student") router.push("/student-dashboard");
+      if (session.role === "vicePrincipal") router.push("/staff-dashboard");
+      if (session.role === "principal") router.push("/staff-dashboard");
+      return;
     }
-    if (status === "authenticated") {
-      if (session?.user?.role !== "classSecretary") {
-        router.push("/student-dashboard");
-        return;
-      }
-      initializeData();
-    }
-  }, [status, session, selectedDate]);
+    initializeData();
+  }, [session, selectedDate]);
 
   const initializeData = async () => {
     setLoading(true);
     try {
-      if (!session?.user?.homeroomTeacherId) {
+      if (!session?.homeroomTeacherId) {
         toast.error("Homeroom teacher not found for this account.");
         setLoading(false);
         return;
       }
 
       // Fetch students using axios
-      const studentRes = await axios.get(`/api/student/get-data`, {
-        params: { homeroomTeacherId: session.user.homeroomTeacherId },
+      const studentRes = await axios.get(`/api/student/list-students`, {
+        params: { homeroomTeacherId: session.homeroomTeacherId },
       });
       const studentList = studentRes.data.data || [];
       setStudents(studentList);
@@ -93,12 +111,12 @@ export function AttendanceManager() {
       // Fetch attendance using axios
       try {
         const attendanceRes = await axios.get(
-          `/api/student-attendance/get-students-attendance-data`,
+          `/api/student-attendance/students-attendance-data`,
           {
             params: {
               date: selectedDate,
-              homeroomTeacherId: session.user.homeroomTeacherId,
-              studentId: session.user.id, // Added for validation check
+              homeroomTeacherId: session.homeroomTeacherId,
+              studentId: session.id, // Added for validation check
             },
           }
         );
@@ -160,8 +178,8 @@ export function AttendanceManager() {
       }));
 
       // Single atomic bulk request
-      const response = await axios.post("/api/student-attendance/bulk-insert", {
-        secretaryId: session?.user?.id,
+      const response = await axios.post("/api/student-attendance/insert-data", {
+        secretaryId: session?.id,
         date: selectedDate,
         records,
       });
@@ -188,7 +206,6 @@ export function AttendanceManager() {
       </div>
     );
   }
-
   return (
     <div className="space-y-6 pb-8">
       {/* Header Section */}
@@ -263,7 +280,7 @@ export function AttendanceManager() {
 
               {/* Date Picker and Save Button grouped */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-                <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-[#E5E7EB] shadow-sm">
+                <div className="w-40 flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-[#E5E7EB] shadow-sm">
                   <Calendar className="w-4 h-4 text-gray-500" />
                   <input
                     type="date"
@@ -278,7 +295,7 @@ export function AttendanceManager() {
                   <Button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white font-semibold px-4 sm:px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white w-40 font-semibold px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                   >
                     <Save className="w-4 h-4" />
                     {isSubmitting ? "Saving..." : "Save Changes"}
@@ -498,4 +515,6 @@ export function AttendanceManager() {
       </div>
     </div>
   );
-}
+};
+
+export default AttendanceManager;

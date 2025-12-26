@@ -18,10 +18,12 @@ export async function GET(req: Request) {
       throw notFound("User not found");
     }
 
-    const attendanceStats = await prisma.studentAttendance.groupBy({
-      by: ["type"],
+    const attendanceStats = await prisma.studentAttendance.findMany({
       where: { studentId: existingStudent.id },
-      _count: true,
+      select: {
+        date: true,
+        type: true,
+      },
     });
 
     return Response.json(

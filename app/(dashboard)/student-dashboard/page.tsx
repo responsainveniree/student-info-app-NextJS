@@ -9,17 +9,6 @@ const page = async () => {
 
   if (!session) redirect("/sign-in");
 
-  if (session.user.role === "teacher") {
-    redirect("/teacher-dashboard");
-  }
-
-  if (
-    session.user.role === "vicePrincipal" ||
-    session.user.role === "principal"
-  ) {
-    redirect("/staff-dashboard");
-  }
-
   return (
     <div>
       <StudentDashboard session={session.user} />
