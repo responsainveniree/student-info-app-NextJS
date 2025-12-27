@@ -10,52 +10,52 @@ generator client {
 
 // enum
 enum StaffRole {
-    teacher
-    vicePrincipal
-    principal
+    TEACHER
+    VICE_PRINCIPAL
+    PRINCIPAL
 }
 
 enum StudentRole {
-    student
-    classSecretary
+    STUDENT
+    CLASS_SECRETARY
 }
 
 enum Grade {
-    tenth
-    eleventh
-    twelfth
+    TENTH
+    ELEVENTH
+    TWELFTH
 }
 
 enum Major {
-    accounting
-    softwareEngineering
+    ACCOUNTING
+    SOFTWARE_ENGINEERING
 }
 
 enum Semester {
-    first
-    second
+    FIRST
+    SECOND
 }
 
 enum AssessmentType {
-    schoolwork
-    homework
-    quiz
-    exam
-    project
-    group
+    SCHOOLWORK
+    HOMEWORK
+    QUIZ
+    EXAM
+    PROJECT
+    GROUP
 }
 
-enum problemPointCategory {
-    discipline
-    academic
-    social
-    other
+enum ProblemPointCategory {
+    DISCIPLINE
+    ACADEMIC
+    SOCIAL
+    OTHER
 }
 
 enum AttendanceType {
-    alpha
-    sick
-    permission
+    ALPHA
+    SICK
+    PERMISSION
 }
 
 // student model
@@ -67,7 +67,7 @@ model Student {
     emailVerified DateTime?
     isVerified    Boolean
     sessions      StudentSession[]
-    role          StudentRole      @default(student)
+    role          StudentRole      @default(STUDENT)
 
     grade             Grade
     major             Major
@@ -142,7 +142,7 @@ model ProblemPoint {
     student   Student @relation(fields: [studentId], references: [id])
 
     point       Int
-    category    problemPointCategory
+    category    ProblemPointCategory
     description String
     recordedBy  String
     teacher     Teacher              @relation(fields: [recordedBy], references: [id])
@@ -157,7 +157,7 @@ model Teacher {
     email    String @unique
     password String
 
-    role StaffRole
+    role StaffRole @default(TEACHER)
 
     homeroomClass HomeroomClass?
 

@@ -3,13 +3,13 @@ import { prisma } from "@/prisma/prisma";
 import hashing from "@/lib/utils/hashing";
 import { subjects } from "@/lib/utils/subjects";
 import * as XLSX from "xlsx";
-
+import { Grade, Major } from "@/lib/constants/class";
 interface StudentRow {
   username: string;
   email: string;
   password: string;
-  grade: "tenth" | "eleventh" | "twelfth";
-  major: "accounting" | "softwareEngineering";
+  grade: Grade;
+  major: Major;
   classNumber?: string;
 }
 

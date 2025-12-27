@@ -72,7 +72,7 @@ export async function POST(req: Request) {
           // Create teacher
           const teacher = await tx.teacher.create({
             data: {
-              role: "teacher",
+              role: "TEACHER",
               name: row.username,
               email: row.email,
               password: hashedPassword,

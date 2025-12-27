@@ -1,5 +1,6 @@
 import AttendanceManager from "@/components/attendance/AttendanceManager";
 import { auth } from "@/lib/auth/authNode";
+import { isClassSecretaryRole } from "@/lib/constants/roles";
 import { redirect } from "next/navigation";
 
 import React from "react";
@@ -9,7 +10,7 @@ const page = async () => {
 
   if (!session) return redirect("/sign-in");
 
-  if (session.user.role !== "classSecretary") {
+  if (!isClassSecretaryRole(session.user.role)) {
     return redirect("/student-dashboard");
   }
 

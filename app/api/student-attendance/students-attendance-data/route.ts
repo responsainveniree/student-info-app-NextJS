@@ -39,7 +39,7 @@ export async function GET(req: Request) {
         throw notFound("Student not found.");
       }
 
-      if (secretary.role !== "classSecretary") {
+      if (secretary.role !== "CLASS_SECRETARY") {
         throw forbidden("Only class secretaries can view attendance records.");
       }
 

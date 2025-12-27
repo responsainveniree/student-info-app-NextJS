@@ -1,9 +1,7 @@
 import { badRequest, forbidden, handleError, notFound } from "@/lib/errors";
 import { prisma } from "@/prisma/prisma";
+import { VALID_ATTENDANCE_TYPES, ValidAttendanceType } from "@/lib/constants/attendanceType";
 
-// Valid attendance types that can be stored in the database
-const VALID_ATTENDANCE_TYPES = ["alpha", "sick", "permission"] as const;
-type ValidAttendanceType = (typeof VALID_ATTENDANCE_TYPES)[number];
 
 interface BulkAttendanceRecord {
   studentId: string;
@@ -22,15 +20,15 @@ interface BulkAttendancePayload {
  * "present" means no record should exist - returns null.
  */
 function normalizeAttendanceType(type: string): ValidAttendanceType | null {
-  const normalized = type.toLowerCase().trim();
+  const normalized = type.toUpperCase().trim();
 
-  if (normalized === "present") {
+  if (normalized === "PRESENT") {
     return null;
   }
 
   if (!VALID_ATTENDANCE_TYPES.includes(normalized as ValidAttendanceType)) {
     throw badRequest(
-      `Invalid attendance type: "${type}". Valid types are: ${VALID_ATTENDANCE_TYPES.join(", ")}, or "present".`
+      `Invalid attendance type: "${type}". Valid types are: ${VALID_ATTENDANCE_TYPES.join(", ")}, or "PRESENT".`
     );
   }
 
@@ -119,7 +117,7 @@ export async function POST(req: Request) {
       const semesterNum = getSemester(today);
       throw badRequest(
         `Attendance date is outside the current semester (Semester ${semesterNum}). ` +
-          `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`
+        `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`
       );
     }
 
@@ -135,7 +133,7 @@ export async function POST(req: Request) {
       throw notFound("Secretary not found.");
     }
 
-    if (secretary.role !== "classSecretary") {
+    if (secretary.role !== "CLASS_SECRETARY") {
       throw forbidden("Only class secretaries can record attendance.");
     }
 
@@ -178,7 +176,7 @@ export async function POST(req: Request) {
       try {
         const normalizedType = normalizeAttendanceType(record.attendanceType);
         const description =
-          normalizedType === "alpha" ? "" : record.description || "";
+          normalizedType === "ALPHA" ? "" : record.description || "";
 
         normalizedRecords.push({
           studentId: record.studentId,

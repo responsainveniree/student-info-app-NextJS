@@ -4,6 +4,7 @@ import { AttendanceChart } from "../attendance/AttendanceChart";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
+import { getRoleDisplayName } from "@/lib/constants/roles";
 
 type Session = {
   name: string;
@@ -16,10 +17,10 @@ interface DashboardProps {
   session: Session;
 }
 
-type AttendanceStats = { type: string; date: number | Date };
+type AttendanceStats = { type: "ALPHA" | "SICK" | "PERMISSION"; date: number | Date };
 
 const StudentDashboard = ({ session }: DashboardProps) => {
-  // Fetch Attendance Stats
+  const role = getRoleDisplayName(session.role)
   const [attendanceStats, setAttendanceStats] = useState({
     sick: [],
     permission: [],
@@ -47,13 +48,16 @@ const StudentDashboard = ({ session }: DashboardProps) => {
         const res = await axios.get(
           `api/student-attendance/student-attendance-data?studentId=${session.id}`
         );
+
+        console.log(res)
         if (res.status === 200) {
           // Group data by type in one operation
           const grouped = res.data.data.reduce(
             (acc: any, stat: AttendanceStats) => {
               const type = stat.type as keyof typeof acc;
-              if (!acc[type]) acc[type] = [];
-              acc[type].push(stat);
+              console.log(type)
+              if (!acc[type.toString().toLowerCase()]) acc[type.toString().toLowerCase()] = [];
+              acc[type.toString().toLowerCase()].push(stat);
               return acc;
             },
             { sick: [], permission: [], alpha: [] }
@@ -71,6 +75,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
     fetchData();
   }, [session.id]);
 
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
@@ -86,7 +91,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
       </header>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#1E3A8A]/10 rounded-xl flex items-center justify-center">
@@ -113,7 +118,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           <p className="text-xs sm:text-sm text-gray-600">Average Score</p>
         </div>
 
-        <div className="col-span-2 sm:col-span-1 bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-4 sm:p-6 rounded-2xl text-white shadow-sm hover:shadow-md transition-shadow">
+        <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-4 sm:p-6 rounded-2xl text-white shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -122,11 +127,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           </div>
           <h3 className="text-xl sm:text-2xl font-bold mb-1">Student</h3>
           <p className="text-xs sm:text-sm text-blue-100">
-            {session.role === "student"
-              ? "Student"
-              : session.role === "classSecretary"
-                ? "Class Secretary"
-                : ""}
+            {role}
           </p>
         </div>
       </div>

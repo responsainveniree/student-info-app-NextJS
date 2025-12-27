@@ -4,10 +4,11 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
-import { Spinner } from "@/components/ui/spinner";
+import AttendanceManagerSkeleton from "@/components/attendance/AttendanceManagerSkeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, Save, Lock } from "lucide-react";
+import { ROLES, getRoleDashboard } from "@/lib/constants/roles";
 
 interface Student {
   id: string;
@@ -17,7 +18,7 @@ interface Student {
 interface AttendanceRecord {
   id?: string;
   studentId: string;
-  type: "present" | "sick" | "permission" | "alpha";
+  type: "PRESENT" | "SICK" | "PERMISSION" | "ALPHA";
   description?: string;
 }
 
@@ -68,9 +69,9 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
     let alpha = 0;
 
     for (const r of records) {
-      if (r.type === "sick") sick++;
-      else if (r.type === "permission") permission++;
-      else if (r.type === "alpha") alpha++;
+      if (r.type === "SICK") sick++;
+      else if (r.type === "PERMISSION") permission++;
+      else if (r.type === "ALPHA") alpha++;
     }
 
     return {
@@ -83,10 +84,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
   }, [students, attendanceMap]);
 
   useEffect(() => {
-    if (session?.role !== "classSecretary") {
-      if (session.role === "student") router.push("/student-dashboard");
-      if (session.role === "vicePrincipal") router.push("/staff-dashboard");
-      if (session.role === "principal") router.push("/staff-dashboard");
+    if (session?.role !== ROLES.CLASS_SECRETARY) {
+      router.push(getRoleDashboard(session.role));
       return;
     }
     initializeData();
@@ -152,13 +151,13 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
 
   const getStatusColor = (type?: string) => {
     switch (type) {
-      case "present":
+      case "PRESENT":
         return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "sick":
+      case "SICK":
         return "bg-amber-50 text-amber-700 border-amber-200";
-      case "permission":
+      case "PERMISSION":
         return "bg-blue-50 text-blue-700 border-blue-200";
-      case "alpha":
+      case "ALPHA":
         return "bg-red-50 text-red-700 border-red-200";
       default:
         return "bg-gray-50 text-gray-700 border-gray-200";
@@ -197,14 +196,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center space-y-4">
-          <Spinner className="mx-auto" />
-          <p className="text-gray-500 text-sm">Loading attendance data...</p>
-        </div>
-      </div>
-    );
+    return <AttendanceManagerSkeleton />;
   }
   return (
     <div className="space-y-6 pb-8">
@@ -331,7 +323,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
               <tbody className="divide-y divide-[#E5E7EB]">
                 {students.map((student, index) => {
                   const record = attendanceMap[student.id] || {
-                    type: "present",
+                    type: "PRESENT",
                   };
 
                   return (
@@ -354,10 +346,10 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                           <div className="flex gap-2 flex-wrap">
                             {(
                               [
-                                "present",
-                                "sick",
-                                "permission",
-                                "alpha",
+                                "PRESENT",
+                                "SICK",
+                                "PERMISSION",
+                                "ALPHA",
                               ] as const
                             ).map((t) => (
                               <button
@@ -365,12 +357,11 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                                 onClick={() =>
                                   handleAttendanceChange(student.id, "type", t)
                                 }
-                                className={`px-3 lg:px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-200 border ${
-                                  record.type === t
-                                    ? getStatusColor(t) +
-                                      " shadow-md transform scale-105"
-                                    : "bg-white text-gray-500 border-gray-200 hover:border-[#3B82F6] hover:text-[#3B82F6] hover:shadow-sm"
-                                }`}
+                                className={`px-3 lg:px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-200 border ${record.type === t
+                                  ? getStatusColor(t) +
+                                  " shadow-md transform scale-105"
+                                  : "bg-white text-gray-500 border-gray-200 hover:border-[#3B82F6] hover:text-[#3B82F6] hover:shadow-sm"
+                                  }`}
                               >
                                 {t}
                               </button>
@@ -386,8 +377,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                       </td>
                       <td className="px-6 lg:px-8 py-5">
                         {isValidDate &&
-                        record.type !== "alpha" &&
-                        record.type !== "present" ? (
+                          record.type !== "ALPHA" &&
+                          record.type !== "PRESENT" ? (
                           <Input
                             placeholder="Add optional description..."
                             value={record.description || ""}
@@ -453,18 +444,17 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                     {isValidDate && (
                       <div className="grid grid-cols-2 gap-2 grid-rows-2 pt-2">
                         {(
-                          ["present", "sick", "permission", "alpha"] as const
+                          ["PRESENT", "SICK", "PERMISSION", "ALPHA"] as const
                         ).map((t) => (
                           <button
                             key={t}
                             onClick={() =>
                               handleAttendanceChange(student.id, "type", t)
                             }
-                            className={`flex-1 min-w-[60px] px-2 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-200 border ${
-                              record.type === t
-                                ? getStatusColor(t) + " shadow-md"
-                                : "bg-white text-gray-500 border-gray-200"
-                            }`}
+                            className={`flex-1 min-w-[60px] px-2 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-200 border ${record.type === t
+                              ? getStatusColor(t) + " shadow-md"
+                              : "bg-white text-gray-500 border-gray-200"
+                              }`}
                           >
                             {t}
                           </button>
@@ -474,8 +464,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
 
                     <div className="col-span-2 pt-2">
                       {isValidDate &&
-                      record.type !== "alpha" &&
-                      record.type !== "present" ? (
+                        record.type !== "ALPHA" &&
+                        record.type !== "PRESENT" ? (
                         <Input
                           placeholder="Add note..."
                           value={record.description || ""}

@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/ui/Sidebar";
 import { auth } from "@/lib/auth/authNode";
 import { redirect } from "next/navigation";
+import { isTeacherRole, isStaffRole } from "@/lib/constants/roles";
 
 export default async function StudentDashboardLayout({
   children,
@@ -11,14 +12,11 @@ export default async function StudentDashboardLayout({
 
   if (!session) redirect("/sign-in");
 
-  if (session.user.role === "teacher") {
+  if (isTeacherRole(session.user.role)) {
     redirect("/teacher-dashboard");
   }
 
-  if (
-    session.user.role === "vicePrincipal" ||
-    session.user.role === "principal"
-  ) {
+  if (isStaffRole(session.user.role)) {
     redirect("/staff-dashboard");
   }
 
@@ -30,3 +28,4 @@ export default async function StudentDashboardLayout({
     </div>
   );
 }
+

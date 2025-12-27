@@ -1,7 +1,7 @@
 export const subjects = {
-  tenth: {
+  TENTH: {
     major: {
-      accounting: [
+      ACCOUNTING: [
         "fundamentals_of_fluency_accounting",
         "english",
         "civic_education",
@@ -16,7 +16,7 @@ export const subjects = {
         "fundamentals_of_science_and_social",
         "mandarin",
       ],
-      softwareEngineering: [
+      SOFTWARE_ENGINEERING: [
         "math",
         "english",
         "mandarin",
@@ -33,9 +33,9 @@ export const subjects = {
       ],
     },
   },
-  eleventh: {
+  ELEVENTH: {
     major: {
-      accounting: [
+      ACCOUNTING: [
         "indonesian",
         "ap",
         "creative_entrepreneurial_products_accounting",
@@ -54,7 +54,7 @@ export const subjects = {
         "microsoft",
         "taxation",
       ],
-      softwareEngineering: [
+      SOFTWARE_ENGINEERING: [
         "math",
         "english",
         "mandarin",
@@ -73,9 +73,9 @@ export const subjects = {
       ],
     },
   },
-  twelfth: {
+  TWELFTH: {
     major: {
-      accounting: [
+      ACCOUNTING: [
         "ap",
         "computerized_accounting",
         "indonesian",
@@ -89,7 +89,7 @@ export const subjects = {
         "math",
         "religion",
       ],
-      softwareEngineering: [
+      SOFTWARE_ENGINEERING: [
         "creative_entrepreneurial_products_swe",
         "oop",
         "database",
@@ -107,7 +107,7 @@ export const subjects = {
 };
 
 export const subjectCategories = {
-  software_engineering: [
+  SOFTWARE_ENGINEERING: [
     "web",
     "database",
     "oop",
@@ -116,7 +116,7 @@ export const subjectCategories = {
     "creative_entrepreneurial_products_swe",
   ],
 
-  accounting: [
+  ACCOUNTING: [
     "ap",
     "computerized_accounting",
     "financial_accounting",

@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-const GradeEnum = z.enum(["tenth", "eleventh", "twelfth"]);
-const MajorEnum = z.enum(["accounting", "softwareEngineering"]);
-const StudentRoleEnum = z.enum(["student", "classSecretary"]);
-const AttendanceTypesEnum = z.enum(["alpha", "sick", "permission"]);
+const GradeEnum = z.enum(["TENTH", "ELEVENTH", "TWELFTH"]);
+const MajorEnum = z.enum(["ACCOUNTING", "SOFTWARE_ENGINEERING"]);
+const StudentRoleEnum = z.enum(["STUDENT", "CLASS_SECRETARY"]);
+const AttendanceTypesEnum = z.enum(["ALPHA", "SICK", "PERMISSION"]);
 
 // Schema for frontend data (what we send from CreateTeacherAccount)
 const TeachingAssignmentInput = z.object({

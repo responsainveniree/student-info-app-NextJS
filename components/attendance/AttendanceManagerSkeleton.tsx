@@ -1,0 +1,116 @@
+"use client";
+
+import { Skeleton } from "@/components/ui/skeleton";
+
+const AttendanceManagerSkeleton = () => {
+    return (
+        <div className="space-y-6 pb-8">
+            {/* Header Section Skeleton */}
+            <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-4 sm:p-6 lg:p-8 text-white shadow-lg">
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                        <Skeleton className="p-2 w-10 h-10 rounded-lg bg-white/20" />
+                        <div>
+                            <Skeleton className="h-8 w-48 bg-white/20 mb-2" />
+                            <Skeleton className="h-4 w-64 bg-white/20" />
+                        </div>
+                    </div>
+
+                    {/* Statistics Cards Skeleton */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mt-4">
+                        {[...Array(5)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20"
+                            >
+                                <Skeleton className="h-7 w-12 bg-white/20 mb-2" />
+                                <Skeleton className="h-4 w-20 bg-white/20" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content Card Skeleton */}
+            <div className="mx-4 sm:mx-6 lg:mx-8">
+                <div className="bg-white rounded-2xl shadow-lg border border-[#E5E7EB] overflow-hidden">
+                    {/* Card Header Skeleton */}
+                    <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <Skeleton className="h-6 w-48 mb-2" />
+                                <Skeleton className="h-4 w-72" />
+                            </div>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                                <Skeleton className="h-10 w-40 rounded-lg" />
+                                <Skeleton className="h-10 w-40 rounded-lg" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Desktop Table Skeleton */}
+                    <div className="hidden sm:block">
+                        <table className="w-full">
+                            <thead className="bg-[#F9FAFB] border-b-2 border-[#E5E7EB]">
+                                <tr>
+                                    <th className="px-6 lg:px-8 py-4 text-left">
+                                        <Skeleton className="h-4 w-28" />
+                                    </th>
+                                    <th className="px-6 lg:px-8 py-4 text-left">
+                                        <Skeleton className="h-4 w-36" />
+                                    </th>
+                                    <th className="px-6 lg:px-8 py-4 text-left">
+                                        <Skeleton className="h-4 w-16" />
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#E5E7EB]">
+                                {[...Array(8)].map((_, i) => (
+                                    <tr key={i}>
+                                        <td className="px-6 lg:px-8 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <Skeleton className="w-8 h-8 rounded-full" />
+                                                <Skeleton className="h-5 w-32" />
+                                            </div>
+                                        </td>
+                                        <td className="px-6 lg:px-8 py-5">
+                                            <div className="flex gap-2">
+                                                {[...Array(4)].map((_, j) => (
+                                                    <Skeleton key={j} className="h-9 w-20 rounded-lg" />
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 lg:px-8 py-5">
+                                            <Skeleton className="h-10 w-48 rounded-md" />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Card View Skeleton */}
+                    <div className="sm:hidden divide-y divide-[#E5E7EB]">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="p-4">
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <Skeleton className="w-7 h-7 rounded-full" />
+                                        <Skeleton className="h-5 w-32" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 grid-rows-2 pt-2">
+                                        {[...Array(4)].map((_, j) => (
+                                            <Skeleton key={j} className="h-9 rounded-lg" />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default AttendanceManagerSkeleton;

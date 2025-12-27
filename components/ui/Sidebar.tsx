@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { ROLES } from "@/lib/constants/roles";
 
 interface SidebarProps {
   role?: string;
@@ -63,7 +64,7 @@ export const Sidebar = ({ role }: SidebarProps) => {
       href: "/student-dashboard/attendance",
       icon: ClipboardCheck,
       label: "Attendance",
-      role: "classSecretary",
+      role: ROLES.CLASS_SECRETARY,
     },
     { href: "#", icon: Calendar, label: "Schedule", always: true },
     { href: "#", icon: TrendingUp, label: "Grades", always: true },
@@ -95,11 +96,10 @@ export const Sidebar = ({ role }: SidebarProps) => {
                 key={item.href + item.label}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                  isActive(item.href)
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive(item.href)
                     ? "bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] text-white"
                     : "text-[#111827] hover:bg-[#F9FAFB]"
-                }`}
+                  }`}
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
@@ -142,9 +142,8 @@ export const Sidebar = ({ role }: SidebarProps) => {
 
       {/* Mobile Sidebar */}
       <aside
-        className={`lg:hidden fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5E7EB] shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`lg:hidden fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5E7EB] shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Close Button */}
         <button

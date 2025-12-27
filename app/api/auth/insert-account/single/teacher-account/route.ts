@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       // create teacher account
       const teacher = await tx.teacher.create({
         data: {
-          role: "teacher",
+          role: "TEACHER",
           name: data.username,
           email: data.email,
           password: hashedPassword,
@@ -53,20 +53,17 @@ export async function POST(req: Request) {
 
         if (existingHomeroomClass) {
           throw badRequest(
-            `There is already a homeroom teacher in ${
-              data.homeroomClass.grade === "twelfth"
-                ? "12"
-                : data.homeroomClass.grade === "eleventh"
+            `There is already a homeroom teacher in ${data.homeroomClass.grade === "TWELFTH"
+              ? "12"
+              : data.homeroomClass.grade === "ELEVENTH"
                 ? "11"
                 : "10"
-            }-${
-              data.homeroomClass.major === "softwareEngineering"
-                ? "Software Engineering"
-                : "Accounting"
-            } ${
-              data.homeroomClass.classNumber === "none"
-                ? ""
-                : data.homeroomClass.classNumber
+            }-${data.homeroomClass.major === "SOFTWARE_ENGINEERING"
+              ? "Software Engineering"
+              : "Accounting"
+            } ${data.homeroomClass.classNumber === "none"
+              ? ""
+              : data.homeroomClass.classNumber
             }`
           );
         }
@@ -98,13 +95,13 @@ export async function POST(req: Request) {
 
           if (!matchingClass) {
             const gradeLabel =
-              ta.grade === "tenth"
+              ta.grade === "TENTH"
                 ? "10"
-                : ta.grade === "eleventh"
-                ? "11"
-                : "12";
+                : ta.grade === "ELEVENTH"
+                  ? "11"
+                  : "12";
             const majorLabel =
-              ta.major === "accounting" ? "Accounting" : "Software Engineering";
+              ta.major === "ACCOUNTING" ? "Accounting" : "Software Engineering";
             const classLabel = ta.classNumber === "none" ? "" : ta.classNumber;
 
             throw badRequest(
@@ -119,13 +116,13 @@ export async function POST(req: Request) {
 
           if (!allowedSubjects.includes(ta.subjectName)) {
             const gradeLabel =
-              ta.grade === "tenth"
+              ta.grade === "TENTH"
                 ? "10"
-                : ta.grade === "eleventh"
-                ? "11"
-                : "12";
+                : ta.grade === "ELEVENTH"
+                  ? "11"
+                  : "12";
             const majorLabel =
-              ta.major === "accounting" ? "Accounting" : "Software Engineering";
+              ta.major === "ACCOUNTING" ? "Accounting" : "Software Engineering";
             const classLabel = ta.classNumber === "none" ? "" : ta.classNumber;
 
             throw badRequest(
