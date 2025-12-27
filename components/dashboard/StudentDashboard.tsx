@@ -26,8 +26,6 @@ const StudentDashboard = ({ session }: DashboardProps) => {
     alpha: [],
   });
 
-  console.log(attendanceStats);
-
   const chartData = [
     { name: "Sick", value: attendanceStats.sick.length, color: "#FBBF24" },
     {
@@ -44,30 +42,34 @@ const StudentDashboard = ({ session }: DashboardProps) => {
     attendanceStats.alpha.length;
 
   useEffect(() => {
-    try {
-      const fetchData = async () => {
+    const fetchData = async () => {
+      try {
         const res = await axios.get(
           `api/student-attendance/student-attendance-data?studentId=${session.id}`
         );
-
         if (res.status === 200) {
-          res.data.data.forEach((stat: AttendanceStats) => {
-            setAttendanceStats((prev) => ({
-              ...prev,
-              [stat.type]: [
-                ...(prev[stat.type as keyof typeof prev] || []),
-                stat,
-              ],
-            }));
-          });
-        }
-      };
+          // Group data by type in one operation
+          const grouped = res.data.data.reduce(
+            (acc: any, stat: AttendanceStats) => {
+              const type = stat.type as keyof typeof acc;
+              if (!acc[type]) acc[type] = [];
+              acc[type].push(stat);
+              return acc;
+            },
+            { sick: [], permission: [], alpha: [] }
+          );
 
-      fetchData();
-    } catch (error) {
-      toast.error("Something went wrong. Can't retrieved attendance data");
-    }
-  }, []);
+          // Single setState call
+          setAttendanceStats(grouped);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Something went wrong. Can't retrieve attendance data");
+      }
+    };
+
+    fetchData();
+  }, [session.id]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -81,23 +83,10 @@ const StudentDashboard = ({ session }: DashboardProps) => {
             Here's what's happening with your studies today
           </p>
         </div>
-        <div className="flex items-center space-x-4">
-          <div className="hidden sm:flex items-center space-x-3 bg-white px-4 py-3 rounded-xl border border-[#E5E7EB]">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] rounded-full flex items-center justify-center text-white font-bold">
-              {session.name!.charAt(0)}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[#111827]">
-                {session.name}
-              </p>
-              <p className="text-xs text-gray-500 capitalize">{session.role}</p>
-            </div>
-          </div>
-        </div>
       </header>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#1E3A8A]/10 rounded-xl flex items-center justify-center">
@@ -124,22 +113,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           <p className="text-xs sm:text-sm text-gray-600">Average Score</p>
         </div>
 
-        {/* Ini kayak nya ga pake deh */}
-        {/* <div className="bg-white p-4 sm:p-6 rounded-2xl border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#3B82F6]/10 rounded-xl flex items-center justify-center">
-              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-[#3B82F6]" />
-            </div>
-            <span className="text-xl sm:text-2xl">✅</span>
-          </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-[#111827] mb-1">
-            {statsMap.present}
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-600">Days Present</p>
-        </div> */}
-        <div></div>
-
-        <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-4 sm:p-6 rounded-2xl text-white shadow-sm hover:shadow-md transition-shadow">
+        <div className="col-span-2 sm:col-span-1 bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-4 sm:p-6 rounded-2xl text-white shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -160,7 +134,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Attendance Statistics (Donut Chart) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 sm:p-6">
+        <div className="lg:col-span-2 bg-white rounded-2xl border max-h-[500px] border-[#E5E7EB] shadow-sm p-4 sm:p-6">
           <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
             Attendance Statistics (Absences)
           </h3>
@@ -176,7 +150,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
         </div>
 
         {/* Attendance Information */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 max-h-[500px] overflow-y-auto">
           <h2 className="text-lg font-semibold mb-4">Attendance Information</h2>
           {totalAbsence === 0 ? (
             <div className="text-center py-8 text-gray-500">

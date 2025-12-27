@@ -2,148 +2,160 @@
 
 import { SignOut } from "@/components/auth/SignOut";
 import {
-    BookOpen,
-    Calendar,
-    GraduationCap,
-    Settings,
-    TrendingUp,
-    User,
-    ClipboardCheck,
-    Menu,
-    X,
+  BookOpen,
+  Calendar,
+  GraduationCap,
+  Settings,
+  TrendingUp,
+  User,
+  ClipboardCheck,
+  Menu,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 interface SidebarProps {
-    role?: string;
+  role?: string;
 }
 
 export const Sidebar = ({ role }: SidebarProps) => {
-    const pathname = usePathname();
-    const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
-    // Close sidebar on route change
-    useEffect(() => {
-        setIsOpen(false);
-    }, [pathname]);
+  // Close sidebar on route change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
-    // Close sidebar on escape key
-    useEffect(() => {
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") setIsOpen(false);
-        };
-        document.addEventListener("keydown", handleEscape);
-        return () => document.removeEventListener("keydown", handleEscape);
-    }, []);
+  // Close sidebar on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
 
-    // Prevent body scroll when sidebar is open on mobile
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
-        }
-        return () => {
-            document.body.style.overflow = "unset";
-        };
-    }, [isOpen]);
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
-    const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => pathname === path;
 
-    const navItems = [
-        { href: "/student-dashboard", icon: BookOpen, label: "Dashboard", always: true },
-        { href: "/student-dashboard/attendance", icon: ClipboardCheck, label: "Attendance", role: "classSecretary" },
-        { href: "#", icon: Calendar, label: "Schedule", always: true },
-        { href: "#", icon: TrendingUp, label: "Grades", always: true },
-        { href: "#", icon: User, label: "Profile", always: true },
-        { href: "#", icon: Settings, label: "Settings", always: true },
-    ];
+  const navItems = [
+    {
+      href: "/student-dashboard",
+      icon: BookOpen,
+      label: "Dashboard",
+      always: true,
+    },
+    {
+      href: "/student-dashboard/attendance",
+      icon: ClipboardCheck,
+      label: "Attendance",
+      role: "classSecretary",
+    },
+    { href: "#", icon: Calendar, label: "Schedule", always: true },
+    { href: "#", icon: TrendingUp, label: "Grades", always: true },
+    { href: "#", icon: User, label: "Profile", always: true },
+    { href: "#", icon: Settings, label: "Settings", always: true },
+  ];
 
-    const SidebarContent = () => (
-        <>
-            <div className="p-6">
-                {/* Logo */}
-                <div className="flex items-center space-x-3 mb-8">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] rounded-lg flex items-center justify-center">
-                        <GraduationCap className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-lg font-bold text-[#111827]">SMK Advent</h1>
-                        <p className="text-xs text-gray-500">Student Portal</p>
-                    </div>
-                </div>
+  const SidebarContent = () => (
+    <>
+      <div className="p-6">
+        {/* Logo */}
+        <div className="flex items-center space-x-3 mb-8">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] rounded-lg flex items-center justify-center">
+            <GraduationCap className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-[#111827]">SMK Advent</h1>
+            <p className="text-xs text-gray-500">Student Portal</p>
+          </div>
+        </div>
 
-                {/* Navigation */}
-                <nav className="space-y-2">
-                    {navItems.map((item) => {
-                        if (item.role && role !== item.role) return null;
+        {/* Navigation */}
+        <nav className="space-y-2">
+          {navItems.map((item) => {
+            if (item.role && role !== item.role) return null;
 
-                        return (
-                            <Link
-                                key={item.href + item.label}
-                                href={item.href}
-                                onClick={() => setIsOpen(false)}
-                                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive(item.href)
-                                        ? "bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] text-white"
-                                        : "text-[#111827] hover:bg-[#F9FAFB]"
-                                    }`}
-                            >
-                                <item.icon className="w-5 h-5" />
-                                <span>{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                </nav>
-            </div>
+            return (
+              <Link
+                key={item.href + item.label}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${
+                  isActive(item.href)
+                    ? "bg-gradient-to-r from-[#1E3A8A] to-[#3B82F6] text-white"
+                    : "text-[#111827] hover:bg-[#F9FAFB]"
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
 
-            {/* Sign Out Button */}
-            <div className="absolute bottom-6 left-6 right-6">
-                <SignOut />
-            </div>
-        </>
-    );
+      {/* Sign Out Button */}
+      <div className="absolute bottom-6 left-6 right-6">
+        <SignOut />
+      </div>
+    </>
+  );
 
-    return (
-        <>
-            {/* Mobile Hamburger Button */}
-            <button
-                onClick={() => setIsOpen(true)}
-                className="lg:hidden fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-md border border-[#E5E7EB] hover:bg-gray-50 transition-colors"
-                aria-label="Open menu"
-            >
-                <Menu className="w-6 h-6 text-[#111827]" />
-            </button>
+  return (
+    <>
+      {/* Mobile Hamburger Button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-md border border-[#E5E7EB] hover:bg-gray-50 transition-colors"
+        aria-label="Open menu"
+      >
+        <Menu className="w-6 h-6 text-[#111827]" />
+      </button>
 
-            {/* Desktop Sidebar */}
-            <aside className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5E7EB] shadow-sm z-50">
-                <SidebarContent />
-            </aside>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5E7EB] shadow-sm z-50">
+        <SidebarContent />
+      </aside>
 
-            {/* Mobile Overlay */}
-            {isOpen && (
-                <div
-                    className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
-                    onClick={() => setIsOpen(false)}
-                />
-            )}
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-            {/* Mobile Sidebar */}
-            <aside
-                className={`lg:hidden fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5E7EB] shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
-                    }`}
-            >
-                {/* Close Button */}
-                <button
-                    onClick={() => setIsOpen(false)}
-                    className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    aria-label="Close menu"
-                >
-                    <X className="w-5 h-5 text-[#111827]" />
-                </button>
-                <SidebarContent />
-            </aside>
-        </>
-    );
+      {/* Mobile Sidebar */}
+      <aside
+        className={`lg:hidden fixed left-0 top-0 h-full w-64 bg-white border-r border-[#E5E7EB] shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setIsOpen(false)}
+          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="Close menu"
+        >
+          <X className="w-5 h-5 text-[#111827]" />
+        </button>
+        <SidebarContent />
+      </aside>
+    </>
+  );
 };
