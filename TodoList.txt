@@ -16,7 +16,7 @@ Goal: Make a full authentication feature
 Goal: Make a full attendance feature
         1. Make a attendance route
             1.1: Make a attendance route for student ✔ | NOTES: review the code I modified 
-            1.2: Give every route an documentation 
+            1.2: Give every route an documentation ✔
         2. Fix create student and teacher feature since I refactor certain values it causes error now ✔
            Update (28-12-25, sunday): I need to add extra validation for the teacher bulk import, specifically for teaching classes and teaching assignments. I have already taken a screenshot of the section that causes the error. ✔
 # Start, 22-29/12/25 #

@@ -74,14 +74,10 @@ const AttendanceManagerSkeleton = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 lg:px-8 py-5">
-                                            <div className="flex gap-2">
-                                                {[...Array(4)].map((_, j) => (
-                                                    <Skeleton key={j} className="h-9 w-20 rounded-lg" />
-                                                ))}
-                                            </div>
+                                            <Skeleton className="h-10 w-40 rounded-lg" />
                                         </td>
                                         <td className="px-6 lg:px-8 py-5">
-                                            <Skeleton className="h-10 w-48 rounded-md" />
+                                            <Skeleton className="h-10 w-full max-w-md rounded-md" />
                                         </td>
                                     </tr>
                                 ))}
@@ -98,10 +94,11 @@ const AttendanceManagerSkeleton = () => {
                                         <Skeleton className="w-7 h-7 rounded-full" />
                                         <Skeleton className="h-5 w-32" />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2 grid-rows-2 pt-2">
-                                        {[...Array(4)].map((_, j) => (
-                                            <Skeleton key={j} className="h-9 rounded-lg" />
-                                        ))}
+                                    <div className="pt-2">
+                                        <Skeleton className="h-10 w-full rounded-lg" />
+                                    </div>
+                                    <div className="pt-2">
+                                        <Skeleton className="h-9 w-full rounded-md" />
                                     </div>
                                 </div>
                             </div>

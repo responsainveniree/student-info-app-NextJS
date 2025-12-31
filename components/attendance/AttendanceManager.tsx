@@ -6,6 +6,13 @@ import { toast } from "sonner";
 import axios from "axios";
 import AttendanceManagerSkeleton from "@/components/attendance/AttendanceManagerSkeleton";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, Save, Lock } from "lucide-react";
 import { ROLES, getRoleDashboard } from "@/lib/constants/roles";
@@ -343,30 +350,30 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                       </td>
                       <td className="px-6 lg:px-8 py-5">
                         {isValidDate ? (
-                          <div className="flex gap-2 flex-wrap">
-                            {(
-                              [
-                                "PRESENT",
-                                "SICK",
-                                "PERMISSION",
-                                "ALPHA",
-                              ] as const
-                            ).map((t) => (
-                              <button
-                                key={t}
-                                onClick={() =>
-                                  handleAttendanceChange(student.id, "type", t)
-                                }
-                                className={`px-3 lg:px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-200 border ${record.type === t
-                                  ? getStatusColor(t) +
-                                  " shadow-md transform scale-105"
-                                  : "bg-white text-gray-500 border-gray-200 hover:border-[#3B82F6] hover:text-[#3B82F6] hover:shadow-sm"
-                                  }`}
-                              >
-                                {t}
-                              </button>
-                            ))}
-                          </div>
+                          <Select
+                            value={record.type || "PRESENT"}
+                            onValueChange={(value) =>
+                              handleAttendanceChange(student.id, "type", value)
+                            }
+                          >
+                            <SelectTrigger className={`w-40 h-10 font-semibold ${getStatusColor(record.type || "PRESENT")}`}>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PRESENT">
+                                <span className="font-semibold text-emerald-700">PRESENT</span>
+                              </SelectItem>
+                              <SelectItem value="SICK">
+                                <span className="font-semibold text-amber-700">SICK</span>
+                              </SelectItem>
+                              <SelectItem value="PERMISSION">
+                                <span className="font-semibold text-blue-700">PERMISSION</span>
+                              </SelectItem>
+                              <SelectItem value="ALPHA">
+                                <span className="font-semibold text-red-700">ALPHA</span>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <span
                             className={`inline-flex px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide border ${getStatusColor(record.type)}`}
@@ -424,7 +431,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
           {/* Mobile Card View */}
           <div className="sm:hidden divide-y divide-[#E5E7EB]">
             {students.map((student, index) => {
-              const record = attendanceMap[student.id] || { type: "present" };
+              const record = attendanceMap[student.id] || { type: "PRESENT" };
 
               return (
                 <div
@@ -442,23 +449,31 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                     </div>
 
                     {isValidDate && (
-                      <div className="grid grid-cols-2 gap-2 grid-rows-2 pt-2">
-                        {(
-                          ["PRESENT", "SICK", "PERMISSION", "ALPHA"] as const
-                        ).map((t) => (
-                          <button
-                            key={t}
-                            onClick={() =>
-                              handleAttendanceChange(student.id, "type", t)
-                            }
-                            className={`flex-1 min-w-[60px] px-2 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-200 border ${record.type === t
-                              ? getStatusColor(t) + " shadow-md"
-                              : "bg-white text-gray-500 border-gray-200"
-                              }`}
-                          >
-                            {t}
-                          </button>
-                        ))}
+                      <div className="pt-2">
+                        <Select
+                          value={record.type || "PRESENT"}
+                          onValueChange={(value) =>
+                            handleAttendanceChange(student.id, "type", value)
+                          }
+                        >
+                          <SelectTrigger className={`w-full h-10 font-semibold ${getStatusColor(record.type || "PRESENT")}`}>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="PRESENT">
+                              <span className="font-semibold text-emerald-700">PRESENT</span>
+                            </SelectItem>
+                            <SelectItem value="SICK">
+                              <span className="font-semibold text-amber-700">SICK</span>
+                            </SelectItem>
+                            <SelectItem value="PERMISSION">
+                              <span className="font-semibold text-blue-700">PERMISSION</span>
+                            </SelectItem>
+                            <SelectItem value="ALPHA">
+                              <span className="font-semibold text-red-700">ALPHA</span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     )}
 

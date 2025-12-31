@@ -87,7 +87,7 @@ export async function POST(req: Request) {
         });
 
         if (existingTeacher) {
-          throw new Error(`Row ${rowNumber}:Email already registered`);
+          throw badRequest(`Row ${rowNumber}:Email already registered`);
         }
 
         // Hash password
@@ -117,7 +117,7 @@ export async function POST(req: Request) {
           });
 
           if (existingHomeroomClass) {
-            throw new Error(
+            throw badRequest(
               `Row ${rowNumber}: Homeroom class already has a teacher`
             );
           }
@@ -238,7 +238,7 @@ export async function POST(req: Request) {
                 !(grade in subjectsData) ||
                 !(major in subjectsData[grade as Grade].major)
               ) {
-                throw new Error(
+                throw badRequest(
                   `Row ${rowNumber}: Invalid grade or major: ${grade}-${major}`
                 );
               }
@@ -247,7 +247,7 @@ export async function POST(req: Request) {
                 subjectsData[grade as Grade].major[major as Major];
 
               if (!allowedSubjects.includes(subjectName)) {
-                throw new Error(
+                throw badRequest(
                   `Row ${rowNumber}: ${subjectName} not allowed for ${grade}-${major}`
                 );
               }
