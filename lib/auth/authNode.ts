@@ -54,6 +54,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         if (!user) {
+          user = await prisma.parent.findUnique({
+            where: { email },
+          });
+        }
+
+        if (!user) {
           throw new Error("User not found");
         }
 

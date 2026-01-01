@@ -47,7 +47,7 @@ async function main() {
         create: {
           grade: "ELEVENTH",
           major: "SOFTWARE_ENGINEERING",
-          classNumber: "1",
+          classNumber: "none",
         },
       },
     },
@@ -65,7 +65,7 @@ async function main() {
       role: "CLASS_SECRETARY",
       grade: "ELEVENTH",
       major: "SOFTWARE_ENGINEERING",
-      classNumber: "1",
+      classNumber: "none",
       isVerified: true,
       homeroomTeacherId: teacher.id,
     },
@@ -83,12 +83,27 @@ async function main() {
       role: "STUDENT",
       grade: "ELEVENTH",
       major: "SOFTWARE_ENGINEERING",
-      classNumber: "1",
+      classNumber: "none",
       isVerified: true,
       homeroomTeacherId: teacher.id,
     },
   });
   console.log("✓ Created Student:", student.email);
+
+  //6. Create parent Parent account
+
+  const parent = await prisma.parent.upsert({
+    where: { studentId: student.id },
+    update: {},
+    create: {
+      name: `${student.name}'s parents`,
+      role: "PARENT",
+      password: passwordHash,
+      email: `${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@test.com`,
+      studentId: student.id,
+    },
+  });
+  console.log("✓ Created Parent:", parent.email);
 
   console.log("\n Successfully seeded database!");
   console.log("\n Test Accounts (Password: Test@12345):");
@@ -97,6 +112,9 @@ async function main() {
   console.log("   - Teacher: teacher@test.com");
   console.log("   - Class Secretary: secretary@test.com");
   console.log("   - Student: student@test.com");
+  console.log(
+    `   - Parent: ${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@test.com`
+  );
 }
 
 main()

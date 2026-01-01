@@ -4,6 +4,7 @@ import hashing from "@/lib/utils/hashing";
 import { subjects } from "@/lib/utils/subjects";
 import * as XLSX from "xlsx";
 import { Grade, GRADES, Major, MAJORS } from "@/lib/constants/class";
+import crypto from "crypto";
 interface StudentRow {
   username: string;
   email: string;
@@ -12,6 +13,11 @@ interface StudentRow {
   major: Major;
   classNumber?: string;
 }
+
+type ParentAccount = {
+  email: string;
+  password: string;
+};
 
 export async function POST(req: Request) {
   try {
@@ -31,6 +37,8 @@ export async function POST(req: Request) {
     if (data.length === 0) {
       throw badRequest("Excel file is empty");
     }
+
+    const parentAccounts: ParentAccount[] = [];
 
     // Process each student
     await prisma.$transaction(async (tx) => {
@@ -100,6 +108,7 @@ export async function POST(req: Request) {
           },
           select: {
             id: true,
+            name: true,
           },
         });
 
@@ -130,15 +139,53 @@ export async function POST(req: Request) {
             },
           },
         });
+
+        const rawRandomPassword = crypto.randomBytes(8).toString("hex");
+        const hashRandomPassword = await hashing(rawRandomPassword);
+
+        await tx.parent.upsert({
+          where: {
+            studentId: student.id,
+          },
+          update: {},
+          create: {
+            email: `${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
+            name: `${student.name}'s Parents`,
+            password: hashRandomPassword,
+            role: "PARENT",
+            studentId: student.id,
+          },
+        });
+
+        parentAccounts.push({
+          email: `${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
+          password: rawRandomPassword,
+        });
       }
     });
 
-    return Response.json(
-      {
-        message: `Bulk import completed`,
-      },
-      { status: 200 }
+    const parentWorksheet = XLSX.utils.json_to_sheet(parentAccounts);
+    const parentWorkbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      parentWorkbook,
+      parentWorksheet,
+      "Parent Accounts"
     );
+
+    const parentbuffer = XLSX.write(parentWorkbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    return new Response(parentbuffer, {
+      status: 200,
+      headers: {
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": "attachment; filename=parent-accounts.xlsx",
+      },
+    });
   } catch (error) {
     console.error("Error bulk creating students:", error);
     return handleError(error);

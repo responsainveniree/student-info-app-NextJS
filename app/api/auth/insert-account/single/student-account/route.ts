@@ -3,11 +3,14 @@ import { prisma } from "@/prisma/prisma";
 import hashing from "@/lib/utils/hashing";
 import { zodStudentSignUp } from "@/lib/utils/zodSchema";
 import { subjects } from "@/lib/utils/subjects";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const data = zodStudentSignUp.parse(body);
+
+    let parentAccount;
 
     await prisma.$transaction(async (tx) => {
       if (data.password !== data.confirmPassword) {
@@ -94,13 +97,38 @@ export async function POST(req: Request) {
           studentSubjects: true,
         },
       });
+
+      const rawRandomPassword = crypto.randomBytes(8).toString("hex");
+      const hashRandomPassword = await hashing(rawRandomPassword);
+
+      await tx.parent.upsert({
+        where: {
+          studentId: user.id,
+        },
+        update: {},
+        create: {
+          email: `${user.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
+          name: `${user.name}'s Parents`,
+          password: hashRandomPassword,
+          role: "PARENT",
+          studentId: user.id,
+        },
+      });
+
+      parentAccount = {
+        email: `${user.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
+        password: rawRandomPassword,
+      };
     });
 
     return Response.json(
       {
-        message: "Successfully created student account",
+        message: "Student account created successfully",
+        data: {
+          parentAccount: parentAccount,
+        },
       },
-      { status: 201 }
+      { status: 200 }
     );
   } catch (error) {
     console.error("Error creating student:", error);
