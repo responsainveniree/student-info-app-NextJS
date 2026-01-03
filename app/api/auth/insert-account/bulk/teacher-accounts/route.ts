@@ -283,11 +283,12 @@ export async function POST(req: Request) {
             })
           );
 
-          // Check if every teaching assignment matches one of the teaching classes
+          // Validation
           if (
             parseClassesArray.length > 0 &&
             parseTeachingAssignments.length > 0
           ) {
+            // Check if every teaching assignment matches to one of the teaching classes
             for (const ta of parseTeachingAssignments) {
               const matchingClass = parseClassesArray.find((tc) => {
                 return (
@@ -304,6 +305,26 @@ export async function POST(req: Request) {
 
                 throw badRequest(
                   `Row ${rowNumber}: Teaching Assignment mismatch! You have an assignment for ${grade}-${major} ${classNumber}, but this class is not in your Teaching Classes list. Please add it to Teaching Classes first.`
+                );
+              }
+            }
+
+            // Check if every teaching classes matches to one of the teaching assignments
+            for (const tc of parseClassesArray) {
+              const macthingAssignments = parseTeachingAssignments.find(
+                (ta) =>
+                  ta.major === tc.major &&
+                  ta.grade === tc.grade &&
+                  ta.classNumber === tc.classNumber
+              );
+
+              if (!macthingAssignments) {
+                const grade = gradeLabel(tc.grade);
+                const major = majorLabel(tc.major);
+                const classNumber = classNumberLabel(tc.classNumber);
+
+                throw badRequest(
+                  `Teaching Classes mismatch! You have an teaching classes for ${grade}-${major} ${classNumber}, but this class is not in your Teaching Assigments list. Please add it to Teaching Assignments also.`
                 );
               }
             }

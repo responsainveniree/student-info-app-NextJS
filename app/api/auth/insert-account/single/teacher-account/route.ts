@@ -108,7 +108,27 @@ export async function POST(req: Request) {
           }
         }
 
-        // VALIDATION 2: Check if the subject is valid for that specific class
+        // VALIDATION 2: Check if every teaching Classes matches one of the taeching assignments
+        for (const tc of data.teachingClasses) {
+          const macthingAssignments = data.teachingAssignment.find(
+            (ta) =>
+              ta.major === tc.major &&
+              ta.grade === tc.grade &&
+              ta.classNumber === tc.classNumber
+          );
+
+          if (!macthingAssignments) {
+            const grade = gradeLabel(tc.grade);
+            const major = majorLabel(tc.major);
+            const classNumber = classNumberLabel(tc.classNumber);
+
+            throw badRequest(
+              `Teaching Classes mismatch! You have an teaching classes for ${grade}-${major} ${classNumber}, but this class is not in your Teaching Assigments list. Please add it to Teaching Assignments also.`
+            );
+          }
+        }
+
+        // VALIDATION 3: Check if the subject is valid for that specific class
         for (const ta of data.teachingAssignment) {
           const allowedSubjects = subjectsData[ta.grade].major[ta.major];
 

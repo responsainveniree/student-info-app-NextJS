@@ -62,8 +62,8 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
     // Define navigation items for each role
     const getNavItems = (currentRole?: string) => {
         const commonItems = [
-            { href: "#", icon: User, label: "Profile", always: true },
-            { href: "#", icon: Settings, label: "Settings", always: true },
+            // { href: "#", icon: User, label: "Profile", always: true },
+            // { href: "#", icon: Settings, label: "Settings", always: true },
             { href: "/", icon: Home, label: "School Profile" },
         ];
 
@@ -72,7 +72,7 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
                 const teacherItems = [
                     { href: "/teacher-dashboard", icon: LayoutDashboard, label: "Dashboard" },
                     { href: "/teacher-dashboard/classes", icon: Users, label: "My Classes" },
-                    { href: "/teacher-dashboard/schedule", icon: Calendar, label: "Schedule" },
+                    { href: "/teacher-dashboard/problem-point", icon: Calendar, label: "Problem Point" },
                 ];
 
                 if (isHomeroomClassTeacher) {
@@ -88,13 +88,11 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
                 return [
                     { href: "/staff-dashboard", icon: LayoutDashboard, label: "Dashboard" },
                     { href: "/create-account", icon: Users, label: "Create Account" },
-                    { href: "/staff-dashboard/reports", icon: FileText, label: "Reports" },
                     ...commonItems
                 ];
             case ROLES.PARENT:
                 return [
                     { href: "/parent-dashboard", icon: LayoutDashboard, label: "Dashboard" },
-                    { href: "/parent-dashboard/children", icon: Users, label: "My Children" },
                     ...commonItems
                 ];
             case ROLES.STUDENT:

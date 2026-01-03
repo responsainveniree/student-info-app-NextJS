@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import {
-  CardContent,
-} from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Users,
@@ -11,7 +9,6 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  HelpCircle,
   ArrowUpDown,
   Search,
 } from "lucide-react";
@@ -24,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Attendance {
   date: string;
@@ -86,7 +83,8 @@ const Classroom = ({ session }: ClassroomProps) => {
           if (response.status === 200) {
             setData(response.data.data);
           }
-        } catch (error) {
+        } catch (error: any) {
+          toast.error(error.response.data.message || "Something went wrong.");
           console.error("Failed to fetch classroom data:", error);
         } finally {
           setLoading(false);
@@ -141,7 +139,8 @@ const Classroom = ({ session }: ClassroomProps) => {
   };
 
   const stats = useMemo(() => {
-    if (!data?.students) return { total: 0, present: 0, sick: 0, permission: 0, alpha: 0 };
+    if (!data?.students)
+      return { total: 0, present: 0, sick: 0, permission: 0, alpha: 0 };
 
     const total = data.students.length;
     let sick = 0;
@@ -309,7 +308,10 @@ const Classroom = ({ session }: ClassroomProps) => {
             {loading ? (
               <div className="p-8 space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
+                  <div
+                    key={i}
+                    className="h-16 bg-gray-100 rounded-lg animate-pulse"
+                  ></div>
                 ))}
               </div>
             ) : sortedAndFilteredStudents.length > 0 ? (
@@ -332,7 +334,7 @@ const Classroom = ({ session }: ClassroomProps) => {
                     </thead>
                     <tbody className="divide-y divide-[#E5E7EB]">
                       {sortedAndFilteredStudents.map((student) => {
-                        console.log(student)
+                        console.log(student);
                         const status = getAttendanceStatus(student.attendances);
                         return (
                           <tr
@@ -362,7 +364,9 @@ const Classroom = ({ session }: ClassroomProps) => {
                             <td className="px-6 lg:px-8 py-5">
                               <span className="text-gray-600 text-sm">
                                 {student.attendances[0]?.description || (
-                                  <span className="text-gray-400 italic">No description</span>
+                                  <span className="text-gray-400 italic">
+                                    No description
+                                  </span>
                                 )}
                               </span>
                             </td>
@@ -378,15 +382,22 @@ const Classroom = ({ session }: ClassroomProps) => {
                   {sortedAndFilteredStudents.map((student) => {
                     const status = getAttendanceStatus(student.attendances);
                     return (
-                      <div key={student.id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div
+                        key={student.id}
+                        className="p-4 hover:bg-gray-50 transition-colors"
+                      >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-[#EBF5FF] text-[#1E40AF] flex items-center justify-center font-bold text-sm border border-[#BFDBFE]">
                               {student.name.charAt(0)}
                             </div>
                             <div>
-                              <h3 className="font-semibold text-gray-900">{student.name}</h3>
-                              <p className="text-xs text-gray-500">ID: {student.id.slice(0, 8)}...</p>
+                              <h3 className="font-semibold text-gray-900">
+                                {student.name}
+                              </h3>
+                              <p className="text-xs text-gray-500">
+                                ID: {student.id.slice(0, 8)}...
+                              </p>
                             </div>
                           </div>
                           <div
@@ -396,7 +407,9 @@ const Classroom = ({ session }: ClassroomProps) => {
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-sm pl-[52px]">
-                          <span className={`font-medium px-2 py-0.5 rounded ${status.color.split(' ')[1]} ${status.color.split(' ')[0]} bg-opacity-20`}>
+                          <span
+                            className={`font-medium px-2 py-0.5 rounded ${status.color.split(" ")[1]} ${status.color.split(" ")[0]} bg-opacity-20`}
+                          >
                             {status.label}
                           </span>
                           <span className="text-gray-500 truncate max-w-[150px]">
