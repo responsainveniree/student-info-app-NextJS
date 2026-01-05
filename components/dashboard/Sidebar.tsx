@@ -5,17 +5,15 @@ import {
     BookOpen,
     Calendar,
     GraduationCap,
-    Settings,
     TrendingUp,
-    User,
     ClipboardCheck,
     Menu,
     X,
     LayoutDashboard,
     Users,
-    FileText,
     Home,
-    School
+    School,
+    BookX,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -71,12 +69,11 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
             case ROLES.TEACHER:
                 const teacherItems = [
                     { href: "/teacher-dashboard", icon: LayoutDashboard, label: "Dashboard" },
-                    { href: "/teacher-dashboard/classes", icon: Users, label: "My Classes" },
-                    { href: "/teacher-dashboard/problem-point", icon: Calendar, label: "Problem Point" },
+                    { href: "/problem-point", icon: BookX, label: "Problem Point" },
                 ];
 
                 if (isHomeroomClassTeacher) {
-                    teacherItems.splice(1, 0, { href: "/teacher-dashboard/classroom", icon: School, label: "Classroom" });
+                    teacherItems.splice(1, 0, { href: "/teacher-dashboard/classroom", icon: School, label: "My Classroom" });
                 }
 
                 return [
@@ -88,6 +85,7 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
                 return [
                     { href: "/staff-dashboard", icon: LayoutDashboard, label: "Dashboard" },
                     { href: "/create-account", icon: Users, label: "Create Account" },
+                    { href: "/problem-point", icon: BookX, label: "Problem Point" },
                     ...commonItems
                 ];
             case ROLES.PARENT:

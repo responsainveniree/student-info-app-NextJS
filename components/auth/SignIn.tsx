@@ -33,7 +33,8 @@ const SignIn = () => {
       setLoading(false);
       toast.error("Sign in failed. Email or password is incorrect.");
     } else {
-      toast.success("Succesfully signed in, redirecting...");
+      console.log(result)
+      toast.success("Successfully signed in, redirecting...");
       router.refresh(); // Refresh to update session
     }
   };

@@ -50,6 +50,8 @@ enum AssessmentType {
 }
 
 enum ProblemPointCategory {
+    LATE
+    INCOMPLETE_ATTRIBUTES
     DISCIPLINE
     ACADEMIC
     SOCIAL
@@ -163,7 +165,7 @@ model ProblemPoint {
     description String
     recordedBy  String
     teacher     Teacher              @relation(fields: [recordedBy], references: [id])
-    date        DateTime
+    date        DateTime             @db.Date
 
     @@index([studentId])
 }

@@ -61,7 +61,9 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
     Record<string, AttendanceRecord>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sortBy, setSortBy] = useState<"name-asc" | "name-desc" | "status">("name-asc");
+  const [sortBy, setSortBy] = useState<"name-asc" | "name-desc" | "status">(
+    "name-asc"
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
   type SortOption = "name-asc" | "name-desc" | "status";
@@ -141,9 +143,12 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
       }
 
       // Fetch students using axios
-      const studentRes = await axios.get(`/api/student/list-students`, {
-        params: { homeroomTeacherId: session.homeroomTeacherId },
-      });
+      const studentRes = await axios.get(
+        `/api/student/list-students-by-homeroom-teacher-id`,
+        {
+          params: { homeroomTeacherId: session.homeroomTeacherId },
+        }
+      );
       const studentList = studentRes.data.data || [];
       setStudents(studentList);
 
@@ -446,8 +451,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                       </td>
                       <td className="px-6 lg:px-8 py-5">
                         {isValidDate &&
-                          record.type !== "ALPHA" &&
-                          record.type !== "PRESENT" ? (
+                        record.type !== "ALPHA" &&
+                        record.type !== "PRESENT" ? (
                           <Input
                             placeholder="Add optional description..."
                             value={record.description || ""}
@@ -551,8 +556,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
 
                     <div className="col-span-2 pt-2">
                       {isValidDate &&
-                        record.type !== "ALPHA" &&
-                        record.type !== "PRESENT" ? (
+                      record.type !== "ALPHA" &&
+                      record.type !== "PRESENT" ? (
                         <Input
                           placeholder="Add note..."
                           value={record.description || ""}

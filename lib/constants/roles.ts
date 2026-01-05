@@ -28,6 +28,7 @@ export type Role = (typeof ALL_ROLES)[number];
 export type StudentRole = (typeof STUDENT_ROLES)[number];
 export type TeacherRole = (typeof TEACHER_ROLES)[number];
 export type StaffRole = (typeof STAFF_ROLES)[number];
+export type AllStaffRole = (typeof ALL_STAFF_ROLES)[number]
 export type OutsiderRole = (typeof OUTSIDER_ROLES)[number];
 
 export const isStudentRole = (role: string): role is StudentRole =>
@@ -41,6 +42,9 @@ export const isTeacherRole = (role: string): role is TeacherRole =>
 
 export const isStaffRole = (role: string): role is StaffRole =>
   STAFF_ROLES.includes(role as StaffRole);
+
+export const isAllStaffRole = (role: string): role is AllStaffRole =>
+  ALL_STAFF_ROLES.includes(role as StaffRole);
 
 export const isParentRole = (role: string): role is OutsiderRole =>
   role === ROLES.PARENT;

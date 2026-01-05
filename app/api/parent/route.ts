@@ -35,6 +35,16 @@ export async function GET(req: Request) {
       },
     });
 
+    const problemPointRecords = await prisma.problemPoint.findMany({
+      where: { studentId: existingParent.studentId },
+      select: {
+        description: true,
+        category: true,
+        point: true,
+        date: true,
+      },
+    });
+
     return Response.json(
       {
         mesasge: "Successfully retrieved student attendance stats for parents",
@@ -42,6 +52,7 @@ export async function GET(req: Request) {
           studentName: existingParent.student.name,
           studentSubjects: existingParent.student.studentSubjects,
           attendanceStats,
+          problemPointRecords,
         },
       },
       { status: 200 }

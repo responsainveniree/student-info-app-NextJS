@@ -1,9 +1,13 @@
 "use client";
-import { GraduationCap, BookOpen, Calendar } from "lucide-react";
+import { GraduationCap, BookOpen, Calendar, AlertCircle } from "lucide-react";
 import { AttendanceChart } from "../../attendance/AttendanceChart";
+import { ProblemPointChart } from "../problemPoint/ProblemPointChart";
+import { ProblemPointList } from "../problemPoint/ProblemPointList";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
+import { ValidProblemPointType } from "@/lib/constants/problemPoint";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DashboardProps {
     session: {
@@ -19,7 +23,24 @@ type AttendanceStats = {
     date: number | Date;
 };
 
+type ProblemPointData = {
+    category: ValidProblemPointType;
+    description: string;
+    point: number;
+    date: string | Date;
+};
+
+const CATEGORY_COLORS_HEX: Record<string, string> = {
+    LATE: "#F97316",
+    INCOMPLETE_ATTRIBUTES: "#6B7280",
+    DISCIPLINE: "#EF4444",
+    ACADEMIC: "#3B82F6",
+    SOCIAL: "#22C55E",
+    OTHER: "#A855F7",
+};
+
 export default function ParentDashboard({ session }: DashboardProps) {
+    const [loading, setLoading] = useState(true);
     const [subjects, setSubjects] = useState([]);
     const [studentName, setStudentName] = useState("");
     const [attendanceStats, setAttendanceStats] = useState({
@@ -27,6 +48,11 @@ export default function ParentDashboard({ session }: DashboardProps) {
         permission: [],
         alpha: [],
     });
+    const [problemPointRecords, setProblemPointRecords] = useState<
+        ProblemPointData[]
+    >([]);
+    const [totalproblemPoint, setTotalProblemPoint] = useState(0);
+    const [problemPointChartData, setProblemPointChartData] = useState<{ name: string; value: number; color: string }[]>([]);
 
     const chartData = [
         { name: "Sick", value: attendanceStats.sick.length, color: "#FBBF24" },
@@ -44,6 +70,7 @@ export default function ParentDashboard({ session }: DashboardProps) {
         attendanceStats.alpha.length;
 
     const fetchData = async () => {
+        setLoading(true);
         try {
             const res = await axios.get(`api/parent`, {
                 params: {
@@ -52,7 +79,7 @@ export default function ParentDashboard({ session }: DashboardProps) {
             });
 
             if (res.status === 200) {
-                const { studentName, studentSubjects, attendanceStats } = res.data.data;
+                const { studentName, studentSubjects, attendanceStats, problemPointRecords } = res.data.data;
 
                 setStudentName(studentName);
                 setSubjects(studentSubjects || []);
@@ -70,10 +97,38 @@ export default function ParentDashboard({ session }: DashboardProps) {
                 );
 
                 setAttendanceStats(grouped);
+
+                // Process Problem Points
+                if (problemPointRecords) {
+                    const records = problemPointRecords;
+                    const totalPoint = records.reduce(
+                        (acc: any, record: ProblemPointData) => {
+                            return acc + record.point;
+                        },
+                        0
+                    );
+
+                    const ppChartDataMap: Record<string, number> = {};
+                    records.forEach((record: ProblemPointData) => {
+                        ppChartDataMap[record.category] = (ppChartDataMap[record.category] || 0) + record.point;
+                    });
+
+                    const ppChartData = Object.entries(ppChartDataMap).map(([category, value]) => ({
+                        name: category.replace(/_/g, " "),
+                        value,
+                        color: CATEGORY_COLORS_HEX[category] || "#9CA3AF"
+                    }));
+
+                    setTotalProblemPoint(totalPoint);
+                    setProblemPointRecords(records);
+                    setProblemPointChartData(ppChartData);
+                }
             }
         } catch (error) {
             console.error(`Error fetching parent dashboard data: ${error}`);
             toast.error("Something went wrong. Can't retrieve dashboard data");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -81,10 +136,30 @@ export default function ParentDashboard({ session }: DashboardProps) {
         fetchData();
     }, [session.id]);
 
+    if (loading) {
+        return (
+            <div className="p-4 sm:p-6 lg:p-8 space-y-8">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <Skeleton className="h-32 rounded-2xl" />
+                    <Skeleton className="h-32 rounded-2xl" />
+                    <Skeleton className="col-span-2 sm:col-span-1 h-32 rounded-2xl" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <Skeleton className="lg:col-span-2 h-[400px] rounded-2xl" />
+                    <Skeleton className="h-[400px] rounded-2xl" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <Skeleton className="h-[400px] rounded-2xl" />
+                    <Skeleton className="h-[400px] rounded-2xl" />
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="p-4 sm:p-6 lg:p-8">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {/* Card 1: Total Subjects */}
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
@@ -98,17 +173,17 @@ export default function ParentDashboard({ session }: DashboardProps) {
                     <div className="text-sm text-gray-500">Total Subjects</div>
                 </div>
 
-                {/* Card 2: Average Score (Placeholder) */}
+                {/* Card 2: Total Problem Points */}
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                            <span className="text-2xl">📈</span>
+                        <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                            <AlertCircle className="w-6 h-6 text-red-600" />
                         </div>
                     </div>
                     <div className="text-3xl font-bold text-gray-900 mb-1">
-                        -
+                        {totalproblemPoint}
                     </div>
-                    <div className="text-sm text-gray-500">Average Score</div>
+                    <div className="text-sm text-gray-500">Total Problem Points</div>
                 </div>
 
                 {/* Card 3: Student Profile */}
@@ -127,10 +202,10 @@ export default function ParentDashboard({ session }: DashboardProps) {
                 </div>
             </div>
 
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Attendance Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                 {/* Attendance Statistics (Donut Chart) */}
-                <div className="lg:col-span-2 bg-white rounded-2xl border max-h-[500px] border-[#E5E7EB] shadow-sm p-4 sm:p-6">
+                <div className="bg-white rounded-2xl border max-h-[500px] border-[#E5E7EB] shadow-sm p-4 sm:p-6">
                     <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
                         Attendance Statistics (Absences)
                     </h3>
@@ -234,6 +309,34 @@ export default function ParentDashboard({ session }: DashboardProps) {
                     )}
                 </div>
             </div>
+
+            {/* Problem Points Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                {/* Chart */}
+                <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
+                        Problem Points Breakdown
+                    </h3>
+                    <div className="flex items-center justify-center">
+                        <ProblemPointChart data={problemPointChartData} />
+                    </div>
+                    <div className="mt-4 text-center">
+                        <p className="text-gray-500 text-sm">
+                            Total Points Deducted:{" "}
+                            <span className="font-bold text-red-600">{totalproblemPoint}</span>
+                        </p>
+                    </div>
+                </div>
+
+                {/* List */}
+                <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
+                        Problem Points History
+                    </h3>
+                    <ProblemPointList data={problemPointRecords} />
+                </div>
+            </div>
+
         </div>
     );
 }

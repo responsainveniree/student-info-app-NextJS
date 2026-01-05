@@ -1,10 +1,14 @@
 "use client";
-import { GraduationCap, BookOpen, Calendar } from "lucide-react";
+import { GraduationCap, BookOpen, Calendar, AlertCircle } from "lucide-react";
 import { AttendanceChart } from "../../attendance/AttendanceChart";
+import { ProblemPointChart } from "../problemPoint/ProblemPointChart";
+import { ProblemPointList } from "../problemPoint/ProblemPointList";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { getRoleDisplayName, Role } from "@/lib/constants/roles";
+import { ValidProblemPointType } from "@/lib/constants/problemPoint";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Session = {
   name: string;
@@ -22,14 +26,36 @@ type AttendanceStats = {
   date: number | Date;
 };
 
+type ProblemPointData = {
+  category: ValidProblemPointType;
+  description: string;
+  point: number;
+  date: string | Date;
+};
+
+const CATEGORY_COLORS_HEX: Record<string, string> = {
+  LATE: "#F97316", // Orange
+  INCOMPLETE_ATTRIBUTES: "#6B7280", // Gray
+  DISCIPLINE: "#EF4444", // Red
+  ACADEMIC: "#3B82F6", // Blue
+  SOCIAL: "#22C55E", // Green
+  OTHER: "#A855F7", // Purple
+};
+
 const StudentDashboard = ({ session }: DashboardProps) => {
   const role = getRoleDisplayName(session.role);
+  const [loading, setLoading] = useState(true);
   const [subjects, setSubjects] = useState([]);
   const [attendanceStats, setAttendanceStats] = useState({
     sick: [],
     permission: [],
     alpha: [],
   });
+  const [problemPointRecords, setProblemPointRecords] = useState<
+    ProblemPointData[]
+  >([]);
+  const [totalproblemPoint, setTotalProblemPoint] = useState(0);
+  const [problemPointChartData, setProblemPointChartData] = useState<{ name: string; value: number; color: string }[]>([]);
 
   const chartData = [
     { name: "Sick", value: attendanceStats.sick.length, color: "#FBBF24" },
@@ -46,19 +72,16 @@ const StudentDashboard = ({ session }: DashboardProps) => {
     attendanceStats.permission.length +
     attendanceStats.alpha.length;
 
-  const fetchAttendanceData = async () => {
+  const fetchAttendanceAndProblemPointData = async () => {
     try {
-      const res = await axios.get(
-        `api/student-attendance/student-attendance-data`,
-        {
-          params: {
-            studentId: session.id,
-          },
-        }
-      );
+      const res = await axios.get(`api/student/profile`, {
+        params: {
+          studentId: session.id,
+        },
+      });
       if (res.status === 200) {
         // Group data by type in one operation
-        const grouped = res.data.data.reduce(
+        const groupedAttendance = res.data.data.attendanceRecords.reduce(
           (acc: any, stat: AttendanceStats) => {
             const type = stat.type as keyof typeof acc;
             if (!acc[type.toString().toLowerCase()])
@@ -69,8 +92,30 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           { sick: [], permission: [], alpha: [] }
         );
 
-        // Single setState call
-        setAttendanceStats(grouped);
+        const records = res.data.data.problemPointRecords;
+        const totalPoint = records.reduce(
+          (acc: any, record: ProblemPointData) => {
+            return acc + record.point;
+          },
+          0
+        );
+
+        // Process Problem Point Chart Data
+        const ppChartDataMap: Record<string, number> = {};
+        records.forEach((record: ProblemPointData) => {
+          ppChartDataMap[record.category] = (ppChartDataMap[record.category] || 0) + record.point;
+        });
+
+        const ppChartData = Object.entries(ppChartDataMap).map(([category, value]) => ({
+          name: category.replace(/_/g, " "),
+          value,
+          color: CATEGORY_COLORS_HEX[category] || "#9CA3AF"
+        }));
+
+        setTotalProblemPoint(totalPoint);
+        setProblemPointRecords(records);
+        setProblemPointChartData(ppChartData);
+        setAttendanceStats(groupedAttendance);
       }
     } catch (error) {
       console.error(`Error at fetching attendace data :${error}`);
@@ -90,24 +135,45 @@ const StudentDashboard = ({ session }: DashboardProps) => {
         setSubjects(res.data.data.studentSubjects);
       }
     } catch (error) {
-      console.log(`Error at fetching student subjects: ${error}`);
+      console.error(`Error at fetching student subjects: ${error}`);
       toast.error("something went wrong. Can't retrieve subjects data");
     }
   };
 
   useEffect(() => {
-    function fetchData() {
-      fetchAttendanceData();
-      fetchStudentSubjectsData();
+    async function fetchData() {
+      setLoading(true);
+      await Promise.all([fetchAttendanceAndProblemPointData(), fetchStudentSubjectsData()]);
+      setLoading(false);
     }
 
     fetchData();
   }, [session.id]);
 
+  if (loading) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 space-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="col-span-2 sm:col-span-1 h-32 rounded-2xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <Skeleton className="lg:col-span-2 h-[400px] rounded-2xl" />
+          <Skeleton className="h-[400px] rounded-2xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Skeleton className="h-[400px] rounded-2xl" />
+          <Skeleton className="h-[400px] rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {/* Card 1: Total Subjects */}
         <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
@@ -121,19 +187,17 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           <div className="text-sm text-gray-500">Total Subjects</div>
         </div>
 
-        {/* Card 2: Average Score */}
+        {/* Card 2: Total Problem Points */}
         <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-              {/* Note: User requested "Avg Score", keeping TrendingUp icon usage logic from original, though TrendingUp was removed from imports earlier. Re-adding passing TrendingUp is not possible unless imported. I will use Calendar? No, user requested 3 cards. I will use GraduationCap or similar. Actually I will re-add TrendingUp import. */}
-              {/* Wait, I can't easily re-add import in this block since it's only replacing the body. I will use BookOpen or GraduationCap if already imported, or simple emoji? No, I should fix imports. I'll use GraduationCap for now or just text. Let's use BookOpen for subjects and maybe re-use GraduationCap. Or just a generic div. I'll check imports. Imports: GraduationCap, BookOpen, Calendar. I'll use GraduationCap for score for now, or better yet, do a separate edit to add TrendingUp back. I'll use Calendar for now to avoid error, then fix imports.  */}
-              <span className="text-2xl">📈</span>
+            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-red-600" />
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-1">
-            -
+            {totalproblemPoint}
           </div>
-          <div className="text-sm text-gray-500">Average Score</div>
+          <div className="text-sm text-gray-500">Total Problem Points</div>
         </div>
 
         {/* Card 3: Profile (Spans 2 cols on mobile, 1 on desktop) */}
@@ -143,19 +207,15 @@ const StudentDashboard = ({ session }: DashboardProps) => {
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
           </div>
-          <div className="truncate text-xl font-bold mb-1">
-            {session.name}
-          </div>
-          <div className="text-sm text-blue-100">
-            {role}
-          </div>
+          <div className="truncate text-xl font-bold mb-1">{session.name}</div>
+          <div className="text-sm text-blue-100">{role}</div>
         </div>
       </div>
 
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      {/* Attendance Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Attendance Statistics (Donut Chart) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border max-h-[500px] border-[#E5E7EB] shadow-sm p-4 sm:p-6">
+        <div className="bg-white rounded-2xl border max-h-[500px] border-[#E5E7EB] shadow-sm p-4 sm:p-6">
           <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
             Attendance Statistics (Absences)
           </h3>
@@ -259,6 +319,34 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           )}
         </div>
       </div>
+
+      {/* Problem Points Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        {/* Chart */}
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
+            Problem Points Breakdown
+          </h3>
+          <div className="flex items-center justify-center">
+            <ProblemPointChart data={problemPointChartData} />
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-gray-500 text-sm">
+              Total Points Deducted:{" "}
+              <span className="font-bold text-red-600">{totalproblemPoint}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-[#111827] mb-6">
+            Problem Points History
+          </h3>
+          <ProblemPointList data={problemPointRecords} />
+        </div>
+      </div>
+
     </div>
   );
 };

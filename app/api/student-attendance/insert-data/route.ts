@@ -1,19 +1,10 @@
 import { badRequest, forbidden, handleError, notFound } from "@/lib/errors";
 import { prisma } from "@/prisma/prisma";
-import { VALID_ATTENDANCE_TYPES, ValidAttendanceType } from "@/lib/constants/attendanceType";
-
-
-interface BulkAttendanceRecord {
-  studentId: string;
-  attendanceType: string;
-  description?: string;
-}
-
-interface BulkAttendancePayload {
-  secretaryId: string;
-  date: string;
-  records: BulkAttendanceRecord[];
-}
+import {
+  VALID_ATTENDANCE_TYPES,
+  ValidAttendanceType,
+} from "@/lib/constants/attendance";
+import { bulkAttendance } from "@/lib/utils/zodSchema";
 
 /**
  * Validates and normalizes the attendance type.
@@ -78,8 +69,8 @@ function getDayBounds(date: Date): { startOfDay: Date; endOfDay: Date } {
 
 export async function POST(req: Request) {
   try {
-    const body: BulkAttendancePayload = await req.json();
-    const { secretaryId, date, records } = body;
+    const body = await req.json();
+    const { secretaryId, date, records } = bulkAttendance.parse(body);
 
     // ============================================
     // VALIDATION 1: Required fields
