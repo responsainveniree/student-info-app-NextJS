@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Save, Lock, Search, ArrowUpDown } from "lucide-react";
+import { Calendar, Users, Save, Lock, Search, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { ROLES, getRoleDashboard } from "@/lib/constants/roles";
 
 interface Student {
@@ -36,6 +36,8 @@ interface AttendanceStats {
   permission: number;
   alpha: number;
 }
+
+const ITEMS_PER_PAGE = 10;
 
 type Session = {
   id: string;
@@ -65,6 +67,15 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
     "name-asc"
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [stats, setStats] = useState<AttendanceStats>({
+    total: 0,
+    present: 0,
+    sick: 0,
+    permission: 0,
+    alpha: 0,
+  });
 
   type SortOption = "name-asc" | "name-desc" | "status";
 
@@ -73,28 +84,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
     new Date(selectedDate) > new Date(new Date().toISOString().split("T")[0]);
   const isValidDate = !isFutureDate;
 
-  // Calculate statistics
-  const stats = useMemo<AttendanceStats>(() => {
-    const records = Object.values(attendanceMap);
-
-    let sick = 0;
-    let permission = 0;
-    let alpha = 0;
-
-    for (const r of records) {
-      if (r.type === "SICK") sick++;
-      else if (r.type === "PERMISSION") permission++;
-      else if (r.type === "ALPHA") alpha++;
-    }
-
-    return {
-      total: students.length,
-      sick,
-      permission,
-      alpha,
-      present: students.length - (sick + permission + alpha),
-    };
-  }, [students, attendanceMap]);
+  // Calculate total pages
+  const totalPages = Math.ceil(totalStudents / ITEMS_PER_PAGE);
 
   const sortedAndFilteredStudents = useMemo(() => {
     let result = [...students];
@@ -131,7 +122,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
       return;
     }
     initializeData();
-  }, [session, selectedDate]);
+  }, [session, selectedDate, currentPage]);
 
   const initializeData = async () => {
     setLoading(true);
@@ -142,39 +133,53 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
         return;
       }
 
-      // Fetch students using axios
-      const studentRes = await axios.get(
-        `/api/student/list-students-by-homeroom-teacher-id`,
-        {
-          params: { homeroomTeacherId: session.homeroomTeacherId },
-        }
-      );
-      const studentList = studentRes.data.data || [];
-      setStudents(studentList);
+      // Fetch attendance data with pagination and stats
+      const attendanceRes = await axios.get(`/api/student/attendance`, {
+        params: {
+          date: selectedDate,
+          homeroomTeacherId: session.homeroomTeacherId,
+          studentId: session.id,
+          page: currentPage,
+        },
+      });
 
-      // Fetch attendance using axios
-      try {
-        const attendanceRes = await axios.get(
-          `/api/student-attendance/students-attendance-data`,
-          {
-            params: {
-              date: selectedDate,
-              homeroomTeacherId: session.homeroomTeacherId,
-              studentId: session.id, // Added for validation check
-            },
-          }
-        );
-        const map: Record<string, AttendanceRecord> = {};
-        attendanceRes.data.data.forEach((r: any) => {
-          map[r.studentId] = r;
-        });
-        setAttendanceMap(map);
-      } catch (e) {
-        setAttendanceMap({});
-      }
+      const { studentAttendanceRecords, totalStudents: total, stats: apiStats } = attendanceRes.data.data;
+
+      // Transform students with their attendance
+      const studentList: Student[] = studentAttendanceRecords.map((record: any) => ({
+        id: record.id,
+        name: record.name,
+      }));
+      setStudents(studentList);
+      setTotalStudents(total);
+
+      // Build attendance map from the response
+      const map: Record<string, AttendanceRecord> = {};
+      studentAttendanceRecords.forEach((record: any) => {
+        if (record.attendances && record.attendances.length > 0) {
+          const att = record.attendances[0];
+          map[record.id] = {
+            studentId: record.id,
+            type: att.type,
+            description: att.description || "",
+          };
+        }
+      });
+      setAttendanceMap(map);
+
+      // Update stats from API response
+      setStats({
+        total,
+        sick: apiStats.sick,
+        permission: apiStats.permission,
+        alpha: apiStats.alpha,
+        present: total - (apiStats.sick + apiStats.permission + apiStats.alpha),
+      });
     } catch (error: any) {
       console.error(error);
       toast.error(error.response?.data?.message || "Something went wrong.");
+      setStudents([]);
+      setAttendanceMap({});
     } finally {
       setLoading(false);
     }
@@ -222,7 +227,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
       }));
 
       // Single atomic bulk request
-      const response = await axios.post("/api/student-attendance/insert-data", {
+      const response = await axios.post("/api/attendance", {
         secretaryId: session?.id,
         date: selectedDate,
         records,
@@ -451,8 +456,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                       </td>
                       <td className="px-6 lg:px-8 py-5">
                         {isValidDate &&
-                        record.type !== "ALPHA" &&
-                        record.type !== "PRESENT" ? (
+                          record.type !== "ALPHA" &&
+                          record.type !== "PRESENT" ? (
                           <Input
                             placeholder="Add optional description..."
                             value={record.description || ""}
@@ -556,8 +561,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
 
                     <div className="col-span-2 pt-2">
                       {isValidDate &&
-                      record.type !== "ALPHA" &&
-                      record.type !== "PRESENT" ? (
+                        record.type !== "ALPHA" &&
+                        record.type !== "PRESENT" ? (
                         <Input
                           placeholder="Add note..."
                           value={record.description || ""}
@@ -593,6 +598,42 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
               </div>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-sm text-gray-600">
+                Showing {currentPage * ITEMS_PER_PAGE + 1} to{" "}
+                {Math.min((currentPage + 1) * ITEMS_PER_PAGE, totalStudents)} of{" "}
+                {totalStudents} students
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
+                  disabled={currentPage === 0 || loading}
+                  className="flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Button>
+                <span className="text-sm font-medium text-gray-700 px-3">
+                  Page {currentPage + 1} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                  disabled={currentPage >= totalPages - 1 || loading}
+                  className="flex items-center gap-1"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

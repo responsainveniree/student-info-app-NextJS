@@ -28,7 +28,7 @@ export type Role = (typeof ALL_ROLES)[number];
 export type StudentRole = (typeof STUDENT_ROLES)[number];
 export type TeacherRole = (typeof TEACHER_ROLES)[number];
 export type StaffRole = (typeof STAFF_ROLES)[number];
-export type AllStaffRole = (typeof ALL_STAFF_ROLES)[number]
+export type AllStaffRole = (typeof ALL_STAFF_ROLES)[number];
 export type OutsiderRole = (typeof OUTSIDER_ROLES)[number];
 
 export const isStudentRole = (role: string): role is StudentRole =>
@@ -53,10 +53,10 @@ export const hasHomeroomTeacher = (role: string): boolean =>
   isStudentRole(role);
 
 export const getRoleDashboard = (role: string): string => {
-  if (isStudentRole(role)) return "/student-dashboard";
-  if (isTeacherRole(role)) return "/teacher-dashboard";
-  if (isStaffRole(role)) return "/staff-dashboard";
-  if (isParentRole(role)) return "/parent-dashboard";
+  if (isStudentRole(role)) return "/dashboard/student";
+  if (isTeacherRole(role)) return "/dashboard/teacher";
+  if (isStaffRole(role)) return "/dashboard/staff";
+  if (isParentRole(role)) return "/dashboard/parent";
   return "/sign-in";
 };
 

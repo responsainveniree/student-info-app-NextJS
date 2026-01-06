@@ -5,6 +5,11 @@ import {
   ValidAttendanceType,
 } from "@/lib/constants/attendance";
 import { bulkAttendance } from "@/lib/utils/zodSchema";
+import {
+  getDayBounds,
+  getSemester,
+  getSemesterDateRange,
+} from "@/lib/utils/date";
 
 /**
  * Validates and normalizes the attendance type.
@@ -24,47 +29,6 @@ function normalizeAttendanceType(type: string): ValidAttendanceType | null {
   }
 
   return normalized as ValidAttendanceType;
-}
-
-/**
- * Determines the semester based on the date.
- */
-function getSemester(date: Date): 1 | 2 {
-  const month = date.getMonth() + 1;
-  return month >= 7 && month <= 12 ? 1 : 2;
-}
-
-/**
- * Gets the valid date range for the current semester.
- */
-function getSemesterDateRange(referenceDate: Date): { start: Date; end: Date } {
-  const year = referenceDate.getFullYear();
-  const semester = getSemester(referenceDate);
-
-  if (semester === 2) {
-    return {
-      start: new Date(year, 0, 1),
-      end: new Date(year, 5, 30, 23, 59, 59, 999),
-    };
-  }
-
-  return {
-    start: new Date(year, 6, 1),
-    end: new Date(year, 11, 31, 23, 59, 59, 999),
-  };
-}
-
-/**
- * Gets the start and end of a specific day for date range queries.
- */
-function getDayBounds(date: Date): { startOfDay: Date; endOfDay: Date } {
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
-
-  return { startOfDay, endOfDay };
 }
 
 export async function POST(req: Request) {
@@ -254,6 +218,128 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("Bulk attendance error:", error);
+    return handleError(error);
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const dateParam = searchParams.get("date");
+    const homeroomTeacherId = searchParams.get("homeroomTeacherId");
+    const studentId = searchParams.get("studentId");
+    const page = Number(searchParams.get("page")) || 0;
+
+    if (!dateParam || !homeroomTeacherId || !studentId) {
+      throw badRequest(
+        "Missing required parameters: date, homeroomTeacher ID and student ID ."
+      );
+    }
+
+    // Validate studentId if provided (for secretary verification)
+
+    const secretary = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: {
+        role: true,
+        homeroomTeacherId: true,
+        classNumber: true,
+        major: true,
+        grade: true,
+      },
+    });
+
+    if (!secretary) {
+      throw notFound("Student not found.");
+    }
+
+    if (secretary.role !== "CLASS_SECRETARY") {
+      throw forbidden("Only class secretaries can view attendance records.");
+    }
+
+    if (secretary.homeroomTeacherId !== homeroomTeacherId) {
+      throw forbidden("You can only view attendance for your own class.");
+    }
+
+    const targetDate = new Date(dateParam);
+    const { startOfDay, endOfDay } = getDayBounds(targetDate);
+
+    const studentAttendanceRecords = await prisma.student.findMany({
+      where: {
+        classNumber: secretary.classNumber,
+        grade: secretary.grade,
+        major: secretary.major,
+      },
+      select: {
+        id: true,
+        name: true,
+        attendances: {
+          where: {
+            date: {
+              gte: startOfDay,
+              lte: endOfDay,
+            },
+          },
+          select: {
+            date: true,
+            type: true,
+            description: true,
+          },
+        },
+      },
+      skip: page * 10,
+      take: 10,
+    });
+
+    const totalStudents = await prisma.student.count({
+      where: {
+        classNumber: secretary.classNumber,
+        grade: secretary.grade,
+        major: secretary.major,
+      },
+    });
+
+    // Get attendance stats for the selected date (for Option B: stats from API)
+    const attendanceStats = await prisma.studentAttendance.groupBy({
+      by: ["type"],
+      where: {
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        student: {
+          classNumber: secretary.classNumber,
+          grade: secretary.grade,
+          major: secretary.major,
+        },
+      },
+      _count: {
+        type: true,
+      },
+    });
+
+    // Transform stats into a more usable format
+    const stats = {
+      sick: 0,
+      permission: 0,
+      alpha: 0,
+    };
+
+    for (const stat of attendanceStats) {
+      if (stat.type === "SICK") stats.sick = stat._count.type;
+      else if (stat.type === "PERMISSION") stats.permission = stat._count.type;
+      else if (stat.type === "ALPHA") stats.alpha = stat._count.type;
+    }
+
+    return Response.json(
+      {
+        message: "Attendance retrieved successfully.",
+        data: { studentAttendanceRecords, totalStudents, stats },
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(`Error in students attendance data: ${error}`);
     return handleError(error);
   }
 }

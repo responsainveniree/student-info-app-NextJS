@@ -1,5 +1,5 @@
 import { ClassNumber, Grade, Major } from "@/lib/constants/class";
-import { badRequest, handleError } from "@/lib/errors";
+import { badRequest, forbidden, handleError, notFound } from "@/lib/errors";
 import { prisma } from "@/prisma/prisma";
 
 export async function GET(req: Request) {
@@ -7,6 +7,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const grade = searchParams.get("grade") as Grade;
+    const page = Number(searchParams.get("page")) || 0;
+    const takeRecords = 10;
+
     const major = searchParams.get("major") as Major;
     const classNumber = searchParams.get("classNumber") as ClassNumber;
 
@@ -25,12 +28,23 @@ export async function GET(req: Request) {
         id: true,
         name: true,
       },
+      skip: page * 10,
+      take: takeRecords,
+    });
+
+    const totalStudents = await prisma.student.count({
+      where: {
+        grade: grade,
+        major: major,
+        classNumber: classNumber,
+      },
     });
 
     return Response.json(
       {
         message: "Successfully retrieved list of students by class",
         students: findStudents,
+        totalStudents,
       },
       { status: 200 }
     );

@@ -21,15 +21,17 @@ import { Upload, UserPlus, FileSpreadsheet, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { Spinner } from "../../ui/spinner";
 import { Eye, EyeOff } from "lucide-react";
+
+import { GRADES, CLASSNUMBERS, MAJORS } from "@/lib/constants/class";
 import {
-  grades,
-  majors,
-  classNumbers,
-  studentRoles,
-  gradeLabels,
-  majorLabels,
-  roleLabels,
-} from "./formConstants";
+  formatClassNumber,
+  getGradeNumber,
+  getMajorDisplayName,
+  MAJOR_DISPLAY_MAP,
+  GRADE_DISPLAY_MAP,
+  STUDENT_ROLES_MAP,
+} from "@/lib/utils/labels";
+import { STUDENT_ROLES } from "@/lib/constants/roles";
 
 interface StudentFormModalProps {
   open: boolean;
@@ -92,7 +94,7 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
       formData.append("file", file);
 
       const res = await axios.post(
-        "/api/auth/insert-account/bulk/student-accounts",
+        "/api/auth/account/bulk/student-accounts",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -126,7 +128,7 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
 
     try {
       const res = await axios.post(
-        "/api/auth/insert-account/single/student-account",
+        "/api/auth/account/single/student-account",
         data
       );
 
@@ -463,9 +465,9 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
                       <SelectValue placeholder="Select grade" />
                     </SelectTrigger>
                     <SelectContent>
-                      {grades.map((g) => (
+                      {GRADES.map((g) => (
                         <SelectItem key={g} value={g}>
-                          {gradeLabels[g]}
+                          {GRADE_DISPLAY_MAP[g]}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -485,9 +487,9 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
                       <SelectValue placeholder="Select major" />
                     </SelectTrigger>
                     <SelectContent>
-                      {majors.map((m) => (
+                      {MAJORS.map((m) => (
                         <SelectItem key={m} value={m}>
-                          {majorLabels[m]}
+                          {MAJOR_DISPLAY_MAP[m]}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -507,7 +509,7 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
                     <SelectContent>
-                      {classNumbers.map((num) => (
+                      {CLASSNUMBERS.map((num) => (
                         <SelectItem key={num} value={num}>
                           {num === "none" ? "None" : `Class ${num}`}
                         </SelectItem>
@@ -529,9 +531,9 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {studentRoles.map((role) => (
+                      {STUDENT_ROLES.map((role) => (
                         <SelectItem key={role} value={role}>
-                          {roleLabels[role]}
+                          {STUDENT_ROLES_MAP[role]}
                         </SelectItem>
                       ))}
                     </SelectContent>

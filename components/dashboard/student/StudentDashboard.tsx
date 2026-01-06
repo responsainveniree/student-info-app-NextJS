@@ -55,7 +55,9 @@ const StudentDashboard = ({ session }: DashboardProps) => {
     ProblemPointData[]
   >([]);
   const [totalproblemPoint, setTotalProblemPoint] = useState(0);
-  const [problemPointChartData, setProblemPointChartData] = useState<{ name: string; value: number; color: string }[]>([]);
+  const [problemPointChartData, setProblemPointChartData] = useState<
+    { name: string; value: number; color: string }[]
+  >([]);
 
   const chartData = [
     { name: "Sick", value: attendanceStats.sick.length, color: "#FBBF24" },
@@ -74,11 +76,13 @@ const StudentDashboard = ({ session }: DashboardProps) => {
 
   const fetchAttendanceAndProblemPointData = async () => {
     try {
-      const res = await axios.get(`api/student/profile`, {
+      const res = await axios.get(`/api/student/profile`, {
         params: {
           studentId: session.id,
         },
       });
+
+      console.log(res.data)
       if (res.status === 200) {
         // Group data by type in one operation
         const groupedAttendance = res.data.data.attendanceRecords.reduce(
@@ -103,14 +107,17 @@ const StudentDashboard = ({ session }: DashboardProps) => {
         // Process Problem Point Chart Data
         const ppChartDataMap: Record<string, number> = {};
         records.forEach((record: ProblemPointData) => {
-          ppChartDataMap[record.category] = (ppChartDataMap[record.category] || 0) + record.point;
+          ppChartDataMap[record.category] =
+            (ppChartDataMap[record.category] || 0) + record.point;
         });
 
-        const ppChartData = Object.entries(ppChartDataMap).map(([category, value]) => ({
-          name: category.replace(/_/g, " "),
-          value,
-          color: CATEGORY_COLORS_HEX[category] || "#9CA3AF"
-        }));
+        const ppChartData = Object.entries(ppChartDataMap).map(
+          ([category, value]) => ({
+            name: category.replace(/_/g, " "),
+            value,
+            color: CATEGORY_COLORS_HEX[category] || "#9CA3AF",
+          })
+        );
 
         setTotalProblemPoint(totalPoint);
         setProblemPointRecords(records);
@@ -125,7 +132,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
 
   const fetchStudentSubjectsData = async () => {
     try {
-      const res = await axios.get("api/student/list-subjects", {
+      const res = await axios.get("/api/student/subjects", {
         params: {
           studentId: session.id,
         },
@@ -143,7 +150,10 @@ const StudentDashboard = ({ session }: DashboardProps) => {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      await Promise.all([fetchAttendanceAndProblemPointData(), fetchStudentSubjectsData()]);
+      await Promise.all([
+        fetchAttendanceAndProblemPointData(),
+        fetchStudentSubjectsData(),
+      ]);
       setLoading(false);
     }
 
@@ -333,7 +343,9 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           <div className="mt-4 text-center">
             <p className="text-gray-500 text-sm">
               Total Points Deducted:{" "}
-              <span className="font-bold text-red-600">{totalproblemPoint}</span>
+              <span className="font-bold text-red-600">
+                {totalproblemPoint}
+              </span>
             </p>
           </div>
         </div>
@@ -346,7 +358,6 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           <ProblemPointList data={problemPointRecords} />
         </div>
       </div>
-
     </div>
   );
 };

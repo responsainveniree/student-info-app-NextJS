@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Grade, Major } from "@/lib/constants/class";
+import { ClassNumber, Grade, Major } from "@/lib/constants/class";
 import { Role } from "@/lib/constants/roles";
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, Calendar, GraduationCap, BookOpen } from "lucide-react";
 import axios from "axios";
+import {
+  formatClassNumber,
+  getGradeNumber,
+  getMajorDisplayName,
+  SUBJECT_DISPLAY_MAP,
+} from "@/lib/utils/labels";
 
 interface TeachingAssignment {
   grade: string;
@@ -52,14 +58,11 @@ const TeachingClassesAndTeachingAssignments = ({
     const fetchData = async () => {
       if (session?.user?.id) {
         try {
-          const response = await axios.get(
-            `/api/teacher/teaching-classes-and-assignments`,
-            {
-              params: {
-                teacherId: session.user.id,
-              },
-            }
-          );
+          const response = await axios.get(`/api/teacher`, {
+            params: {
+              teacherId: session.user.id,
+            },
+          });
 
           if (response.status === 200) {
             setData(response.data.data);
@@ -86,7 +89,10 @@ const TeachingClassesAndTeachingAssignments = ({
             <CardContent>
               <div className="space-y-4">
                 {[1, 2, 3].map((j) => (
-                  <div key={j} className="h-20 bg-gray-100 rounded animate-pulse" />
+                  <div
+                    key={j}
+                    className="h-20 bg-gray-100 rounded animate-pulse"
+                  />
                 ))}
               </div>
             </CardContent>
@@ -99,7 +105,7 @@ const TeachingClassesAndTeachingAssignments = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Teaching Classes */}
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="hover:shadow-lg transition-shadow max-h-[400px] overflow-y-scroll">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Users className="w-5 h-5 text-blue-600" />
@@ -116,9 +122,10 @@ const TeachingClassesAndTeachingAssignments = ({
                 >
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      Class {cls.grade} {cls.major} {cls.classNumber}
+                      Class {getGradeNumber(cls.grade)}{" "}
+                      {getMajorDisplayName(cls.major)}{" "}
+                      {formatClassNumber(cls.classNumber as ClassNumber)}
                     </h3>
-                    <p className="text-sm text-gray-500">Homeroom</p>
                   </div>
                   <GraduationCap className="w-5 h-5 text-gray-400" />
                 </div>
@@ -133,7 +140,7 @@ const TeachingClassesAndTeachingAssignments = ({
       </Card>
 
       {/* Teaching Assignments */}
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="hover:shadow-lg transition-shadow max-h-[400px] overflow-y-scroll">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <BookOpen className="w-5 h-5 text-blue-600" />
@@ -141,8 +148,7 @@ const TeachingClassesAndTeachingAssignments = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {data?.teachingAssignments &&
-            data.teachingAssignments.length > 0 ? (
+          {data?.teachingAssignments && data.teachingAssignments.length > 0 ? (
             <div className="space-y-4">
               {data.teachingAssignments.map((assignment, index) => (
                 <div
@@ -151,11 +157,12 @@ const TeachingClassesAndTeachingAssignments = ({
                 >
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {assignment.subject.subjectName}
+                      {SUBJECT_DISPLAY_MAP[assignment.subject.subjectName]}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      Class {assignment.grade} {assignment.major}{" "}
-                      {assignment.classNumber}
+                      Class {getGradeNumber(assignment.grade as Grade)}{" "}
+                      {getMajorDisplayName(assignment.major as Major)}{" "}
+                      {formatClassNumber(assignment.classNumber as ClassNumber)}
                     </p>
                   </div>
                   <Calendar className="w-5 h-5 text-gray-400" />

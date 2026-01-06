@@ -11,6 +11,8 @@ import {
   AlertCircle,
   ArrowUpDown,
   Search,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Role } from "@/lib/constants/roles";
 import axios from "axios";
@@ -21,7 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+const ITEMS_PER_PAGE = 10;
 
 interface Attendance {
   date: string;
@@ -37,6 +42,12 @@ interface Student {
 
 interface ClassroomData {
   students: Student[];
+  totalStudents: number;
+  stats: {
+    sick: number;
+    permission: number;
+    alpha: number;
+  };
 }
 
 interface Session {
@@ -64,28 +75,45 @@ const Classroom = ({ session }: ClassroomProps) => {
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("name-asc");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Calculate total pages based on API response
+  const totalPages = data ? Math.ceil(data.totalStudents / ITEMS_PER_PAGE) : 0;
+
+  // Stats from API response
+  const stats = useMemo(() => {
+    if (!data) return { total: 0, present: 0, sick: 0, permission: 0, alpha: 0 };
+
+    const { totalStudents, stats: apiStats } = data;
+    return {
+      total: totalStudents,
+      sick: apiStats.sick,
+      permission: apiStats.permission,
+      alpha: apiStats.alpha,
+      present: totalStudents - (apiStats.sick + apiStats.permission + apiStats.alpha),
+    };
+  }, [data]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (session?.user?.id && date) {
         setLoading(true);
         try {
-          const response = await axios.get(
-            `/api/teacher/homeroom-class-students-list`,
-            {
-              params: {
-                teacherId: session.user.id,
-                date: date,
-              },
-            }
-          );
+          const response = await axios.get(`/api/teacher`, {
+            params: {
+              teacherId: session.user.id,
+              date: date,
+              page: currentPage,
+            },
+          });
 
           if (response.status === 200) {
             setData(response.data.data);
           }
         } catch (error: any) {
-          toast.error(error.response.data.message || "Something went wrong.");
+          toast.error(error.response?.data?.message || "Something went wrong.");
           console.error("Failed to fetch classroom data:", error);
+          setData(null);
         } finally {
           setLoading(false);
         }
@@ -93,7 +121,7 @@ const Classroom = ({ session }: ClassroomProps) => {
     };
 
     fetchData();
-  }, [session?.user?.id, date]);
+  }, [session?.user?.id, date, currentPage]);
 
   // Each student only has one attendance per day
   const getAttendanceStatus = (attendances: Attendance[]) => {
@@ -137,31 +165,6 @@ const Classroom = ({ session }: ClassroomProps) => {
         };
     }
   };
-
-  const stats = useMemo(() => {
-    if (!data?.students)
-      return { total: 0, present: 0, sick: 0, permission: 0, alpha: 0 };
-
-    const total = data.students.length;
-    let sick = 0;
-    let permission = 0;
-    let alpha = 0;
-
-    data.students.forEach((student) => {
-      const att = student.attendances[0];
-      if (!att) return; // Counts as present
-
-      const type = att.type;
-      if (type === "SICK") sick++;
-      else if (type === "PERMISSION") permission++;
-      else if (type === "ALPHA") alpha++;
-      // PRESENT falls through
-    });
-
-    const present = total - (sick + permission + alpha);
-
-    return { total, present, sick, permission, alpha };
-  }, [data?.students]);
 
   const sortedAndFilteredStudents = useMemo(() => {
     if (!data?.students) return [];
@@ -428,6 +431,42 @@ const Classroom = ({ session }: ClassroomProps) => {
                 <p className="text-gray-400 text-sm">
                   Try adjusting your search or filters
                 </p>
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="px-4 sm:px-6 lg:px-8 py-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p className="text-sm text-gray-600">
+                  Showing {currentPage * ITEMS_PER_PAGE + 1} to{" "}
+                  {Math.min((currentPage + 1) * ITEMS_PER_PAGE, data?.totalStudents || 0)} of{" "}
+                  {data?.totalStudents || 0} students
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
+                    disabled={currentPage === 0 || loading}
+                    className="flex items-center gap-1"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </Button>
+                  <span className="text-sm font-medium text-gray-700 px-3">
+                    Page {currentPage + 1} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                    disabled={currentPage >= totalPages - 1 || loading}
+                    className="flex items-center gap-1"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
