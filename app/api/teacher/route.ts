@@ -98,7 +98,8 @@ export async function GET(req: Request) {
 
       for (const stat of attendanceStats) {
         if (stat.type === "SICK") stats.sick = stat._count.type;
-        else if (stat.type === "PERMISSION") stats.permission = stat._count.type;
+        else if (stat.type === "PERMISSION")
+          stats.permission = stat._count.type;
         else if (stat.type === "ALPHA") stats.alpha = stat._count.type;
       }
 

@@ -5,6 +5,7 @@ import { subjects } from "@/lib/utils/subjects";
 import * as XLSX from "xlsx";
 import { Grade, GRADES, Major, MAJORS } from "@/lib/constants/class";
 import crypto from "crypto";
+import { getSemester } from "@/lib/utils/date";
 interface StudentRow {
   username: string;
   email: string;
@@ -137,6 +138,48 @@ export async function POST(req: Request) {
             studentSubjects: {
               connect: subjectRecords.map((s) => ({ id: s.id })),
             },
+          },
+        });
+
+        //Upsert all subjectmMark
+        const today = new Date();
+        const currentSemester = getSemester(today);
+
+        const subjectMarkRecords = await Promise.all(
+          subjectsList.map(async (subjectName) => {
+            const subjectMark = await tx.subjectMark.upsert({
+              where: {
+                studentId_subjectName_academicYear_semester: {
+                  studentId: student.id,
+                  subjectName: subjectName,
+                  academicYear: String(new Date().getFullYear()),
+                  semester: currentSemester === 1 ? "FIRST" : "SECOND",
+                },
+              },
+              update: {},
+              create: {
+                studentId: student.id,
+                subjectName: subjectName,
+                academicYear: String(new Date().getFullYear()),
+                semester: currentSemester === 1 ? "FIRST" : "SECOND",
+              },
+            });
+            return subjectMark;
+          })
+        );
+
+        // Connect subjectMark to student
+        await tx.student.update({
+          where: { id: student.id },
+          data: {
+            subjectMarks: {
+              connect: subjectMarkRecords.map((subjectMark) => ({
+                id: subjectMark.id,
+              })),
+            },
+          },
+          include: {
+            subjectMarks: true,
           },
         });
 

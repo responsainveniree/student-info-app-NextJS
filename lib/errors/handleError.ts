@@ -2,7 +2,10 @@ import AppError from "./AppError";
 import { ZodError } from "zod";
 
 export function handleError(error: unknown) {
-  console.error("[ERROR]", error);
+  console.error("[API_ERROR]", {
+    type: error instanceof Error ? error.name : "Unknown",
+    message: error instanceof Error ? error.message : String(error),
+  });
 
   if (error instanceof ZodError) {
     return Response.json(
@@ -26,5 +29,11 @@ export function handleError(error: unknown) {
   }
 
   // 3. Unknown error
-  return Response.json({ message: "Internal server error" }, { status: 500 });
+  return Response.json(
+    {
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Internal server error",
+    },
+    { status: 500 }
+  );
 }

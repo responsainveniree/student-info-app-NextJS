@@ -7,30 +7,59 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const grade = searchParams.get("grade") as Grade;
-    const page = Number(searchParams.get("page")) || 0;
-    const takeRecords = 10;
-
     const major = searchParams.get("major") as Major;
     const classNumber = searchParams.get("classNumber") as ClassNumber;
+    const page = Number(searchParams.get("page")) || 0;
+    const takeRecords = 10;
+    const subjectName = searchParams.get("subjectName");
 
     if (!grade || !major || !classNumber) {
       throw badRequest("There are missing parameters");
     }
 
-    const findStudents = await prisma.student.findMany({
-      // I don't know do I have to index those fields
-      where: {
-        grade: grade,
-        major: major,
-        classNumber: classNumber,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      skip: page * 10,
-      take: takeRecords,
-    });
+    let findStudents;
+
+    if (subjectName) {
+      findStudents = await prisma.student.findMany({
+        where: {
+          grade: grade,
+          major: major,
+          classNumber: classNumber,
+        },
+        select: {
+          id: true,
+          name: true,
+          subjectMarks: {
+            where: {
+              subjectName: subjectName,
+            },
+            select: {
+              marks: {
+                select: {
+                  number: true,
+                },
+              },
+            },
+          },
+        },
+        skip: page * 10,
+        take: takeRecords,
+      });
+    } else {
+      findStudents = await prisma.student.findMany({
+        where: {
+          grade: grade,
+          major: major,
+          classNumber: classNumber,
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+        skip: page * 10,
+        take: takeRecords,
+      });
+    }
 
     const totalStudents = await prisma.student.count({
       where: {

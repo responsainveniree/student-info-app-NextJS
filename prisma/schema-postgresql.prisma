@@ -121,7 +121,7 @@ model Mark {
     subjectMark   SubjectMark @relation(fields: [subjectMarkId], references: [id])
 
     type          AssessmentType
-    number        Int
+    number        Int             @default(0)
     descriptionId Int
     description   MarkDescription @relation(fields: [descriptionId], references: [id])
 
@@ -132,14 +132,12 @@ model Mark {
 }
 
 model MarkDescription {
-    id          Int      @id @default(autoincrement())
-    givenAt     DateTime @default(now())
-    dueAt       DateTime
-    submittedAt DateTime
+    id      Int      @id @default(autoincrement())
+    givenAt DateTime @default(now())
+    dueAt   DateTime
+    detail  String
 
     marks Mark[]
-
-    @@index([id])
 }
 
 model StudentAttendance {

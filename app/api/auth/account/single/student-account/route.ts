@@ -4,6 +4,7 @@ import hashing from "@/lib/utils/hashing";
 import { zodStudentSignUp } from "@/lib/utils/zodSchema";
 import { subjects } from "@/lib/utils/subjects";
 import crypto from "crypto";
+import { getSemester } from "@/lib/utils/date";
 
 export async function POST(req: Request) {
   try {
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
         throw notFound("Homeroom class not found");
       }
 
-      const user = await tx.student.create({
+      const student = await tx.student.create({
         data: {
           name: data.username,
           email: data.email,
@@ -87,7 +88,7 @@ export async function POST(req: Request) {
 
       // Connect subjects to student
       await tx.student.update({
-        where: { id: user.id },
+        where: { id: student.id },
         data: {
           studentSubjects: {
             connect: subjectRecords.map((s) => ({ id: s.id })),
@@ -98,25 +99,67 @@ export async function POST(req: Request) {
         },
       });
 
+      //Upsert all subjectmMark
+      const today = new Date();
+      const currentSemester = getSemester(today);
+
+      const subjectMarkRecords = await Promise.all(
+        subjectsList.map(async (subjectName) => {
+          const subjectMark = await tx.subjectMark.upsert({
+            where: {
+              studentId_subjectName_academicYear_semester: {
+                studentId: student.id,
+                subjectName: subjectName,
+                academicYear: String(new Date().getFullYear()),
+                semester: currentSemester === 1 ? "FIRST" : "SECOND",
+              },
+            },
+            update: {},
+            create: {
+              studentId: student.id,
+              subjectName: subjectName,
+              academicYear: String(new Date().getFullYear()),
+              semester: currentSemester === 1 ? "FIRST" : "SECOND",
+            },
+          });
+          return subjectMark;
+        })
+      );
+
+      // Connect subjectMark to student
+      await tx.student.update({
+        where: { id: student.id },
+        data: {
+          subjectMarks: {
+            connect: subjectMarkRecords.map((subjectMark) => ({
+              id: subjectMark.id,
+            })),
+          },
+        },
+        include: {
+          subjectMarks: true,
+        },
+      });
+
       const rawRandomPassword = crypto.randomBytes(8).toString("hex");
       const hashRandomPassword = await hashing(rawRandomPassword);
 
       await tx.parent.upsert({
         where: {
-          studentId: user.id,
+          studentId: student.id,
         },
         update: {},
         create: {
-          email: `${user.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
-          name: `${user.name}'s Parents`,
+          email: `${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
+          name: `${student.name}'s Parents`,
           password: hashRandomPassword,
           role: "PARENT",
-          studentId: user.id,
+          studentId: student.id,
         },
       });
 
       parentAccount = {
-        email: `${user.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
+        email: `${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@gmail.com`,
         password: rawRandomPassword,
       };
     });

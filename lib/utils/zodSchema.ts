@@ -13,6 +13,14 @@ const ProblemPointCategoryEnum = z.enum([
   "LATE",
   "INCOMPLETE_ATTRIBUTES",
 ]);
+const AssessmentType = z.enum([
+  "SCHOOLWORK",
+  "HOMEWORK",
+  "QUIZ",
+  "EXAM",
+  "PROJECT",
+  "GROUP",
+]);
 
 // Schema for frontend data (what we send from CreateTeacherAccount)
 const TeachingAssignmentInput = z.object({
@@ -83,12 +91,14 @@ type ResetPasswordSchema = z.infer<typeof zodResetPassword>;
 const bulkAttendance = z.object({
   secretaryId: z.string({ message: "Must be filled" }),
   date: z.string({ message: "Must be filled" }),
-  records: z.array(z.object({
-    studentId: z.string({ message: "Must be filled" }),
-    attendanceType: AttendanceTypesEnum,
-    description: z.string().max(300).optional(),
-  }))
-})
+  records: z.array(
+    z.object({
+      studentId: z.string({ message: "Must be filled" }),
+      attendanceType: AttendanceTypesEnum,
+      description: z.string().max(300).optional(),
+    })
+  ),
+});
 
 type BulkAttendanceSchema = z.infer<typeof bulkAttendance>;
 
@@ -114,6 +124,24 @@ const problemPoint = z.object({
 
 type problemPointSchema = z.infer<typeof problemPoint>;
 
+// SCORING SYSTEM (TEACHER)
+
+const DescriptionSchema = z.object({
+  givenAt: z.string({ message: "Must be filled" }),
+  dueAt: z.string({ message: "Must be filled" }),
+  detail: z.string({ message: "Must be filled" }),
+});
+
+const markColumn = z.object({
+  teacherId: z.string({ message: "Must be filled" }),
+  class: ClassInfoSchema,
+  subjectName: z.string({ message: "Must be filled" }),
+  assessmentType: AssessmentType,
+  description: DescriptionSchema,
+});
+
+type MarkColumnSchema = z.infer<typeof markColumn>;
+
 export {
   zodStudentSignUp,
   zodTeacherSignUp,
@@ -122,6 +150,7 @@ export {
   homeroomClassStudent,
   problemPoint,
   bulkAttendance,
+  markColumn,
   type StudentSignUpInput,
   type TeacherSignUpInput,
   type EmailSchema,
@@ -129,4 +158,5 @@ export {
   type homeroomClassStudentSchema,
   type problemPointSchema,
   type BulkAttendanceSchema,
+  type MarkColumnSchema,
 };
