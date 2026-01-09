@@ -144,8 +144,8 @@ const markColumn = z.object({
 type MarkColumnSchema = z.infer<typeof markColumn>;
 
 const studentAssessments = z.object({
-  assignmentNumber: z.number({ message: "Must be filled" }),
-  score: z.number({ message: "Must be filled" }),
+  assessmentNumber: z.number({ message: "Must be number and filled" }),
+  score: z.number({ message: "Must be number and filled" }),
 });
 
 const studentMarkData = z.object({
@@ -153,14 +153,12 @@ const studentMarkData = z.object({
   subjectName: z.string({ message: "Must be filled" }),
   studentAssessments: z
     .array(studentAssessments)
-    .min(1, { message: "At least one student assessment is required." }),
+    .nonempty("Student assessments can't be empty"),
 });
 
 const markRecords = z.object({
   teacherId: z.string({ message: "Must be filled" }), // for validation
-  students: z
-    .array(studentMarkData)
-    .min(1, { message: "At least one student is required." }),
+  students: z.array(studentMarkData).nonempty("student data can't be empty"),
 });
 
 type MarkRecordSchema = z.infer<typeof markRecords>;

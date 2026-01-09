@@ -174,7 +174,10 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error creating student:", error);
+    console.error("API_ERROR", {
+      route: "/api/auth/account/single/student-account",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

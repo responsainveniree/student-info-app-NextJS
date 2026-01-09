@@ -117,7 +117,7 @@ model SubjectMark {
 
 model Mark {
     id            Int         @id @default(autoincrement())
-    subjectMarkId Int
+    subjectMarkId Int         @unique
     subjectMark   SubjectMark @relation(fields: [subjectMarkId], references: [id])
 
     type             AssessmentType

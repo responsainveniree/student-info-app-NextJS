@@ -230,7 +230,10 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Error bulk creating students:", error);
+    console.error("API_ERROR", {
+      route: "/api/auth/account/bulk/student-accounts",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

@@ -8,7 +8,6 @@ import {
 } from "@/lib/utils/labels";
 import { markColumn } from "@/lib/utils/zodSchema";
 import { prisma } from "@/prisma/prisma";
-import { Semester } from "@/prisma/prisma/src/generated/prisma/enums";
 
 export async function POST(req: Request) {
   try {
@@ -41,7 +40,6 @@ export async function POST(req: Request) {
         },
       });
 
-      console.log(studentRecords);
       for (const student of studentRecords) {
         console.log(student);
         const subjectMark = await tx.subjectMark.findUnique({
@@ -102,11 +100,11 @@ export async function POST(req: Request) {
       {
         message: `Successfully created new assignment column for subject ${subjectLabel} in ${gradeLabel} ${majorLabel} ${classNumber}`,
       },
-      { status: 200 }
+      { status: 201 }
     );
   } catch (error) {
     console.error("API_ERROR", {
-      route: "/api/teacher/grade/column",
+      route: "/api/teacher/mark/column",
       message: error instanceof Error ? error.message : String(error),
     });
     return handleError(error);

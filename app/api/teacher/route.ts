@@ -152,9 +152,10 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error(
-      `Error in teaching-assignments-classes-and-assignments: ${error}`
-    );
+    console.error("API_ERROR", {
+      route: "/api/teacher",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

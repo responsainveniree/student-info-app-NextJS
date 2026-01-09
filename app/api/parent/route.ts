@@ -58,7 +58,10 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in parent api: ${error}`);
+    console.error("API_ERROR", {
+      route: "/api/parent",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

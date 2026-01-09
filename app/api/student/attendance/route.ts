@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       const semesterNum = getSemester(today);
       throw badRequest(
         `Attendance date is outside the current semester (Semester ${semesterNum}). ` +
-        `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`
+          `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`
       );
     }
 
@@ -217,7 +217,10 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Bulk attendance error:", error);
+    console.error("API_ERROR", {
+      route: "/api/student/attendance",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }
@@ -339,7 +342,10 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in students attendance data: ${error}`);
+    console.error("API_ERROR", {
+      route: "/api/student/attendance",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

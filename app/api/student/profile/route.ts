@@ -36,15 +36,25 @@ export async function GET(req: Request) {
       },
     });
 
+    const subjects = await prisma.student.findUnique({
+      where: { id: studentIdParam },
+      select: {
+        studentSubjects: true,
+      },
+    });
+
     return Response.json(
       {
         mesasge: "Successfully retrieved student attendance stats",
-        data: { attendanceRecords, problemPointRecords },
+        data: { attendanceRecords, problemPointRecords, subjects },
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error in student attendance data: ${error}`);
+    console.error("API_ERROR", {
+      route: "/api/student/profile",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

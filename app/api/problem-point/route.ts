@@ -98,7 +98,10 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error(`Error in problem-point: ${error}`);
+    console.error("API_ERROR", {
+      route: "/api/problem-point",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

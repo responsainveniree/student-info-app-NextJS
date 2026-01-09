@@ -82,7 +82,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
         },
       });
 
-      console.log(res.data)
+      console.log(res.data);
       if (res.status === 200) {
         // Group data by type in one operation
         const groupedAttendance = res.data.data.attendanceRecords.reduce(
@@ -132,14 +132,14 @@ const StudentDashboard = ({ session }: DashboardProps) => {
 
   const fetchStudentSubjectsData = async () => {
     try {
-      const res = await axios.get("/api/student/subjects", {
+      const res = await axios.get("/api/student", {
         params: {
           studentId: session.id,
         },
       });
 
       if (res.status === 200) {
-        setSubjects(res.data.data.studentSubjects);
+        setSubjects(res.data.data.subjects);
       }
     } catch (error) {
       console.error(`Error at fetching student subjects: ${error}`);

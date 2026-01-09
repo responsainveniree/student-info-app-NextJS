@@ -398,7 +398,10 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error bulk creating teachers:", error);
+    console.error("API_ERROR", {
+      route: "/api/auth/account/bulk/teacher-accounts",
+      message: error instanceof Error ? error.message : String(error),
+    });
     return handleError(error);
   }
 }

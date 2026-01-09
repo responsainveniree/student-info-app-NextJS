@@ -129,8 +129,11 @@ export async function POST(req: Request) {
       { message: "If the email exists, an OTP has been sent." },
       { status: 201 }
     );
-  } catch (e) {
-    console.error(e);
-    return handleError(e);
+  } catch (error) {
+    console.error("API_ERROR", {
+      route: "/api/auth/forgot-pasword",
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return handleError(error);
   }
 }
