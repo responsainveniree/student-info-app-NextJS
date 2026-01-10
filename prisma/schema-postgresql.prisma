@@ -117,7 +117,7 @@ model SubjectMark {
 
 model Mark {
     id            Int         @id @default(autoincrement())
-    subjectMarkId Int         @unique
+    subjectMarkId Int
     subjectMark   SubjectMark @relation(fields: [subjectMarkId], references: [id])
 
     type             AssessmentType
@@ -129,6 +129,7 @@ model Mark {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    @@unique([subjectMarkId, assessmentNumber])
     @@index([subjectMarkId])
 }
 

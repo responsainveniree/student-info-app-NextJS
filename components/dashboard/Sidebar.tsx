@@ -13,6 +13,7 @@ import {
   Home,
   School,
   BookX,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -71,6 +72,11 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
             href: "/dashboard/teacher",
             icon: LayoutDashboard,
             label: "Dashboard",
+          },
+          {
+            href: "/dashboard/teacher/mark",
+            icon: ChartNoAxesCombined,
+            label: "Student Assignment",
           },
           {
             href: "/dashboard/problem-point",

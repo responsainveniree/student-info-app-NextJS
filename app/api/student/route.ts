@@ -38,6 +38,14 @@ export async function GET(req: Request) {
                 select: {
                   assessmentNumber: true,
                   score: true,
+                  type: true,
+                  description: {
+                    select: {
+                      detail: true,
+                      dueAt: true,
+                      givenAt: true,
+                    },
+                  },
                 },
               },
             },

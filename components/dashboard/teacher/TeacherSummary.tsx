@@ -35,7 +35,7 @@ const TeacherSummary = ({ session }: TeacherSummaryProps) => {
       if (session?.user?.id) {
         try {
           const response = await axios.get(
-            `/api/teacher/teaching-classes-and-assignments`,
+            `/api/teacher`,
             {
               params: {
                 teacherId: session.user.id,
