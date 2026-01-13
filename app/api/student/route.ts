@@ -79,12 +79,12 @@ export async function GET(req: Request) {
                     },
                   },
                 },
+                skip: page * 10,
+                take: takeRecords,
               },
             },
           },
         },
-        skip: page * 10,
-        take: takeRecords,
       });
     } else {
       findStudents = await prisma.student.findMany({

@@ -1,5 +1,5 @@
 "use client";
-import { GraduationCap, BookOpen, Calendar, AlertCircle } from "lucide-react";
+import { GraduationCap, BookOpen, Calendar } from "lucide-react";
 import { AttendanceChart } from "../../attendance/AttendanceChart";
 import { ProblemPointChart } from "../problemPoint/ProblemPointChart";
 import { ProblemPointList } from "../problemPoint/ProblemPointList";
@@ -15,7 +15,7 @@ interface DashboardProps {
 }
 
 type AttendanceStats = {
-    type: "ALPHA" | "SICK" | "PERMISSION";
+    type: "ALPHA" | "SICK" | "PERMISSION" | "LATE";
     date: number | Date;
 };
 
@@ -43,12 +43,15 @@ export default function ParentDashboard({ session }: DashboardProps) {
         sick: [],
         permission: [],
         alpha: [],
+        late: [],
     });
     const [problemPointRecords, setProblemPointRecords] = useState<
         ProblemPointData[]
     >([]);
     const [totalproblemPoint, setTotalProblemPoint] = useState(0);
-    const [problemPointChartData, setProblemPointChartData] = useState<{ name: string; value: number; color: string }[]>([]);
+    const [problemPointChartData, setProblemPointChartData] = useState<
+        { name: string; value: number; color: string }[]
+    >([]);
 
     const chartData = [
         { name: "Sick", value: attendanceStats.sick.length, color: "#FBBF24" },
@@ -58,24 +61,31 @@ export default function ParentDashboard({ session }: DashboardProps) {
             color: "#3B82F6",
         },
         { name: "Alpha", value: attendanceStats.alpha.length, color: "#DC2626" },
+        { name: "Late", value: attendanceStats.late.length, color: "#F97316" },
     ];
 
     const totalAbsence =
         attendanceStats.sick.length +
         attendanceStats.permission.length +
-        attendanceStats.alpha.length;
+        attendanceStats.alpha.length +
+        attendanceStats.late.length;
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`api/parent`, {
+            const res = await axios.get(`/api/parent`, {
                 params: {
                     parentId: session.id,
                 },
             });
 
             if (res.status === 200) {
-                const { studentName, studentSubjects, attendanceStats, problemPointRecords } = res.data.data;
+                const {
+                    studentName,
+                    studentSubjects,
+                    attendanceStats,
+                    problemPointRecords,
+                } = res.data.data;
 
                 setStudentName(studentName);
                 setSubjects(studentSubjects || []);
@@ -89,7 +99,7 @@ export default function ParentDashboard({ session }: DashboardProps) {
                         acc[type.toString().toLowerCase()].push(stat);
                         return acc;
                     },
-                    { sick: [], permission: [], alpha: [] }
+                    { sick: [], permission: [], alpha: [], late: [] }
                 );
 
                 setAttendanceStats(grouped);
@@ -106,14 +116,17 @@ export default function ParentDashboard({ session }: DashboardProps) {
 
                     const ppChartDataMap: Record<string, number> = {};
                     records.forEach((record: ProblemPointData) => {
-                        ppChartDataMap[record.category] = (ppChartDataMap[record.category] || 0) + record.point;
+                        ppChartDataMap[record.category] =
+                            (ppChartDataMap[record.category] || 0) + record.point;
                     });
 
-                    const ppChartData = Object.entries(ppChartDataMap).map(([category, value]) => ({
-                        name: category.replace(/_/g, " "),
-                        value,
-                        color: CATEGORY_COLORS_HEX[category] || "#9CA3AF"
-                    }));
+                    const ppChartData = Object.entries(ppChartDataMap).map(
+                        ([category, value]) => ({
+                            name: category.replace(/_/g, " "),
+                            value,
+                            color: CATEGORY_COLORS_HEX[category] || "#9CA3AF",
+                        })
+                    );
 
                     setTotalProblemPoint(totalPoint);
                     setProblemPointRecords(records);
@@ -135,16 +148,15 @@ export default function ParentDashboard({ session }: DashboardProps) {
     if (loading) {
         return (
             <div className="p-4 sm:p-6 lg:p-8 space-y-8">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                     <Skeleton className="h-32 rounded-2xl" />
                     <Skeleton className="h-32 rounded-2xl" />
-                    <Skeleton className="col-span-2 sm:col-span-1 h-32 rounded-2xl" />
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <Skeleton className="lg:col-span-2 h-[400px] rounded-2xl" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                    <Skeleton className="h-[400px] rounded-2xl" />
                     <Skeleton className="h-[400px] rounded-2xl" />
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     <Skeleton className="h-[400px] rounded-2xl" />
                     <Skeleton className="h-[400px] rounded-2xl" />
                 </div>
@@ -155,7 +167,7 @@ export default function ParentDashboard({ session }: DashboardProps) {
     return (
         <div className="p-4 sm:p-6 lg:p-8 space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
                 {/* Card 1: Total Subjects */}
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
@@ -169,21 +181,8 @@ export default function ParentDashboard({ session }: DashboardProps) {
                     <div className="text-sm text-gray-500">Total Subjects</div>
                 </div>
 
-                {/* Card 2: Total Problem Points */}
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                            <AlertCircle className="w-6 h-6 text-red-600" />
-                        </div>
-                    </div>
-                    <div className="text-3xl font-bold text-gray-900 mb-1">
-                        {totalproblemPoint}
-                    </div>
-                    <div className="text-sm text-gray-500">Total Problem Points</div>
-                </div>
-
-                {/* Card 3: Student Profile */}
-                <div className="col-span-2 sm:col-span-1 bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-6 rounded-2xl text-white shadow-sm hover:shadow-md transition-shadow">
+                {/* Card 2: Student Profile */}
+                <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-6 rounded-2xl text-white shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-4">
                         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                             <GraduationCap className="w-6 h-6 text-white" />
@@ -192,9 +191,7 @@ export default function ParentDashboard({ session }: DashboardProps) {
                     <div className="truncate text-xl font-bold mb-1">
                         {`${studentName} Peformance` || "Loading..."}
                     </div>
-                    <div className="text-sm text-blue-100">
-                        Student
-                    </div>
+                    <div className="text-sm text-blue-100">Student</div>
                 </div>
             </div>
 
@@ -301,6 +298,30 @@ export default function ParentDashboard({ session }: DashboardProps) {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Late */}
+                            {attendanceStats.late.length > 0 && (
+                                <div className="border-l-4 border-orange-500 bg-orange-50 p-3 rounded">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                        <h3 className="font-semibold text-orange-800">
+                                            Late ({attendanceStats.late.length})
+                                        </h3>
+                                    </div>
+                                    <div className="space-y-1 ml-4">
+                                        {attendanceStats.late.map((stat: { date: Date }, index) => (
+                                            <div key={index} className="text-sm text-orange-700">
+                                                {new Date(stat.date).toLocaleDateString("en-US", {
+                                                    weekday: "short",
+                                                    year: "numeric",
+                                                    month: "short",
+                                                    day: "numeric",
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -319,7 +340,9 @@ export default function ParentDashboard({ session }: DashboardProps) {
                     <div className="mt-4 text-center">
                         <p className="text-gray-500 text-sm">
                             Total Points Deducted:{" "}
-                            <span className="font-bold text-red-600">{totalproblemPoint}</span>
+                            <span className="font-bold text-red-600">
+                                {totalproblemPoint}
+                            </span>
                         </p>
                     </div>
                 </div>
@@ -332,7 +355,6 @@ export default function ParentDashboard({ session }: DashboardProps) {
                     <ProblemPointList data={problemPointRecords} />
                 </div>
             </div>
-
         </div>
     );
 }

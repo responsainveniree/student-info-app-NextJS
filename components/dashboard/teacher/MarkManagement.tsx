@@ -124,9 +124,7 @@ const MarkManagement = ({ session }: Props) => {
     const fetchTeacherData = async () => {
       if (!session?.id) return;
       try {
-        const res = await axios.get(
-          `/api/teacher?teacherId=${session.id}`
-        );
+        const res = await axios.get(`/api/teacher?teacherId=${session.id}`);
         if (res.data?.data?.teachingAssignments) {
           setAvailableClasses(res.data.data.teachingAssignments);
         }
@@ -178,7 +176,12 @@ const MarkManagement = ({ session }: Props) => {
   useEffect(() => {
     const fetchStudents = async () => {
       // Don't fetch if basic class info is missing
-      if (!selectedGrade || !selectedMajor || !selectedClassNumber || !selectedSubject) {
+      if (
+        !selectedGrade ||
+        !selectedMajor ||
+        !selectedClassNumber ||
+        !selectedSubject
+      ) {
         setStudents([]);
         return;
       }
@@ -409,17 +412,17 @@ const MarkManagement = ({ session }: Props) => {
 
   const columns =
     students.length > 0 &&
-      students[0]?.subjectMarks?.length > 0 &&
-      students[0].subjectMarks[0]?.marks?.length > 0
+    students[0]?.subjectMarks?.length > 0 &&
+    students[0].subjectMarks[0]?.marks?.length > 0
       ? students[0].subjectMarks[0].marks.sort(
-        (a, b) => a.assessmentNumber - b.assessmentNumber
-      )
+          (a, b) => a.assessmentNumber - b.assessmentNumber
+        )
       : [];
 
   return (
     <div className="m-4 space-y-6 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-br from-indigo-900 to-blue-800 p-6 text-white shadow-lg rounded-b-xl sm:rounded-xl">
+      <div className="bg-gradient-to-br from-indigo-900 to-blue-800 p-6 text-white shadow-lg rounded-b-xl rounded-xl">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
@@ -528,8 +531,8 @@ const MarkManagement = ({ session }: Props) => {
       </div>
 
       {/* Actions */}
-      <div className="flex justify-between items-center px-4 sm:px-0">
-        <div className="flex gap-2">
+      <div className="grid row-span-2 md:flex md:justify-between md:items-center px-4 md:px-0">
+        <div className="flex gap-2 mb-5 md:mb-0">
           <Dialog open={isAddColumnOpen} onOpenChange={setIsAddColumnOpen}>
             <DialogTrigger asChild>
               <Button
@@ -621,7 +624,7 @@ const MarkManagement = ({ session }: Props) => {
 
         <Button
           onClick={handleSave}
-          className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+          className="gap-2 bg-emerald-600 hover:bg-emerald-700 min-w-[200px] w-fit"
         >
           <Save className="w-4 h-4" /> Save Changes
         </Button>

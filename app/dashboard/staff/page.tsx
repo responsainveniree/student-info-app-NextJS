@@ -13,8 +13,9 @@ const page = async () => {
   }
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Staff Dashboard</h1>
-      <p>Welcome, {session.user.name}</p>
+      <h1 className="text-2xl font-bold m-4 mt-20 lg:mt-4">
+        Staff Dashboard, {session.user.name}
+      </h1>
     </div>
   );
 };

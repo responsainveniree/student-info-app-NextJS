@@ -35,7 +35,7 @@ interface Student {
 interface AttendanceRecord {
   id?: string;
   studentId: string;
-  type: "PRESENT" | "SICK" | "PERMISSION" | "ALPHA";
+  type: "PRESENT" | "SICK" | "PERMISSION" | "ALPHA" | "LATE";
   description?: string;
 }
 
@@ -45,6 +45,7 @@ interface AttendanceStats {
   sick: number;
   permission: number;
   alpha: number;
+  late: number;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -78,6 +79,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
     sick: 0,
     permission: 0,
     alpha: 0,
+    late: 0,
   });
 
   type SortOption = "name-asc" | "name-desc" | "status";
@@ -182,7 +184,13 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
         sick: apiStats.sick,
         permission: apiStats.permission,
         alpha: apiStats.alpha,
-        present: total - (apiStats.sick + apiStats.permission + apiStats.alpha),
+        late: apiStats.late,
+        present:
+          total -
+          (apiStats.sick +
+            apiStats.permission +
+            apiStats.alpha +
+            apiStats.late),
       });
     } catch (error: any) {
       console.error(error);
@@ -218,8 +226,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
         return "bg-blue-50 text-blue-700 border-blue-200";
       case "ALPHA":
         return "bg-red-50 text-red-700 border-red-200";
-      default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+      case "LATE":
+        return "bg-orange-50 text-orange-700 border-orange-200";
     }
   };
 
@@ -245,6 +253,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
       toast.success(response.data.message || "Attendance saved successfully", {
         id: toastId,
       });
+      window.location.reload();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Something went wrong", {
         id: toastId,
@@ -277,7 +286,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
           </div>
 
           {/* Statistics Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20">
               <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
               <div className="text-xs sm:text-sm text-blue-100 mt-1">
@@ -304,9 +313,15 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                 Permission
               </div>
             </div>
-            <div className="bg-red-500/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-red-400/30 col-span-2 sm:col-span-1">
+            <div className="bg-red-500/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-red-400/30">
               <div className="text-xl sm:text-2xl font-bold">{stats.alpha}</div>
               <div className="text-xs sm:text-sm text-red-100 mt-1">Alpha</div>
+            </div>
+            <div className="bg-orange-500/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-orange-400/30">
+              <div className="text-xl sm:text-2xl font-bold">{stats.late}</div>
+              <div className="text-xs sm:text-sm text-orange-100 mt-1">
+                Late
+              </div>
             </div>
           </div>
         </div>
@@ -453,6 +468,11 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                                   ALPHA
                                 </span>
                               </SelectItem>
+                              <SelectItem value="LATE">
+                                <span className="font-semibold text-orange-700">
+                                  LATE
+                                </span>
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         ) : (
@@ -466,7 +486,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                       <td className="px-6 lg:px-8 py-5">
                         {isValidDate &&
                         record.type !== "ALPHA" &&
-                        record.type !== "PRESENT" ? (
+                        record.type !== "PRESENT" &&
+                        record.type !== "LATE" ? (
                           <Input
                             placeholder="Add optional description..."
                             value={record.description || ""}

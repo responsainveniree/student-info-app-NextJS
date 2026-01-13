@@ -3,7 +3,7 @@ import { string, z } from "zod";
 const GradeEnum = z.enum(["TENTH", "ELEVENTH", "TWELFTH"]);
 const MajorEnum = z.enum(["ACCOUNTING", "SOFTWARE_ENGINEERING"]);
 const StudentRoleEnum = z.enum(["STUDENT", "CLASS_SECRETARY"]);
-const AttendanceTypesEnum = z.enum(["ALPHA", "SICK", "PERMISSION"]);
+const AttendanceTypesEnum = z.enum(["ALPHA", "SICK", "PERMISSION", "LATE"]);
 const ClassNumberEnum = z.enum(["none", "1", "2"]);
 const ProblemPointCategoryEnum = z.enum([
   "DISCIPLINE",

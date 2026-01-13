@@ -10,25 +10,29 @@ export async function GET(req: Request) {
       throw badRequest("Missing required parameter.");
     }
 
-    const existingParent = await prisma.parent.findUnique({
+    const parentWithStudent = await prisma.parent.findUnique({
       where: { id: parentIdParam },
       select: {
         studentId: true,
         student: {
           select: {
             name: true,
+            id: true,
+            grade: true,
+            major: true,
+            classNumber: true,
             studentSubjects: true,
           },
         },
       },
     });
 
-    if (!existingParent) {
+    if (!parentWithStudent) {
       throw notFound("User not found");
     }
 
     const attendanceStats = await prisma.studentAttendance.findMany({
-      where: { studentId: existingParent.studentId },
+      where: { studentId: parentWithStudent.studentId },
       select: {
         date: true,
         type: true,
@@ -36,7 +40,7 @@ export async function GET(req: Request) {
     });
 
     const problemPointRecords = await prisma.problemPoint.findMany({
-      where: { studentId: existingParent.studentId },
+      where: { studentId: parentWithStudent.studentId },
       select: {
         description: true,
         category: true,
@@ -49,8 +53,14 @@ export async function GET(req: Request) {
       {
         mesasge: "Successfully retrieved student attendance stats for parents",
         data: {
-          studentName: existingParent.student.name,
-          studentSubjects: existingParent.student.studentSubjects,
+          studentName: parentWithStudent.student.name,
+          student: {
+            id: parentWithStudent.student.id,
+            grade: parentWithStudent.student.grade,
+            major: parentWithStudent.student.major,
+            classNumber: parentWithStudent.student.classNumber,
+          },
+          studentSubjects: parentWithStudent.student.studentSubjects,
           attendanceStats,
           problemPointRecords,
         },

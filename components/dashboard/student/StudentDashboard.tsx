@@ -6,7 +6,7 @@ import { ProblemPointList } from "../problemPoint/ProblemPointList";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { getRoleDisplayName, Role } from "@/lib/constants/roles";
+import { getRoleDisplayName } from "@/lib/constants/roles";
 import { ValidProblemPointType } from "@/lib/constants/problemPoint";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Session } from "@/lib/types/session";
@@ -16,7 +16,7 @@ interface DashboardProps {
 }
 
 type AttendanceStats = {
-  type: "ALPHA" | "SICK" | "PERMISSION";
+  type: "ALPHA" | "SICK" | "PERMISSION" | "LATE";
   date: number | Date;
 };
 
@@ -44,6 +44,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
     sick: [],
     permission: [],
     alpha: [],
+    late: [],
   });
   const [problemPointRecords, setProblemPointRecords] = useState<
     ProblemPointData[]
@@ -61,12 +62,14 @@ const StudentDashboard = ({ session }: DashboardProps) => {
       color: "#3B82F6",
     },
     { name: "Alpha", value: attendanceStats.alpha.length, color: "#DC2626" },
+    { name: "Late", value: attendanceStats.late.length, color: "#F97316" },
   ];
 
   const totalAbsence =
     attendanceStats.sick.length +
     attendanceStats.permission.length +
-    attendanceStats.alpha.length;
+    attendanceStats.alpha.length +
+    attendanceStats.late.length;
 
   const fetchAttendanceAndProblemPointData = async () => {
     try {
@@ -87,7 +90,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
             acc[type.toString().toLowerCase()].push(stat);
             return acc;
           },
-          { sick: [], permission: [], alpha: [] }
+          { sick: [], permission: [], alpha: [], late: [] }
         );
 
         const records = res.data.data.problemPointRecords;
@@ -309,6 +312,30 @@ const StudentDashboard = ({ session }: DashboardProps) => {
                   </div>
                 </div>
               )}
+
+              {/* Late */}
+              {attendanceStats.late.length > 0 && (
+                <div className="border-l-4 border-orange-500 bg-orange-50 p-3 rounded">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <h3 className="font-semibold text-orange-800">
+                      Late ({attendanceStats.late.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-1 ml-4">
+                    {attendanceStats.late.map((stat: { date: Date }, index) => (
+                      <div key={index} className="text-sm text-orange-700">
+                        {new Date(stat.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -326,7 +353,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
           </div>
           <div className="mt-4 text-center">
             <p className="text-gray-500 text-sm">
-              Total Points Deducted:{" "}
+              Total Problem Points:{" "}
               <span className="font-bold text-red-600">
                 {totalproblemPoint}
               </span>

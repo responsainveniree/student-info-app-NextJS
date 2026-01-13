@@ -1,4 +1,4 @@
-import { badRequest, handleError, notFound } from "@/lib/errors";
+import { badRequest, handleError } from "@/lib/errors";
 import redis from "@/lib/redis";
 import hashing from "@/lib/utils/hashing";
 import { hashResetToken } from "@/lib/utils/hashToken";
@@ -31,13 +31,22 @@ export async function POST(req: Request) {
 
     const hashedPassword = await hashing(data.password);
 
-    const updated = await prisma.student.updateMany({
+    let updated;
+
+    updated = await prisma.student.updateMany({
       where: { id: userId },
       data: { password: hashedPassword },
     });
 
     if (updated.count === 0) {
-      await prisma.teacher.update({
+      updated = await prisma.teacher.updateMany({
+        where: { id: userId },
+        data: { password: hashedPassword },
+      });
+    }
+
+    if (updated.count) {
+      updated = await prisma.parent.updateMany({
         where: { id: userId },
         data: { password: hashedPassword },
       });

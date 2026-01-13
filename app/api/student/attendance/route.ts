@@ -131,7 +131,9 @@ export async function POST(req: Request) {
       try {
         const normalizedType = normalizeAttendanceType(record.attendanceType);
         const description =
-          normalizedType === "ALPHA" ? "" : record.description || "";
+          normalizedType === "ALPHA" || normalizedType === "LATE"
+            ? ""
+            : record.description || "";
 
         normalizedRecords.push({
           studentId: record.studentId,
@@ -326,13 +328,17 @@ export async function GET(req: Request) {
       sick: 0,
       permission: 0,
       alpha: 0,
+      late: 0,
     };
 
     for (const stat of attendanceStats) {
       if (stat.type === "SICK") stats.sick = stat._count.type;
       else if (stat.type === "PERMISSION") stats.permission = stat._count.type;
       else if (stat.type === "ALPHA") stats.alpha = stat._count.type;
+      else if (stat.type === "LATE") stats.late = stat._count.type;
     }
+
+    console.log(attendanceStats);
 
     return Response.json(
       {

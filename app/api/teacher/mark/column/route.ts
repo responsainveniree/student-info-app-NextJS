@@ -110,3 +110,5 @@ export async function POST(req: Request) {
     return handleError(error);
   }
 }
+
+export async function DELETE(req: Request) {}

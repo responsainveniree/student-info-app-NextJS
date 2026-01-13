@@ -123,6 +123,7 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
             icon: LayoutDashboard,
             label: "Dashboard",
           },
+          { href: "/dashboard/parent/mark", icon: TrendingUp, label: "Grades" },
           ...commonItems,
         ];
       case ROLES.STUDENT:

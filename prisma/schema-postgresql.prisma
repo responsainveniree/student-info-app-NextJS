@@ -59,6 +59,7 @@ enum ProblemPointCategory {
 }
 
 enum AttendanceType {
+    LATE
     ALPHA
     SICK
     PERMISSION

@@ -58,6 +58,22 @@ export async function POST(req: Request) {
     if (!user) {
       user = await prisma.teacher.findUnique({
         where: { email: data.email },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      });
+    }
+
+    if (!user) {
+      user = await prisma.parent.findUnique({
+        where: { email: data.email },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
       });
     }
 
