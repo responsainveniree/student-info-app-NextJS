@@ -89,9 +89,9 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
 
         if (isHomeroomClassTeacher) {
           teacherItems.splice(1, 0, {
-            href: "/dashboard/attendance",
-            icon: ClipboardCheck,
-            label: "Attendance",
+            href: "/dashboard/teacher/classroom",
+            icon: School,
+            label: "Classroom",
           });
         }
 

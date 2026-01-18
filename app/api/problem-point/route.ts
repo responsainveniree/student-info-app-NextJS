@@ -6,12 +6,16 @@ import {
 } from "@/lib/constants/problemPoint";
 import { badRequest, handleError, notFound } from "@/lib/errors";
 import { getSemester, getSemesterDateRange } from "@/lib/utils/date";
-import { problemPoint, updateProblemPoint } from "@/lib/utils/zodSchema";
+import {
+  problemPoint,
+  problemPointQuerySchema,
+  updateProblemPoint,
+} from "@/lib/utils/zodSchema";
 import { prisma } from "@/prisma/prisma";
 
 // The funcionality of "category is SinglePerDayCategories" is if the function return true, the category must be "LATE" or "INCOMPLETE_ATTRIBUTES"
 function isSinglePerDayCategory(
-  category: ValidProblemPointType
+  category: ValidProblemPointType,
 ): category is SinglePerDayCategories {
   return SINGLE_PER_DAY_CATEGORIES.includes(category as SinglePerDayCategories);
 }
@@ -42,7 +46,7 @@ export async function POST(req: Request) {
       const semesterNum = getSemester(today);
       throw badRequest(
         `Attendance date is outside the current semester (Semester ${semesterNum}). ` +
-          `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`
+          `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`,
       );
     }
 
@@ -73,7 +77,7 @@ export async function POST(req: Request) {
 
           if (existingProblemPoint) {
             throw badRequest(
-              `This student already has "${categoryLabelMap[data.problemPointCategory]}" problem`
+              `This student already has "${categoryLabelMap[data.problemPointCategory]}" problem`,
             );
           }
         }
@@ -95,7 +99,7 @@ export async function POST(req: Request) {
       {
         message: "Successfully created problem point record",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("API_ERROR", {
@@ -110,15 +114,22 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const teacherIdParam = searchParams.get("teacherId");
+    const rawParams = Object.fromEntries(searchParams.entries());
 
-    if (!teacherIdParam) {
+    const data = problemPointQuerySchema.parse(rawParams);
+
+    if (!data.recordedBy) {
       throw badRequest("Teacher ID is required");
     }
 
     const assignedProblemPoint = await prisma.problemPoint.findMany({
       where: {
-        recordedBy: teacherIdParam,
+        recordedBy: data.recordedBy,
+        student: {
+          classNumber: data.classNumber,
+          grade: data.grade,
+          major: data.major,
+        },
       },
       select: {
         id: true,
@@ -141,7 +152,7 @@ export async function GET(req: Request) {
       },
       {
         status: 200,
-      }
+      },
     );
   } catch (error) {
     console.error("API_ERROR", {
@@ -174,7 +185,7 @@ export async function DELETE(req: Request) {
       },
       {
         status: 200,
-      }
+      },
     );
   } catch (error) {
     console.error("API_ERROR", {
@@ -224,7 +235,7 @@ export async function PATCH(req: Request) {
       const semesterNum = getSemester(today);
       throw badRequest(
         `Attendance date is outside the current semester (Semester ${semesterNum}). ` +
-          `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`
+          `Allowed range: ${semesterStart.toISOString().split("T")[0]} to ${semesterEnd.toISOString().split("T")[0]}.`,
       );
     }
 
@@ -244,7 +255,7 @@ export async function PATCH(req: Request) {
       {
         message: "Successfully update problem point record",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("API_ERROR", {

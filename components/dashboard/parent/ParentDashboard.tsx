@@ -1,6 +1,6 @@
 "use client";
 import { GraduationCap, BookOpen, Calendar } from "lucide-react";
-import { AttendanceChart } from "../../attendance/AttendanceChart";
+import { AttendanceChart } from "../attendance/AttendanceChart";
 import { ProblemPointChart } from "../problemPoint/ProblemPointChart";
 import { ProblemPointList } from "../problemPoint/ProblemPointList";
 import React, { useState, useEffect } from "react";

@@ -70,8 +70,10 @@ export default function ProblemPointManagement({
     try {
       const res = await axios.get("/api/problem-point", {
         params: {
-          ...filters,
-          teacherId: session.id,
+          grade: filters.grade,
+          major: filters.major,
+          classNumber: filters.classNumber,
+          recordedBy: session.id,
         },
       });
       setData(res.data.data || []);

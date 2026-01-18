@@ -30,7 +30,7 @@ const classParams = z.object({
   classNumber: ClassNumberEnum,
 });
 
-type classParamsSchema = z.infer<typeof classParams>;
+type ClassParamsSchema = z.infer<typeof classParams>;
 
 const page = z
   .string()
@@ -120,9 +120,9 @@ const bulkAttendance = z.object({
 
 type BulkAttendanceSchema = z.infer<typeof bulkAttendance>;
 
-const queryStudentAttendances = z.object({
+const studentAttendacesQueries = z.object({
   id: z.string({ message: "Must be filled" }),
-  dateParam: z
+  date: z
     .string({ message: "Must be filled" })
     .default(new Date().toISOString().split("T")[0]),
   homeroomTeacherId: z.string().optional(),
@@ -132,7 +132,16 @@ const queryStudentAttendances = z.object({
   searchQuery: z.string().optional(),
 });
 
-type QueryStudentAttendancesSchema = z.infer<typeof queryStudentAttendances>;
+type StudentAttendacesQueriesSchema = z.infer<typeof studentAttendacesQueries>;
+
+const attendanceSummaryQueries = z.object({
+  id: z.string({ message: "Must be filled" }),
+  page,
+  sortOrder: SortOrderEnum,
+  searchQuery: z.string().optional(),
+});
+
+type AttendanceSummaryQueriesSchema = z.infer<typeof attendanceSummaryQueries>;
 
 // HOMEROOM CLASS STUDENT
 const homeroomClassStudent = z.object({
@@ -140,9 +149,16 @@ const homeroomClassStudent = z.object({
   date: z.date({ message: "Must be filled" }),
 });
 
-type homeroomClassStudentSchema = z.infer<typeof homeroomClassStudent>;
+type HomeroomClassStudentSchema = z.infer<typeof homeroomClassStudent>;
 
 // PROBLEM POINT
+const problemPointQuerySchema = z.object({
+  grade: GradeEnum,
+  major: MajorEnum,
+  classNumber: ClassNumberEnum,
+  recordedBy: z.string({ message: "Must be filled" }),
+});
+
 const problemPoint = z.object({
   teacherId: z.string({ message: "Must be filled" }),
   studentsId: z.array(z.string()).min(1),
@@ -154,7 +170,7 @@ const problemPoint = z.object({
   date: z.string(),
 });
 
-type problemPointSchema = z.infer<typeof problemPoint>;
+type ProblemPointSchema = z.infer<typeof problemPoint>;
 
 const updateProblemPoint = z.object({
   problemPointId: z.number(),
@@ -167,11 +183,11 @@ const updateProblemPoint = z.object({
   date: z.string(),
 });
 
-type upadateProblemPointSchema = z.infer<typeof problemPoint>;
+type UpadateProblemPointSchema = z.infer<typeof problemPoint>;
 
 // SCORING SYSTEM (TEACHER)
 const queryStudentMarks = z.object({
-  studentId: z.string().min(1).optional(),
+  studentId: z.string().min(1),
   subjectName: z.string().min(1).optional(),
   isMarkPage: z
     .enum(["true", "false"])
@@ -228,22 +244,25 @@ export {
   homeroomClassStudent,
   problemPoint,
   bulkAttendance,
-  queryStudentAttendances,
+  studentAttendacesQueries,
+  attendanceSummaryQueries,
   queryStudentMarks,
   markColumn,
   markRecords,
   updateProblemPoint,
-  type classParamsSchema,
+  problemPointQuerySchema,
+  type ClassParamsSchema,
   type StudentSignUpInput,
   type TeacherSignUpInput,
   type EmailSchema,
   type ResetPasswordSchema,
-  type homeroomClassStudentSchema,
-  type problemPointSchema,
+  type HomeroomClassStudentSchema,
+  type ProblemPointSchema,
   type BulkAttendanceSchema,
   type QueryStudentMarksSchema,
+  type AttendanceSummaryQueriesSchema,
+  type StudentAttendacesQueriesSchema,
   type MarkColumnSchema,
   type MarkRecordSchema,
-  type upadateProblemPointSchema,
-  type QueryStudentAttendancesSchema,
+  type UpadateProblemPointSchema,
 };

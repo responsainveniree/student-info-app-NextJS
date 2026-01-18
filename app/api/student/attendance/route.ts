@@ -4,7 +4,10 @@ import {
   VALID_ATTENDANCE_TYPES,
   ValidAttendanceType,
 } from "@/lib/constants/attendance";
-import { bulkAttendance, queryStudentAttendances } from "@/lib/utils/zodSchema";
+import {
+  bulkAttendance,
+  studentAttendacesQueries,
+} from "@/lib/utils/zodSchema";
 import {
   getDayBounds,
   getSemester,
@@ -274,7 +277,7 @@ export async function GET(req: Request) {
 
     const rawParams = Object.fromEntries(searchParams.entries());
 
-    const data = queryStudentAttendances.parse(rawParams);
+    const data = studentAttendacesQueries.parse(rawParams);
 
     let accessContext: {
       classNumber: ClassNumber;
@@ -338,7 +341,7 @@ export async function GET(req: Request) {
       throw forbidden("Access denied");
     }
 
-    const targetDate = new Date(data.dateParam);
+    const targetDate = new Date(data.date);
     const { startOfDay, endOfDay } = getDayBounds(targetDate);
 
     let studentAttendanceRecords;

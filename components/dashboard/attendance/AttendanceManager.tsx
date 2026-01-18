@@ -24,8 +24,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { ROLES, getRoleDashboard } from "@/lib/constants/roles";
+import { ROLES } from "@/lib/constants/roles";
 import { Session } from "@/lib/types/session";
+import { abbreviateName } from "@/lib/utils/nameFormatter";
 
 interface Student {
   id: string;
@@ -134,15 +135,17 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
 
         const attendanceRes = await axios.get(`/api/student/attendance`, {
           params: {
-            dateParam: selectedDate,
-            homeroomTeacherId: session.homeroomTeacherId,
             id: session.id,
+            homeroomTeacherId: session.homeroomTeacherId,
+            date: selectedDate,
             page: currentPage,
-            searchQuery: effectiveSearchQuery,
-            sortBy: apiSortBy,
             sortOrder: apiSortOrder,
+            sortBy: apiSortBy,
+            searchQuery: effectiveSearchQuery,
           },
         });
+
+        console.log(attendanceRes);
 
         const {
           studentAttendanceRecords,
@@ -293,7 +296,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
   return (
     <div className="space-y-6 pb-8">
       {/* Header Section */}
-      <div className="bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-4 sm:p-6 lg:p-8 text-white shadow-lg">
+      <div className="mt-8 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-8 text-white shadow-lg">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
@@ -379,7 +382,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                   value={sortBy}
                   onValueChange={(value) => setSortBy(value as SortOption)}
                 >
-                  <SelectTrigger className="w-full sm:w-[180px] bg-white">
+                  <SelectTrigger className="w-full sm:w-[180px] bg-white flex justify-start">
                     <ArrowUpDown className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
@@ -467,7 +470,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                             {currentPage * ITEMS_PER_PAGE + index + 1}
                           </div>
                           <span className="font-semibold text-[#111827]">
-                            {student.name}
+                            {abbreviateName(student.name)}
                             {unsaved && (
                               <span className="ml-2 text-xs text-amber-600 font-normal">
                                 (Edited)

@@ -71,7 +71,6 @@ const ParentMarkView = ({ subjects, studentInfo }: ParentMarkViewProps) => {
         setStudentName(data.studentMarkRecords?.name || "");
         setMarks(marksData);
         setTotalRecords(data.totalMarks || 0);
-
       } catch (error) {
         console.error("Failed to fetch marks", error);
         toast.error("Failed to fetch student marks");
@@ -90,7 +89,7 @@ const ParentMarkView = ({ subjects, studentInfo }: ParentMarkViewProps) => {
   return (
     <div className="space-y-6">
       <h1 className="font-bold text-2xl sm:text-4xl mt-10 lg:mt-0">
-        {studentName}'s Marks
+        {studentName.split(" ")[0]}'s Marks
       </h1>
       {/* Subject Dropdown */}
       <div className="w-[250px]">

@@ -1,4 +1,5 @@
-import { badRequest, handleError, notFound } from "@/lib/errors";
+import { isStudentRole } from "@/lib/constants/roles";
+import { badRequest, handleError, notFound, forbidden } from "@/lib/errors";
 import { OFFSET, TAKE_RECORDS } from "@/lib/utils/pagination";
 import { queryStudentMarks } from "@/lib/utils/zodSchema";
 import { prisma } from "@/prisma/prisma";
@@ -17,10 +18,15 @@ export async function GET(req: Request) {
 
     const existingStudent = await prisma.student.findUnique({
       where: { id: data.studentId },
+      select: { role: true, id: true },
     });
 
     if (!existingStudent) {
       throw notFound("User not found");
+    }
+
+    if (!isStudentRole(existingStudent.role)) {
+      throw forbidden("You can't access this resource");
     }
 
     let studentMarkRecords, totalMarks;
@@ -105,7 +111,7 @@ export async function GET(req: Request) {
           },
         },
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("API_ERROR", {
