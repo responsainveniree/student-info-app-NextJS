@@ -24,9 +24,7 @@ const ClassroomContent = ({ session }: ClassroomContentProps) => {
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm mb-4">
               <Users className="w-12 h-12" />
             </div>
-            <h1 className="text-3xl font-bold mb-2">
-              Classroom Management
-            </h1>
+            <h1 className="text-3xl font-bold mb-2">Classroom Management</h1>
             <p className="text-blue-100">
               Manage student attendance and view class summaries
             </p>
@@ -86,6 +84,7 @@ const ClassroomContent = ({ session }: ClassroomContentProps) => {
       <StudentAttendanceSummaryModal
         isOpen={isSummaryModalOpen}
         onOpenChange={setIsSummaryModalOpen}
+        session={session}
       />
     </div>
   );

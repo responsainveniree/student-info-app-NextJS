@@ -35,8 +35,8 @@ const SignIn = () => {
     } else {
       toast.success("Successfully signed in, redirecting...");
       setTimeout(() => {
-        router.push("/dashboard");
         router.refresh(); // Refresh to update session
+        router.push("/dashboard");
       }, 1000);
     }
   };

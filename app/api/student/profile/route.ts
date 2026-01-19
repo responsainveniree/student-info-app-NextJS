@@ -1,6 +1,6 @@
 import { isStudentRole } from "@/lib/constants/roles";
 import { badRequest, handleError, notFound, forbidden } from "@/lib/errors";
-import { OFFSET, TAKE_RECORDS } from "@/lib/utils/pagination";
+import { OFFSET, TAKE_RECORDS } from "@/lib/constants/pagination";
 import { queryStudentMarks } from "@/lib/utils/zodSchema";
 import { prisma } from "@/prisma/prisma";
 

@@ -3,7 +3,7 @@ import {
   MIN_SEARCH_LENGTH,
   OFFSET,
   TAKE_RECORDS,
-} from "@/lib/utils/pagination";
+} from "@/lib/constants/pagination";
 import { attendanceSummaryQueries } from "@/lib/utils/zodSchema";
 import { prisma } from "@/prisma/prisma";
 
@@ -98,10 +98,24 @@ export async function GET(req: Request) {
       }),
     );
 
+    const totalStudents = await prisma.student.count({
+      where: {
+        grade: teacher.homeroomClass.grade,
+        major: teacher.homeroomClass.major,
+        classNumber: teacher.homeroomClass.classNumber,
+      },
+    });
+
     return Response.json(
       {
         message: "Successfully retrieved students' attendance summary",
+        class: {
+          grade: teacher.homeroomClass.grade,
+          major: teacher.homeroomClass.major,
+          classNumber: teacher.homeroomClass.classNumber,
+        },
         students: studentAttendanceSummaries,
+        totalStudents: totalStudents,
       },
       { status: 200 },
     );

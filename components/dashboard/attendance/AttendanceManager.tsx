@@ -27,6 +27,7 @@ import {
 import { ROLES } from "@/lib/constants/roles";
 import { Session } from "@/lib/types/session";
 import { abbreviateName } from "@/lib/utils/nameFormatter";
+import { ITEMS_PER_PAGE } from "@/lib/constants/pagination";
 
 interface Student {
   id: string;
@@ -48,8 +49,6 @@ interface AttendanceStats {
   alpha: number;
   late: number;
 }
-
-const ITEMS_PER_PAGE = 10;
 
 interface AttendanceManagerProps {
   session: Session;
@@ -133,7 +132,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
         const apiSortBy = sortBy === "status" ? "status" : "name";
         const apiSortOrder = sortBy === "name-desc" ? "desc" : "asc";
 
-        const attendanceRes = await axios.get(`/api/student/attendance`, {
+        const attendanceRes = await axios.get(`/api/attendance`, {
           params: {
             id: session.id,
             homeroomTeacherId: session.homeroomTeacherId,
@@ -262,7 +261,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
         return;
       }
 
-      await axios.post("/api/student/attendance", {
+      await axios.post("/api/attendance", {
         recorderId: session?.id,
         date: selectedDate,
         records: recordsToSave,
@@ -296,7 +295,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
   return (
     <div className="space-y-6 pb-8">
       {/* Header Section */}
-      <div className="mt-8 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-8 text-white shadow-lg">
+      <div className="m-8 mt-0 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] p-8 text-white shadow-lg">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
@@ -361,7 +360,7 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
           <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-[#E5E7EB] bg-[#F9FAFB]">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex items-center gap-2 w-full md:w-auto">
-                <div className="relative w-full md:w-64">
+                <div className="relative w-full lg:w-[250px]">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                   <Input
                     placeholder="Search students..."
@@ -382,8 +381,8 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                   value={sortBy}
                   onValueChange={(value) => setSortBy(value as SortOption)}
                 >
-                  <SelectTrigger className="w-full sm:w-[180px] bg-white flex justify-start">
-                    <ArrowUpDown className="w-4 h-4 mr-2" />
+                  <SelectTrigger className="sm:w-[180px] lg:w-[250px] bg-white">
+                    <ArrowUpDown className="w-4 h-4 mr-2 hidden lg:block" />
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>

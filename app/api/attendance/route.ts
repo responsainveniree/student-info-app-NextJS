@@ -17,7 +17,7 @@ import {
   MIN_SEARCH_LENGTH,
   OFFSET,
   TAKE_RECORDS,
-} from "@/lib/utils/pagination";
+} from "@/lib/constants/pagination";
 import { ClassNumber, Grade, Major } from "@/lib/constants/class";
 
 /**
