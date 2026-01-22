@@ -145,12 +145,6 @@ const StudentFormModal = ({
     setError("");
 
     try {
-      // if (data.password !== data.confirmPassword) {
-      //   setError("Password and confirm password must be the same");
-      //   toast.error("Something went wrong. Read the message above.");
-      //   return;
-      // }
-
       const parseData = {
         creatorId: session.id,
         username: data.username,
