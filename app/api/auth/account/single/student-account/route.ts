@@ -31,6 +31,8 @@ export async function POST(req: Request) {
       },
     });
 
+    console.log("test: ", data);
+
     if (!staff) {
       throw badRequest("User not found");
     }
@@ -48,13 +50,13 @@ export async function POST(req: Request) {
         throw badRequest("Email already registered");
       }
 
-      const hashedPassword = await hashing(data.PasswordSchema.password);
+      const hashedPassword = await hashing(data.passwordSchema.password);
 
       const homeroomClass = await tx.homeroomClass.findFirst({
         where: {
-          grade: data.ClassSchema.grade,
-          major: data.ClassSchema.major,
-          classNumber: data.ClassSchema.classNumber,
+          grade: data.classSchema.grade,
+          major: data.classSchema.major,
+          classNumber: data.classSchema.classNumber,
         },
         select: {
           teacherId: true,
@@ -70,9 +72,9 @@ export async function POST(req: Request) {
           name: data.username,
           email: data.email,
           password: hashedPassword,
-          grade: data.ClassSchema.grade,
-          major: data.ClassSchema.major,
-          classNumber: data.ClassSchema.classNumber,
+          grade: data.classSchema.grade,
+          major: data.classSchema.major,
+          classNumber: data.classSchema.classNumber,
           isVerified: true,
           homeroomTeacherId: homeroomClass?.teacherId as string,
           role: data.role,
@@ -85,7 +87,7 @@ export async function POST(req: Request) {
 
       // Get subject list based on grade and major
       const subjectsList =
-        subjects[data.ClassSchema.grade]?.major?.[data.ClassSchema.major] ?? [];
+        subjects[data.classSchema.grade]?.major?.[data.classSchema.major] ?? [];
 
       if (subjectsList.length === 0) {
         throw badRequest(
@@ -163,7 +165,9 @@ export async function POST(req: Request) {
           role: "PARENT",
           studentId: student.id,
         },
-        select: {},
+        select: {
+          role: true,
+        },
       });
 
       const parentAccountEmail = `${student.name.trim().toLowerCase().replaceAll(" ", "")}${student.id.slice(0, 4)}parentaccount@gmail.com`;

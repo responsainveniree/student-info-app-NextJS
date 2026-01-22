@@ -29,17 +29,24 @@ import {
   STUDENT_ROLES_MAP,
 } from "@/lib/utils/labels";
 import { STUDENT_ROLES } from "@/lib/constants/roles";
+import { Session } from "@/lib/types/session";
 
 interface StudentFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  session: Session;
 }
 
-const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
+const StudentFormModal = ({
+  open,
+  onOpenChange,
+  session,
+}: StudentFormModalProps) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string>("");
   const [data, setData] = useState({
+    creatorId: "s",
     username: "",
     email: "",
     password: "",
@@ -63,6 +70,7 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
   useEffect(() => {
     if (!open) {
       setData({
+        creatorId: "",
         username: "",
         email: "",
         password: "",
@@ -137,10 +145,28 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
     setError("");
 
     try {
+      const parseData = {
+        creatorId: session.id,
+        username: data.username,
+        email: data.email,
+        passwordSchema: {
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        },
+        classSchema: {
+          grade: data.grade,
+          major: data.major,
+          classNumber: data.classNumber,
+        },
+        role: data.role,
+      };
+
       const res = await axios.post(
         "/api/auth/account/single/student-account",
-        data,
+        parseData,
       );
+
+      console.log(res);
 
       if (res.status === 200) {
         console.log(res);
@@ -163,6 +189,7 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
 
         setTimeout(() => {
           setData({
+            creatorId: "",
             username: "",
             email: "",
             password: "",
@@ -178,9 +205,13 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
         }, 5000);
       }
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Something went wrong. Try again.",
-      );
+      if (err.response.data.message == "Validation failed") {
+        setError(err.response.data.errors[0].message);
+      } else {
+        setError(
+          err.response?.data?.message || "Something went wrong. Try again.",
+        );
+      }
       toast.error("Something went wrong. Read the message above.");
     } finally {
       setLoading(false);

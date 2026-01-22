@@ -1,4 +1,4 @@
-import { string, z } from "zod";
+import { z } from "zod";
 
 const GradeEnum = z.enum(["TENTH", "ELEVENTH", "TWELFTH"]);
 const MajorEnum = z.enum(["ACCOUNTING", "SOFTWARE_ENGINEERING"]);
@@ -48,20 +48,20 @@ const TeachingAssignmentInput = z.object({
   classNumber: ClassNumberEnum,
 });
 
-const ClassSchema = z.object({
+const classSchema = z.object({
   grade: GradeEnum,
   major: MajorEnum,
   classNumber: ClassNumberEnum,
 });
 
-const PasswordSchema = z
+const passwordSchema = z
   .object({
     password: z.string().min(8, { message: "Must be 8 characters at minimum" }),
     confirmPassword: z
       .string()
       .min(8, { message: "Must be 8 characters at minimum" }),
   })
-  .refine((data) => data.password !== data.confirmPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
   });
 
@@ -71,8 +71,8 @@ const studentSignUpSchema = z.object({
   creatorId: z.string({ message: "Must be 3 characters at minimum" }),
   username: z.string().min(3, { message: "Must be 3 characters at minimum" }),
   email: z.string().email({ message: "Please input a correct format" }),
-  PasswordSchema,
-  ClassSchema,
+  passwordSchema,
+  classSchema,
   role: StudentRoleEnum,
 });
 
@@ -84,11 +84,11 @@ const zodTeacherSignUp = z.object({
     .string()
     .min(8, { message: "Must be 8 characters at minimum" }),
 
-  homeroomClass: ClassSchema.optional(),
+  homeroomClass: classSchema.optional(),
 
   teachingAssignment: z.array(TeachingAssignmentInput).optional(),
 
-  teachingClasses: z.array(ClassSchema).optional(),
+  teachingClasses: z.array(classSchema).optional(),
 });
 
 const zodForgotPassword = z.object({
@@ -212,7 +212,7 @@ const DescriptionSchema = z.object({
 
 const markColumn = z.object({
   teacherId: z.string({ message: "Must be filled" }),
-  class: ClassSchema,
+  class: classSchema,
   subjectId: z.number({ message: "Must be filled" }),
   subjectName: z.string({ message: "Must be filled" }),
   assessmentType: AssessmentType,

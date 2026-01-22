@@ -115,7 +115,7 @@ async function main() {
   console.log("   - Class Secretary: secretary@test.com");
   console.log("   - Student: student@test.com");
   console.log(
-    `   - Parent: ${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@test.com`
+    `   - Parent: ${student.name.toLowerCase().replaceAll(" ", "")}parentaccount@test.com`,
   );
 }
 

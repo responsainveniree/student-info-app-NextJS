@@ -167,7 +167,7 @@ const TeacherFormModal = ({ open, onOpenChange }: TeacherFormModalProps) => {
   const updateTeachingClass = (
     index: number,
     field: keyof TeachingClass,
-    value: string
+    value: string,
   ) => {
     const updated = [...teachingClasses];
     updated[index][field] = value;
@@ -188,7 +188,7 @@ const TeacherFormModal = ({ open, onOpenChange }: TeacherFormModalProps) => {
   const updateTeachingAssignment = (
     index: number,
     field: keyof TeachingAssignment,
-    value: string
+    value: string,
   ) => {
     const updated = [...teachingAssignments];
     updated[index][field] = value;
@@ -200,29 +200,29 @@ const TeacherFormModal = ({ open, onOpenChange }: TeacherFormModalProps) => {
     setError("");
 
     const validTeachingAssignments = teachingAssignments.filter(
-      (ta) => ta.subjectName && ta.grade && ta.major
+      (ta) => ta.subjectName && ta.grade && ta.major,
     );
 
     const validTeachingClasses = teachingClasses.filter(
-      (tc) => tc.grade && tc.major
+      (tc) => tc.grade && tc.major,
     );
 
     if (validTeachingAssignments.length !== teachingAssignments.length) {
       setError(
-        "Please complete all teaching assignments or remove incomplete ones"
+        "Please complete all teaching assignments or remove incomplete ones",
       );
       toast.error(
-        "Please complete all teaching assignments or remove incomplete ones"
+        "Please complete all teaching assignments or remove incomplete ones",
       );
       return;
     }
 
     if (validTeachingClasses.length !== teachingClasses.length) {
       setError(
-        "Please complete all teaching classes or remove incomplete ones"
+        "Please complete all teaching classes or remove incomplete ones",
       );
       toast.error(
-        "Please complete all teaching classes or remove incomplete ones"
+        "Please complete all teaching classes or remove incomplete ones",
       );
       return;
     }
@@ -255,7 +255,7 @@ const TeacherFormModal = ({ open, onOpenChange }: TeacherFormModalProps) => {
 
       const res = await axios.post(
         "/api/auth/account/single/teacher-account",
-        payload
+        payload,
       );
       if (res.status === 201) {
         toast.success("Teacher account created successfully!");
@@ -297,7 +297,7 @@ const TeacherFormModal = ({ open, onOpenChange }: TeacherFormModalProps) => {
       const res = await axios.post(
         "/api/auth/account/bulk/teacher-accounts",
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       if (res.status === 200) {
@@ -772,10 +772,10 @@ const TeacherFormModal = ({ open, onOpenChange }: TeacherFormModalProps) => {
                                       >
                                         {SUBJECT_DISPLAY_MAP[subjectKey]}
                                       </SelectItem>
-                                    )
+                                    ),
                                   )}
                                 </SelectGroup>
-                              )
+                              ),
                             )}
                           </SelectContent>
                         </Select>
