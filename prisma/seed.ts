@@ -67,7 +67,7 @@ async function main() {
       major: "SOFTWARE_ENGINEERING",
       classNumber: "none",
       isVerified: true,
-      homeroomTeacherId: teacher.id,
+      homeroomClassId: 1,
     },
   });
   console.log("✓ Created Class Secretary:", secretary.email);
@@ -85,7 +85,7 @@ async function main() {
       major: "SOFTWARE_ENGINEERING",
       classNumber: "none",
       isVerified: true,
-      homeroomTeacherId: teacher.id,
+      homeroomClassId: 1,
     },
   });
   console.log("✓ Created Student:", student.email);

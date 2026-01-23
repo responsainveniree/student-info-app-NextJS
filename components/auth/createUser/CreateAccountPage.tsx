@@ -4,13 +4,8 @@ import { useState } from "react";
 import { GraduationCap, Users, BookOpen } from "lucide-react";
 import TeacherFormModal from "./TeacherFormModal";
 import StudentFormModal from "./StudentFormModal";
-import { Session } from "@/lib/types/session";
 
-interface CreateAccountPageProps {
-  session: Session;
-}
-
-const CreateAccountPage = ({ session }: CreateAccountPageProps) => {
+const CreateAccountPage = () => {
   const [teacherModalOpen, setTeacherModalOpen] = useState(false);
   const [studentModalOpen, setStudentModalOpen] = useState(false);
 
@@ -92,7 +87,6 @@ const CreateAccountPage = ({ session }: CreateAccountPageProps) => {
       <StudentFormModal
         open={studentModalOpen}
         onOpenChange={setStudentModalOpen}
-        session={session}
       />
     </div>
   );

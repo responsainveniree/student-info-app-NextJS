@@ -68,12 +68,11 @@ const passwordSchema = z
 // Main schemas
 // AUTH
 const studentSignUpSchema = z.object({
-  creatorId: z.string({ message: "Must be 3 characters at minimum" }),
   username: z.string().min(3, { message: "Must be 3 characters at minimum" }),
   email: z.string().email({ message: "Please input a correct format" }),
   passwordSchema,
   classSchema,
-  role: StudentRoleEnum,
+  studentRole: StudentRoleEnum,
 });
 
 const zodTeacherSignUp = z.object({

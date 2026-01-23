@@ -76,11 +76,11 @@ model Student {
     sessions      StudentSession[]
     role          StudentRole      @default(STUDENT)
 
-    grade             Grade
-    major             Major
-    classNumber       String
-    homeroomTeacherId String
-    homeroomTeacher   Teacher @relation(fields: [homeroomTeacherId], references: [id])
+    grade           Grade
+    major           Major
+    classNumber     String
+    homeroomClassId Int
+    homeroomClass   HomeroomClass? @relation(fields: [homeroomClassId], references: [id])
 
     studentSubjects Subject[]           @relation("SubjectStudents")
     subjectMarks    SubjectMark[]
@@ -96,6 +96,8 @@ model Student {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     parent    Parent?
+    teacher   Teacher? @relation(fields: [teacherId], references: [id])
+    teacherId String?
 
     @@index([email])
 }
@@ -189,7 +191,6 @@ model Teacher {
     teachingClasses TeachingClass[]
 
     sessions        TeacherSession[]
-    students        Student[]
     problemPoints   ProblemPoint[]
     otp             String?
     otpExpiresAt    DateTime?
@@ -197,8 +198,9 @@ model Teacher {
     otpResetAt      DateTime?
     otpAttemptCount Int              @default(0)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    students  Student[]
 
     @@index([email])
 }
@@ -215,12 +217,13 @@ model TeachingClass {
 }
 
 model HomeroomClass {
-    id          Int     @id @default(autoincrement())
+    id          Int       @id @default(autoincrement())
     grade       Grade
     major       Major
-    classNumber String  @default("none")
-    teacherId   String  @unique
-    teacher     Teacher @relation(fields: [teacherId], references: [id])
+    classNumber String    @default("none")
+    teacherId   String    @unique
+    teacher     Teacher   @relation(fields: [teacherId], references: [id])
+    students    Student[]
 
     @@unique([grade, major, classNumber])
 }

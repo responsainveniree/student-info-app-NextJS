@@ -13,7 +13,9 @@ export const { auth: authEdge } = NextAuth({
 
       if (isOnSignIn) {
         if (isLoggedIn) {
-          return Response.redirect(new URL("/dashboard", nextUrl));
+          return Response.redirect(
+            new URL(getRoleDashboard(auth.user.role), nextUrl),
+          );
         }
         return true;
       }

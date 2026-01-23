@@ -20,7 +20,7 @@ const Page = async () => {
       <div className="flex h-screen bg-gray-50">
         <Sidebar role={session.user.role} />
         <main className="flex-1 lg:ml-64 overflow-y-auto w-full">
-          <CreateAccountPage session={session.user} />
+          <CreateAccountPage />
         </main>
       </div>
     </>

@@ -1,4 +1,10 @@
-import { badRequest, forbidden, handleError, notFound } from "@/lib/errors";
+import {
+  badRequest,
+  forbidden,
+  handleError,
+  notFound,
+  unauthorized,
+} from "@/lib/errors";
 import { prisma } from "@/prisma/prisma";
 import hashing from "@/lib/utils/hashing";
 import { studentSignUpSchema } from "@/lib/utils/zodSchema";
@@ -6,9 +12,17 @@ import { subjects } from "@/lib/utils/subjects";
 import crypto from "crypto";
 import { getSemester } from "@/lib/utils/date";
 import { isStaffRole } from "@/lib/constants/roles";
+import { auth } from "@/lib/auth/authNode";
+import { Semester } from "@/lib/constants/class";
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+
+    if (!session) {
+      throw unauthorized("You haven't logged in yet");
+    }
+
     const body = await req.json();
     const data = studentSignUpSchema.parse(body);
 
@@ -24,14 +38,12 @@ export async function POST(req: Request) {
     // Valid staff roles: "PRINCIPAL" and "VICE_PRINCIPAL".
     const staff = await prisma.teacher.findUnique({
       where: {
-        id: data.creatorId,
+        id: session.user.id,
       },
       select: {
         role: true,
       },
     });
-
-    console.log("test: ", data);
 
     if (!staff) {
       throw badRequest("User not found");
@@ -59,7 +71,7 @@ export async function POST(req: Request) {
           classNumber: data.classSchema.classNumber,
         },
         select: {
-          teacherId: true,
+          id: true,
         },
       });
 
@@ -76,8 +88,8 @@ export async function POST(req: Request) {
           major: data.classSchema.major,
           classNumber: data.classSchema.classNumber,
           isVerified: true,
-          homeroomTeacherId: homeroomClass?.teacherId as string,
-          role: data.role,
+          homeroomClassId: homeroomClass.id,
+          role: data.studentRole,
         },
         select: {
           id: true,
@@ -95,20 +107,43 @@ export async function POST(req: Request) {
         );
       }
 
-      // Upsert all subjects first
-      const subjectRecords = await Promise.all(
-        subjectsList.map(async (subjectName) => {
-          const subject = await tx.subject.upsert({
-            where: { subjectName },
-            update: {},
-            create: { subjectName },
-            select: {
-              id: true,
-            },
-          });
-          return subject;
-        }),
+      const existingSubjects = await tx.subject.findMany({
+        where: {
+          subjectName: {
+            in: subjectsList,
+          },
+        },
+        select: {
+          id: true,
+          subjectName: true,
+        },
+      });
+
+      const existingSubjectNames = existingSubjects.map((s) => s.subjectName);
+
+      const missingSubjects = subjectsList.filter(
+        (name) => !existingSubjectNames.includes(name),
       );
+
+      if (missingSubjects.length > 0) {
+        await tx.subject.createMany({
+          data: missingSubjects.map((name) => ({ subjectName: name })),
+          skipDuplicates: true,
+        });
+      }
+
+      let allSubjects = await tx.subject.findMany({
+        where: {
+          subjectName: {
+            in: subjectsList,
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      const subjectRecordIds = allSubjects.map((s) => s.id);
 
       //Upsert all subjectmMark
       const today = new Date();
@@ -117,28 +152,28 @@ export async function POST(req: Request) {
 
       const subjectMarkRecords = await Promise.all(
         subjectsList.map(async (subjectName) => {
-          const subjectMark = await tx.subjectMark.createMany({
-            data: {
-              studentId: student.id,
-              subjectName: subjectName,
-              academicYear: String(new Date().getFullYear()),
-              semester: currentSemester,
-            },
-            skipDuplicates: true,
-          });
-          return subjectMark;
+          return {
+            studentId: student.id,
+            subjectName: subjectName,
+            academicYear: String(new Date().getFullYear()),
+            semester: currentSemester as Semester,
+          };
         }),
       );
 
-      const academicYear = String(new Date().getFullYear());
+      await tx.subjectMark.createMany({
+        data: subjectMarkRecords,
+      });
 
       const createdMarks = await tx.subjectMark.findMany({
         where: {
           studentId: student.id,
-          academicYear,
-          semester: currentSemester,
+          academicYear: String(new Date().getFullYear()),
+          semester: currentSemester as Semester,
         },
-        select: { id: true },
+        select: {
+          id: true,
+        },
       });
 
       // Connect subjectMark to student
@@ -146,10 +181,12 @@ export async function POST(req: Request) {
         where: { id: student.id },
         data: {
           studentSubjects: {
-            connect: subjectRecords.map((s) => ({ id: s.id })),
+            connect: subjectRecordIds.map((subjectId) => ({ id: subjectId })),
           },
           subjectMarks: {
-            connect: createdMarks.map((m) => ({ id: m.id })),
+            connect: createdMarks.map((mark) => ({
+              id: mark.id,
+            })),
           },
         },
       });

@@ -29,24 +29,17 @@ import {
   STUDENT_ROLES_MAP,
 } from "@/lib/utils/labels";
 import { STUDENT_ROLES } from "@/lib/constants/roles";
-import { Session } from "@/lib/types/session";
 
 interface StudentFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  session: Session;
 }
 
-const StudentFormModal = ({
-  open,
-  onOpenChange,
-  session,
-}: StudentFormModalProps) => {
+const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<string>("");
   const [data, setData] = useState({
-    creatorId: "s",
     username: "",
     email: "",
     password: "",
@@ -54,7 +47,7 @@ const StudentFormModal = ({
     grade: "",
     major: "",
     classNumber: "",
-    role: "",
+    studentRole: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -70,7 +63,6 @@ const StudentFormModal = ({
   useEffect(() => {
     if (!open) {
       setData({
-        creatorId: "",
         username: "",
         email: "",
         password: "",
@@ -78,7 +70,7 @@ const StudentFormModal = ({
         grade: "",
         major: "",
         classNumber: "",
-        role: "",
+        studentRole: "",
       });
       setError("");
       setShowPassword(false);
@@ -146,7 +138,6 @@ const StudentFormModal = ({
 
     try {
       const parseData = {
-        creatorId: session.id,
         username: data.username,
         email: data.email,
         passwordSchema: {
@@ -158,7 +149,7 @@ const StudentFormModal = ({
           major: data.major,
           classNumber: data.classNumber,
         },
-        role: data.role,
+        studentRole: data.studentRole,
       };
 
       const res = await axios.post(
@@ -189,7 +180,6 @@ const StudentFormModal = ({
 
         setTimeout(() => {
           setData({
-            creatorId: "",
             username: "",
             email: "",
             password: "",
@@ -197,7 +187,7 @@ const StudentFormModal = ({
             grade: "",
             major: "",
             classNumber: "",
-            role: "",
+            studentRole: "",
           });
           setError("");
           setShowPassword(false);
@@ -564,8 +554,8 @@ const StudentFormModal = ({
                     Role <span className="text-red-500">*</span>
                   </label>
                   <Select
-                    onValueChange={(v) => setData({ ...data, role: v })}
-                    value={data.role}
+                    onValueChange={(v) => setData({ ...data, studentRole: v })}
+                    value={data.studentRole}
                     disabled={loading}
                   >
                     <SelectTrigger className="h-11">
