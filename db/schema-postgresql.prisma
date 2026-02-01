@@ -65,6 +65,11 @@ enum AttendanceType {
     PERMISSION
 }
 
+enum SubjectType {
+    GENERAL
+    MAJOR
+}
+
 // student model
 model Student {
     id            String           @id @default(cuid())
@@ -293,9 +298,10 @@ model Subject {
 }
 
 model SubjectConfig {
-    id    Int     @id @default(autoincrement())
-    major Major[]
-    grade Grade[]
+    id          Int         @id @default(autoincrement())
+    major       Major[]
+    grade       Grade[]
+    subjectType SubjectType
 
     subjects Subject[]
 }

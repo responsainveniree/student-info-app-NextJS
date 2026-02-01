@@ -23,6 +23,7 @@ const AssessmentType = z.enum([
   "PROJECT",
   "GROUP",
 ]);
+const SubjectTypeEnum = z.enum(["GENERAL", "MAJOR"]);
 
 const page = z
   .string()
@@ -34,22 +35,45 @@ const page = z
 
 // Schema for subject
 const subjectConfig = z.object({
-  grade: z.array(GradeEnum),
-  major: z.array(MajorEnum),
+  grade: z.array(GradeEnum).min(1),
+  major: z.array(MajorEnum).min(1),
+  subjectType: SubjectTypeEnum,
 });
 
-const subjectSchema = z.object({
-  subjectRecords: z.array(
-    z.object({
-      subjectName: z
-        .string()
-        .min(3, { message: "At least must be 3 Characters" }),
-      subjectConfig,
-    }),
-  ),
+const createSubjectSchema = z.object({
+  subjectRecords: z
+    .array(
+      z.object({
+        subjectNames: z
+          .array(
+            z.string().min(3, { message: "At least must be 3 Characters" }),
+          )
+          .min(1),
+        subjectConfig,
+      }),
+    )
+    .min(1),
 });
 
-type SubjectSchema = z.infer<typeof subjectSchema>;
+const getSubjectQueriesSchema = z.object({
+  page,
+  sortOrder: SortOrderEnum,
+  subjectConfig: subjectConfig.optional(),
+  subjectName: z
+    .string()
+    .min(3, { message: "At least must be 3 characters" })
+    .optional(),
+});
+
+const patchSubjectSchema = z.object({
+  subjectId: z.number(),
+  subjectName: z.string().min(3).optional(),
+  subjectConfig: subjectConfig.optional(),
+});
+
+type CreateSubjectInput = z.infer<typeof createSubjectSchema>;
+type SubjectQueriesSchema = z.infer<typeof getSubjectQueriesSchema>;
+type PatchSubjectInput = z.infer<typeof patchSubjectSchema>;
 
 // Schema for frontend data (what we send from CreateTeacherAccount)
 const teachingAssignmentInput = z.object({
@@ -252,7 +276,9 @@ const markRecords = z.object({
 type MarkRecordSchema = z.infer<typeof markRecords>;
 
 export {
-  subjectSchema,
+  createSubjectSchema,
+  getSubjectQueriesSchema,
+  patchSubjectSchema,
   studentSignUpSchema,
   teacherSignUpSchema,
   zodForgotPassword,
@@ -268,7 +294,9 @@ export {
   updateProblemPoint,
   problemPointQuerySchema,
   classSchema,
-  type SubjectSchema,
+  type CreateSubjectInput,
+  type SubjectQueriesSchema,
+  type PatchSubjectInput,
   type ClassSchema,
   type StudentSignUpSchema,
   type TeacherSignUpSchema,
