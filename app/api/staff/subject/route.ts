@@ -19,6 +19,8 @@ import {
   patchSubjectSchema,
 } from "@/lib/utils/zodSchema";
 import { validateStaffSession } from "@/lib/validation/guards";
+import { hasSubjectConfigChanged } from "@/lib/validation/subjectValidators";
+import { boolean } from "zod";
 
 export async function POST(req: Request) {
   try {
@@ -300,60 +302,41 @@ export async function PATCH(req: Request) {
     }
 
     // validate subject config
-    let isSubjectConfigExact;
+    const configResult = hasSubjectConfigChanged(data, subject);
+    const subjectConfigChanges = {
+      hasChanged: configResult ? configResult.hasChanged : false,
+      changedData: configResult ? configResult.changedData : {},
+    };
+    const isSubjectNameExact =
+      !data.subjectName || subject.subjectName === data.subjectName;
 
-    if (!data.subjectConfig) {
-      isSubjectConfigExact = true;
-    } else {
-      const checkGradeLength: boolean =
-        subject.subjectConfig.grade.length ===
-        data.subjectConfig?.grade?.length;
-
-      /* TODO:
-        1. Create a function to check whether subjectConfig has changed
-        2. Identify which fields changed, then update the data in the database
-      */
-
-      const checkGradeData: boolean = subject.subjectConfig.grade.every(
-        (serverGrade) => {
-          // data.subjectConfig comes from the client side
-          data.subjectConfig?.grade?.includes(serverGrade);
-        },
-      );
-
-      const isGradeChange = checkGradeLength && checkGradeData;
-
-      const checkMajorLength: boolean =
-        subject.subjectConfig.major.length === data.subjectConfig.major?.length;
-
-      const checkMajorData: boolean = subject.subjectConfig.major.every(
-        (serverMajor) => {
-          // data.subjectConfig comes from the client side
-          data.subjectConfig?.major?.includes(serverMajor);
-        },
-      );
-
-      const isMajorChange = checkMajorLength && checkMajorData;
-
-      const isSubjectTypeChange =
-        subject.subjectConfig.subjectType === data.subjectConfig.subjectType;
-
-      isSubjectConfigExact =
-        isGradeChange && isMajorChange && isSubjectTypeChange;
+    if (isSubjectNameExact && !subjectConfigChanges.hasChanged) {
+      return Response.json({ message: "No data was edited" }, { status: 200 });
     }
 
-    const isSubjectNameExact = subject.subjectName === data.subjectName;
+    const updatePayload: any = {};
 
-    const isSubjectExact = isSubjectNameExact && isSubjectConfigExact;
-
-    if (isSubjectExact) {
-      return Response.json(
-        {
-          message: "No data was edited",
-        },
-        { status: 200 },
-      );
+    if (!isSubjectNameExact) {
+      updatePayload.subjectName = data.subjectName;
     }
+
+    if (subjectConfigChanges.hasChanged) {
+      updatePayload.subjectConfig = {
+        update: subjectConfigChanges.changedData,
+      };
+    }
+
+    /* 
+      TODO: 
+      1. If the subjectConfig data that user send doesn't match any subject config data in db, create a new one and connect
+    */
+
+    await prisma.subject.update({
+      where: {
+        id: data.subjectId,
+      },
+      data: updatePayload,
+    });
   } catch (error) {
     console.error("API_ERROR", {
       route: "/api/staff/subject",
