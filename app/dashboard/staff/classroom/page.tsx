@@ -1,7 +1,7 @@
 import { auth } from "../../../../lib/auth/authNode";
 import {
   getRoleDashboard,
-  isAllStaffRole,
+  hasManagementAccess,
 } from "../../../../lib/constants/roles";
 import { redirect } from "next/navigation";
 import ClassroomPageClient from "../../../../components/dashboard/staff/classroom/ClassroomPageClient";
@@ -13,7 +13,7 @@ const Page = async () => {
     return redirect("/sign-in");
   }
 
-  if (!isAllStaffRole(session.user.role)) {
+  if (!hasManagementAccess(session.user.role)) {
     return redirect(getRoleDashboard(session.user.role));
   }
 

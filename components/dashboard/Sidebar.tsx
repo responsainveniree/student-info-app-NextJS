@@ -81,7 +81,7 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
           },
 
           {
-            href: "/dashboard/teacher/mark",
+            href: "/dashboard/teacher/assignment",
             icon: ChartNoAxesCombined,
             label: "Student Assignment",
           },
@@ -169,7 +169,11 @@ export const Sidebar = ({ role, isHomeroomClassTeacher }: SidebarProps) => {
             icon: ClipboardCheck,
             label: "Attendance",
           },
-          { href: "/dashboard/student/mark", icon: TrendingUp, label: "Marks" },
+          {
+            href: "/dashboard/student/assessment",
+            icon: TrendingUp,
+            label: "Marks",
+          },
           ...commonItems,
         ];
 

@@ -43,6 +43,8 @@ export async function POST(req: Request) {
       },
     });
 
+    console.log(studentRecords);
+
     if (studentRecords.length === 0) {
       throw notFound("Student data not found");
     }

@@ -76,11 +76,11 @@ export const hasHomeroomTeacher = (role: allCombinedPosition): boolean =>
   isStudentRole(role);
 
 export const getRoleDashboard = (role: allCombinedPosition): string => {
-  if (isStudentRole(role)) return "/dashboard/student";
-  if (isTeacherRole(role)) return "/dashboard/teacher";
-  if (hasManagementAccess(role)) return "/dashboard/staff";
-  if (isParentRole(role)) return "/dashboard/parent";
   if (isAdminRole(role)) return "/dashboard/admin";
+  if (hasManagementAccess(role)) return "/dashboard/staff";
+  if (isTeacherRole(role)) return "/dashboard/teacher";
+  if (isStudentRole(role)) return "/dashboard/student";
+  if (isParentRole(role)) return "/dashboard/parent";
   return "/sign-in";
 };
 

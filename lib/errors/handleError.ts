@@ -6,7 +6,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 export function handleError(error: unknown) {
   console.error("[API_ERROR]", {
     type: error instanceof Error ? error.name : "Unknown",
-    message: error instanceof Error ? error.message : String(error),
+    message: error,
   });
 
   // Di dalam file utils/handleError.ts atau sejenisnya
