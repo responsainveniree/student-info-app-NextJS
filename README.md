@@ -2,6 +2,8 @@
 
 A comprehensive full-stack Next.js application designed to manage student information, academic records, attendance, and disciplinary actions. This system supports multiple user roles including Administrators, Staff (Teachers, Principals), Students, and Parents, providing a unified portal for modern school management.
 
+[Student Info App](https://student-info-app-next-js.vercel.app)
+
 ## 🚀 Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
@@ -36,13 +38,16 @@ A comprehensive full-stack Next.js application designed to manage student inform
 ### Installation
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
-   *(Note: This project uses `npm`. Run `npm install` to install all packages).*
+
+   _(Note: This project uses `npm`. Run `npm install` to install all packages)._
 
 2. **Environment Setup:**
    Create a `.env` file in the root directory and configure the following variables:
+
    ```env
    DATABASE_URL="your-postgresql-connection-string"
    AUTH_SECRET="your-auth-secret"
@@ -59,6 +64,7 @@ A comprehensive full-stack Next.js application designed to manage student inform
 
 3. **Database Setup:**
    Generate Prisma client and push the schema to your database:
+
    ```bash
    npm run prisma:generate
    npm run prisma:migrate-dev
