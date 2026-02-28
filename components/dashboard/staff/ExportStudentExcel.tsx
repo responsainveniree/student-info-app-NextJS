@@ -19,8 +19,6 @@ import {
 } from "../../../lib/utils/labels";
 import { FileSpreadsheet, Download } from "lucide-react";
 
-
-
 const ExportStudentExcel = () => {
   const [loading, setLoading] = useState(false);
   const [selectedClass, setSelectedClass] = useState({
@@ -41,7 +39,7 @@ const ExportStudentExcel = () => {
     setLoading(true);
 
     try {
-      const response = await axios.get("/api/staff/students", {
+      const response = await axios.get("/api/staff/export-students", {
         params: {
           grade: selectedClass.grade,
           major: selectedClass.major,

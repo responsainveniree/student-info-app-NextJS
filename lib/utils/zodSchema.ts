@@ -137,10 +137,11 @@ type UpdateClassSchema = z.infer<typeof updateClassSchema>;
 
 // Student
 const studentQuerySchema = z.object({
-  grade: GradeEnum,
-  major: MajorEnum,
-  section: ClassSectionEnum,
+  grade: GradeEnum.optional(),
+  major: MajorEnum.optional(),
+  section: ClassSectionEnum.optional(),
   page,
+  search: z.string().optional(),
 });
 
 // AUTH
@@ -360,6 +361,17 @@ const getStudentExportSchema = z.object({
   section: ClassSectionEnum,
 });
 
+// Edit User (Staff Feature)
+// Student
+const updateStudentProfileSchema = z.object({
+  id: z.string({ message: "Id field must be filled" }),
+  name: z.string({ message: "Name field must be filled" }),
+  role: StudentRoleEnum,
+  classSchema,
+});
+
+type UpdateStudentProfileSchema = z.infer<typeof updateStudentProfileSchema>;
+
 export {
   studentQuerySchema,
   createClassSchema,
@@ -386,6 +398,7 @@ export {
   demeritPointQuerySchema,
   classSchema,
   getStudentExportSchema,
+  updateStudentProfileSchema,
   type CreateClassSchema,
   type CreateSubjectInput,
   type UpdateClassSchema,
@@ -409,4 +422,5 @@ export {
   type UpdateAssessmentScoresSchema,
   type UpdateDemeritPointSchema,
   type TeachingAssignmentInput,
+  type UpdateStudentProfileSchema,
 };
