@@ -142,6 +142,7 @@ const studentQuerySchema = z.object({
   section: ClassSectionEnum.optional(),
   page,
   search: z.string().optional(),
+  isPaginationActive: z.boolean().default(true),
 });
 
 // AUTH
@@ -371,6 +372,17 @@ const updateStudentProfileSchema = z.object({
 });
 
 type UpdateStudentProfileSchema = z.infer<typeof updateStudentProfileSchema>;
+
+export const updateStudentsClassSchema = z.object({
+  updatedClassId: z.number({
+    required_error: "Class ID is required",
+    invalid_type_error: "Class ID must be a number",
+  }),
+
+  studentIds: z
+    .array(z.string().min(1))
+    .min(1, { message: "At least one student must be provided." }),
+});
 
 export {
   studentQuerySchema,

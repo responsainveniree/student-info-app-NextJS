@@ -36,7 +36,7 @@ export async function PATCH(req: Request) {
     return Response.json({ message: "Student data updated successfully" });
   } catch (error) {
     console.error("API_ERROR", {
-      route: "(POST) /api/staff/edit-user/student",
+      route: "(POST) /api/staff/edit-user/single/student",
       message: error instanceof Error ? error.message : String(error),
     });
     return handleError(error);

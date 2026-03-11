@@ -36,6 +36,11 @@ export async function GET(req: Request) {
               contains: data.search,
             },
           },
+          class: {
+            grade: data.grade,
+            major: data.major,
+            section: data.section,
+          },
         },
         select: {
           user: {
@@ -53,6 +58,11 @@ export async function GET(req: Request) {
             name: {
               contains: data.search,
             },
+          },
+          class: {
+            grade: data.grade,
+            major: data.major,
+            section: data.section,
           },
         },
       });
@@ -73,8 +83,8 @@ export async function GET(req: Request) {
             },
           },
         },
-        skip: data.page * OFFSET,
-        take: TAKE_RECORDS,
+        skip: data.isPaginationActive ? data.page * OFFSET : undefined,
+        take: data.isPaginationActive ? TAKE_RECORDS : undefined,
       });
 
       totalStudents = await prisma.student.count({
