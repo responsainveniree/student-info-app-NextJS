@@ -222,9 +222,10 @@ model Gradebook {
     subjectId Int
     subject   Subject @relation(fields: [subjectId], references: [id])
 
-    semester Semester
+    semester Semester // We need the semester data for removing irellevant data after semester get updated
 
-    scores AssessmentScore[]
+    scores      AssessmentScore[]
+    assessments Assessment[]
 
     @@unique([studentId, subjectId, semester])
 }
@@ -242,7 +243,9 @@ model Assessment {
     givenAt DateTime
     dueAt   DateTime
 
-    createdAt DateTime @default(now())
+    createdAt   DateTime   @default(now())
+    gradebook   Gradebook? @relation(fields: [gradebookId], references: [id])
+    gradebookId Int?
 }
 
 model AssessmentScore {

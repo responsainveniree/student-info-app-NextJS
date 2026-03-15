@@ -142,7 +142,10 @@ const studentQuerySchema = z.object({
   section: ClassSectionEnum.optional(),
   page,
   search: z.string().optional(),
-  isPaginationActive: z.boolean().default(true),
+  isPaginationActive: z
+    .string()
+    .default("true")
+    .transform((v) => Boolean(v)),
 });
 
 // AUTH

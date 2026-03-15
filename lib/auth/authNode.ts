@@ -48,8 +48,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         });
 
-        console.log(user);
-
         if (!user) {
           throw notFound("Email or password are invalid");
         }
