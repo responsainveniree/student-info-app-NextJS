@@ -16,6 +16,7 @@ export async function findClassroom(
     },
     select: {
       id: true,
+      homeroomTeacherId: true,
     },
   });
 }

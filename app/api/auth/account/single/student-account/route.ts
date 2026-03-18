@@ -1,7 +1,8 @@
+import { studentSignUpSchema } from "../../../../../../lib/zod/student";
 import { handleError } from "../../../../../../lib/errors";
 import { validateManagementSession } from "../../../../../../lib/validation/guards";
-import { studentSignUpSchema } from "../../../../../../lib/utils/zodSchema";
 import { createStudentAccountService } from "../../../../../../services/student/createStudentAccountService";
+import { printConsoleError } from "@/lib/utils/printError";
 
 export async function POST(req: Request) {
   try {
@@ -20,6 +21,11 @@ export async function POST(req: Request) {
       { status: 200 },
     );
   } catch (error) {
+    printConsoleError(
+      error,
+      "POST",
+      "/api/auth/account/single/student-account",
+    );
     return handleError(error);
   }
 }

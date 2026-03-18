@@ -3,7 +3,7 @@ import { badRequest, handleError } from "@/lib/errors";
 import { getSemester } from "@/lib/utils/date";
 import { validateManagementSession } from "@/lib/validation/guards";
 
-export async function PATCH(req: Request) {
+export async function PATCH() {
   try {
     await validateManagementSession();
 

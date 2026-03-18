@@ -1,3 +1,4 @@
+import { ClassSection, Grade, Major } from "@/lib/constants/class";
 import { notFound } from "../../lib/errors";
 
 /**

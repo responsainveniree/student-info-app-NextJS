@@ -149,21 +149,6 @@ const studentQuerySchema = z.object({
 });
 
 // AUTH
-const studentSignUpSchema = z.object({
-  username: z.string().min(3, { message: "Must be 3 characters at minimum" }),
-  email: z.string().email({ message: "Please input a correct format" }),
-  passwordSchema,
-  classSchema,
-  studentRole: StudentRoleEnum,
-});
-
-const teacherSignUpSchema = z.object({
-  username: z.string().min(3, { message: "Must be 3 characters at minimum" }),
-  email: z.string().email({ message: "Please input a correct format" }),
-  passwordSchema,
-  homeroomClass: classSchema.optional(),
-  assignments: z.array(teachingAssignmentInput).optional(),
-});
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Please input a correct format" }),
@@ -180,8 +165,6 @@ const resetPasswordSchema = z.object({
     .min(8, { message: "Must be 8 characters at minimum" }),
 });
 
-type StudentSignUpSchema = z.infer<typeof studentSignUpSchema>;
-type TeacherSignUpSchema = z.infer<typeof teacherSignUpSchema>;
 type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
 type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
 
@@ -394,8 +377,6 @@ export {
   createSubjectSchema,
   getSubjectQueriesSchema,
   patchSubjectSchema,
-  studentSignUpSchema,
-  teacherSignUpSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   homeroomClassStudent,
@@ -420,8 +401,6 @@ export {
   type SubjectQueriesSchema,
   type PatchSubjectInput,
   type ClassSchema,
-  type StudentSignUpSchema,
-  type TeacherSignUpSchema,
   type ForgotPasswordSchema,
   type ResetPasswordSchema,
   type HomeroomClassStudentSchema,
