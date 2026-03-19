@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         message: "Student account created successfully",
         data: result,
       },
-      { status: 200 },
+      { status: 201 },
     );
   } catch (error) {
     printConsoleError(

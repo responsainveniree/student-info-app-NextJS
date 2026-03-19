@@ -18,7 +18,7 @@ type ResolvedTeachingAssignments = {
 
 export async function createTeacherAccountService(data: TeacherSignUpSchema) {
   return prisma.$transaction(async (tx) => {
-    const user = findUserByEmail(data.email, tx);
+    const user = await findUserByEmail(data.email, tx);
 
     validateEmailUniqueness(user);
 

@@ -6,7 +6,7 @@ export function printConsoleError(
   apiUrl: string,
 ) {
   console.error("API_ERROR", {
-    route: `(${httpMethod} ${apiUrl})`,
+    route: `(${httpMethod}) ${apiUrl}`,
     message: error instanceof Error ? error.message : String(error),
   });
 }

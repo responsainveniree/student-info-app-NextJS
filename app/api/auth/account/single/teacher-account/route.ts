@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const rawData = await req.json();
     const data = teacherSignUpSchema.parse(rawData);
 
-    createTeacherAccountService(data);
+    await createTeacherAccountService(data);
 
     return Response.json(
       {
