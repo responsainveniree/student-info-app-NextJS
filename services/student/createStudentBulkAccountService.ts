@@ -1,5 +1,4 @@
 import { prisma } from "@/db/prisma";
-import { validateExcelExtension } from "@/domain/extension/extensionRules";
 import { ClassSection, Grade, Major } from "@/lib/constants/class";
 import { StudentPosition } from "@/lib/constants/roles";
 import { badRequest } from "@/lib/errors";
@@ -22,8 +21,6 @@ type StudentExcelRow = {
 };
 
 export async function createStudentBulkAccountService(file: File) {
-  validateExcelExtension(file);
-
   const buffer = await file.arrayBuffer();
   const workbook = XLSX.read(buffer);
   const data = XLSX.utils.sheet_to_json(
