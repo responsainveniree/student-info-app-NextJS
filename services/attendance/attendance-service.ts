@@ -221,22 +221,12 @@ export async function getAttendance(
       data.page,
       data.sortOrder,
     );
-  } else if (data.sortBy === "name") {
-    studentAttendanceRecords = await findUsersAttendanceByClassId(
-      classIdSession,
-      selectData,
-      prisma,
-      data.page,
-      data.sortBy,
-      data.sortOrder,
-    );
   } else {
     studentAttendanceRecords = await findUsersAttendanceByClassId(
       classIdSession,
       selectData,
       prisma,
       data.page,
-      data.sortBy,
       data.sortOrder,
     );
   }

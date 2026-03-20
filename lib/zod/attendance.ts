@@ -1,10 +1,5 @@
 import { z } from "zod";
-import {
-  AttendanceTypesEnum,
-  page,
-  SortByEnum,
-  SortOrderEnum,
-} from "./general";
+import { AttendanceTypesEnum, page, SortOrderEnum } from "./general";
 
 export const bulkAttendanceSchema = z.object({
   date: z.string({ message: "Must be filled" }),
@@ -25,7 +20,6 @@ export const studentAttendacesQueriesSchema = z.object({
     .default(new Date().toISOString().split("T")[0]),
   homeroomTeacherId: z.string().optional(),
   page,
-  sortBy: SortByEnum,
   sortOrder: SortOrderEnum,
   searchQuery: z.string().optional(),
 });

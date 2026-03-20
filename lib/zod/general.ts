@@ -11,7 +11,6 @@ export const AttendanceTypesEnum = z.enum([
   "PRESENT",
 ]);
 export const ClassSectionEnum = z.enum(["none", "1", "2"]);
-export const SortByEnum = z.enum(["name", "status"]);
 export const SortOrderEnum = z.enum(["asc", "desc"]);
 export const DemeritCategoryEnum = z.enum([
   "DISCIPLINE",

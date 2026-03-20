@@ -46,7 +46,6 @@ export async function findUsersAttendanceByClassId(
   selectData: Prisma.UserSelect,
   tx: PrismaClient,
   page: number,
-  sortBy: "name" | "status",
   sortOrder: SortOrder,
 ) {
   return tx.user.findMany({
@@ -59,8 +58,7 @@ export async function findUsersAttendanceByClassId(
     skip: page * OFFSET,
     take: TAKE_RECORDS,
     orderBy: {
-      name:
-        sortBy === "name" ? (sortOrder === "asc" ? "asc" : "desc") : undefined,
+      name: sortOrder === "asc" ? "asc" : "desc",
     },
   });
 }

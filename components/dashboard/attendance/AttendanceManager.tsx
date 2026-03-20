@@ -59,7 +59,7 @@ interface AttendanceManagerProps {
   session: Session;
 }
 
-type SortOption = "name-asc" | "name-desc" | "status";
+type SortOption = "name-asc" | "name-desc";
 
 const STATUS_OPTIONS = [
   { value: "PRESENT", label: "PRESENT", color: "text-emerald-700" },
@@ -104,7 +104,6 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
     setUnsavedChanges({});
   }, [selectedDate]);
 
-  const apiSortBy = sortBy === "status" ? "status" : "name";
   const apiSortOrder = sortBy === "name-desc" ? "desc" : "asc";
 
   const fetchAttendance = async () => {
@@ -114,7 +113,6 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
         date: selectedDate,
         page: currentPage,
         sortOrder: apiSortOrder,
-        sortBy: apiSortBy,
         searchQuery: effectiveSearchQuery,
       },
     });
@@ -132,7 +130,6 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
       date: selectedDate,
       page: currentPage,
       sortOrder: apiSortOrder,
-      sortBy: apiSortBy,
       searchQuery: effectiveSearchQuery,
     }),
     queryFn: fetchAttendance,
@@ -374,7 +371,6 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                   <SelectContent>
                     <SelectItem value="name-asc">Name (A-Z)</SelectItem>
                     <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                    <SelectItem value="status">Status</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -449,10 +445,10 @@ const AttendanceManager = ({ session }: AttendanceManagerProps) => {
                 const server = serverAttendanceMap[student.id];
                 const record = unsaved ||
                   server || {
-                  studentId: student.id,
-                  type: "PRESENT" as const,
-                  description: "",
-                };
+                    studentId: student.id,
+                    type: "PRESENT" as const,
+                    description: "",
+                  };
 
                 const showNoteInput =
                   isValidDate &&
