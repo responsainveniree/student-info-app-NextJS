@@ -119,14 +119,6 @@ const studentQuerySchema = z.object({
     .transform((v) => Boolean(v)),
 });
 
-const attendanceSummaryQueries = z.object({
-  page,
-  sortOrder: SortOrderEnum,
-  searchQuery: z.string().optional(),
-});
-
-type AttendanceSummaryQueriesSchema = z.infer<typeof attendanceSummaryQueries>;
-
 // HOMEROOM CLASS STUDENT
 const homeroomClassStudent = z.object({
   teacherId: z.string({ message: "Must be filled" }),
@@ -303,7 +295,6 @@ export {
   patchSubjectSchema,
   homeroomClassStudent,
   createDemeritPointSchema,
-  attendanceSummaryQueries,
   queryStudentMarks,
   createStudentAssessmentSchema,
   getStudentAssessmentSchema,
@@ -324,7 +315,6 @@ export {
   type HomeroomClassStudentSchema,
   type CreateDemeritPointSchema,
   type QueryStudentMarksSchema,
-  type AttendanceSummaryQueriesSchema,
   type CreateStudentAssessmentSchema,
   type GetStudentAssessmentSchema,
   type UpdateStudentAssessmentSchema,

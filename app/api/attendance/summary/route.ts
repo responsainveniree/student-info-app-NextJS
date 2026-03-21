@@ -1,12 +1,7 @@
 import { handleError } from "../../../../lib/errors";
-import {
-  MIN_SEARCH_LENGTH,
-  OFFSET,
-  TAKE_RECORDS,
-} from "../../../../lib/constants/pagination";
-import { attendanceSummaryQueries } from "../../../../lib/utils/zodSchema";
 import { validateHomeroomTeacherSession } from "../../../../lib/validation/guards";
-import { prisma } from "@/db/prisma";
+import { attendanceSummaryQueries } from "@/lib/zod/attendance";
+import { getAttendanceSumamry } from "@/services/attendance/attendance-service";
 
 export async function GET(req: Request) {
   try {
@@ -18,75 +13,7 @@ export async function GET(req: Request) {
 
     const data = attendanceSummaryQueries.parse(rawParams);
 
-    let students;
-
-    const classIdSession = homeroomTeacherSession.homeroom?.id;
-
-    const selectData = {
-      name: true,
-      id: true,
-    };
-
-    if (data.searchQuery && data.searchQuery?.length > MIN_SEARCH_LENGTH) {
-      students = await prisma.user.findMany({
-        where: {
-          name: {
-            contains: data.searchQuery,
-            mode: "insensitive",
-          },
-          studentProfile: {
-            classId: classIdSession,
-          },
-        },
-        select: selectData,
-        skip: data.page * OFFSET,
-        take: TAKE_RECORDS,
-      });
-    } else {
-      students = await prisma.user.findMany({
-        where: {
-          studentProfile: {
-            classId: classIdSession,
-          },
-        },
-        select: selectData,
-        skip: data.page * OFFSET,
-        take: TAKE_RECORDS,
-        orderBy: {
-          name: data.sortOrder === "asc" ? "asc" : "desc",
-        },
-      });
-    }
-
-    const studentIds = students.map((student: { id: string }) => student.id);
-
-    const stats = await prisma.attendance.groupBy({
-      by: ["type", "studentId"],
-      where: {
-        studentId: {
-          in: studentIds,
-        },
-      },
-      _count: true,
-    });
-
-    const studentAttendanceSummaries = students.map((student: { id: string; name: string }) => {
-      const summary = stats
-        .filter((s: { studentId: string }) => s.studentId === student.id)
-        .map((s: { type: string; _count: number }) => ({ type: s.type, count: s._count }));
-
-      return {
-        id: student.id,
-        name: student.name,
-        attendanceSummary: summary,
-      };
-    });
-
-    const totalStudents = await prisma.student.count({
-      where: {
-        classId: classIdSession,
-      },
-    });
+    const result = await getAttendanceSumamry(data, homeroomTeacherSession);
 
     return Response.json(
       {
@@ -96,8 +23,8 @@ export async function GET(req: Request) {
           major: homeroomTeacherSession.homeroom?.major,
           classNumber: homeroomTeacherSession.homeroom?.section,
         },
-        students: studentAttendanceSummaries,
-        totalStudents: totalStudents,
+        students: result.studentAttendanceSummaries,
+        totalStudents: result.totalStudents,
       },
       { status: 200 },
     );

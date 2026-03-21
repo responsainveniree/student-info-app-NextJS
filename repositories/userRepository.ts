@@ -17,8 +17,9 @@ export async function findUserByEmail(
   });
 }
 
-export async function findUsersAttendanceByName(
+export async function findUsersByName(
   name: string,
+  classId: number,
   selectData: Prisma.UserSelect,
   tx: PrismaClient,
   page: number,
@@ -29,6 +30,9 @@ export async function findUsersAttendanceByName(
       name: {
         contains: name,
         mode: "insensitive",
+      },
+      studentProfile: {
+        classId: classId,
       },
       role: "STUDENT",
     },
@@ -41,7 +45,7 @@ export async function findUsersAttendanceByName(
   });
 }
 
-export async function findUsersAttendanceByClassId(
+export async function findUsersByClassId(
   classId: number,
   selectData: Prisma.UserSelect,
   tx: PrismaClient,

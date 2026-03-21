@@ -10,14 +10,19 @@ import { MIN_SEARCH_LENGTH } from "@/lib/constants/pagination";
 import { badRequest } from "@/lib/errors";
 import { getDayBounds, parseDateString } from "@/lib/utils/date";
 import {
+  AttendanceSummaryQueriesSchema,
   BulkAttendanceSchema,
   StudentAttendacesQueriesSchema,
 } from "@/lib/zod/attendance";
-import { findAttendancesByIdsAndTodayDate } from "@/repositories/attendance-repository";
+import {
+  findAttendanceByIdsAndTodayDate,
+  getAttendanceStatsByDate,
+  getAttendanceStatsByStudentIds,
+} from "@/repositories/attendance-repository";
 import {
   findStudentProfilesByIds,
-  findUsersAttendanceByClassId,
-  findUsersAttendanceByName,
+  findUsersByClassId,
+  findUsersByName,
 } from "@/repositories/userRepository";
 import { Prisma } from "@prisma/client";
 
@@ -48,7 +53,7 @@ export async function createAttendance(
 
   const [existingStudents, existingAttendances] = await Promise.all([
     findStudentProfilesByIds(studentIds, prisma),
-    findAttendancesByIdsAndTodayDate(studentIds, startOfDay, endOfDay, prisma),
+    findAttendanceByIdsAndTodayDate(studentIds, startOfDay, endOfDay, prisma),
   ]);
 
   const studentMap = new Map<
@@ -214,15 +219,16 @@ export async function getAttendance(
     : homeroomTeacherSession?.homeroom?.id;
 
   if (data.searchQuery && data.searchQuery.length >= MIN_SEARCH_LENGTH) {
-    studentAttendanceRecords = await findUsersAttendanceByName(
+    studentAttendanceRecords = await findUsersByName(
       data.searchQuery,
+      classIdSession,
       selectData,
       prisma,
       data.page,
       data.sortOrder,
     );
   } else {
-    studentAttendanceRecords = await findUsersAttendanceByClassId(
+    studentAttendanceRecords = await findUsersByClassId(
       classIdSession,
       selectData,
       prisma,
@@ -240,21 +246,12 @@ export async function getAttendance(
   });
 
   // Get attendance stats for the selected date
-  const attendanceStats = await prisma.attendance.groupBy({
-    by: ["type"],
-    where: {
-      date: {
-        gte: startOfDay,
-        lte: endOfDay,
-      },
-      student: {
-        classId: classIdSession,
-      },
-    },
-    _count: {
-      type: true,
-    },
-  });
+  const attendanceStats = await getAttendanceStatsByDate(
+    classIdSession,
+    startOfDay,
+    endOfDay,
+    prisma,
+  );
 
   // Transform stats into a more usable format
   const stats = {
@@ -272,4 +269,69 @@ export async function getAttendance(
   }
 
   return { totalStudents, attendanceStats: stats, studentAttendanceRecords };
+}
+
+export async function getAttendanceSumamry(
+  data: AttendanceSummaryQueriesSchema,
+  homeroomTeacherSession: HomeroomTeacherSession,
+) {
+  let students;
+
+  const classIdSession = homeroomTeacherSession.homeroom?.id;
+
+  const selectData = {
+    name: true,
+    id: true,
+  };
+
+  if (data.searchQuery && data.searchQuery?.length > MIN_SEARCH_LENGTH) {
+    students = await findUsersByName(
+      data.searchQuery,
+      classIdSession,
+      selectData,
+      prisma,
+      data.page,
+      data.sortOrder,
+    );
+  } else {
+    students = await findUsersByClassId(
+      classIdSession,
+      selectData,
+      prisma,
+      data.page,
+      data.sortOrder,
+    );
+  }
+
+  const studentIds = students.map((student: { id: string }) => student.id);
+
+  const stats = await getAttendanceStatsByStudentIds(studentIds, prisma);
+
+  const studentAttendanceSummaries = students.map(
+    (student: { id: string; name: string }) => {
+      const summary = stats
+        .filter((s: { studentId: string }) => s.studentId === student.id)
+        .map((s: { type: string; _count: number }) => ({
+          type: s.type,
+          count: s._count,
+        }));
+
+      return {
+        id: student.id,
+        name: student.name,
+        attendanceSummary: summary,
+      };
+    },
+  );
+
+  const totalStudents = await prisma.student.count({
+    where: {
+      classId: classIdSession,
+    },
+  });
+
+  return {
+    studentAttendanceSummaries,
+    totalStudents,
+  };
 }

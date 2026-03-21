@@ -79,7 +79,7 @@ const AttendanceSummary = ({
         id: session.id,
         page,
         sortOrder,
-        effectiveSearchQuery,
+        searchQuery: effectiveSearchQuery,
       },
     });
     return response.data;
@@ -95,8 +95,6 @@ const AttendanceSummary = ({
     queryFn: fetchAttendanceSummary,
     placeholderData: (previousData) => previousData,
   });
-
-  console.log(data);
 
   useEffect(() => {
     if (data?.class) {

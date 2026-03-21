@@ -27,3 +27,13 @@ export const studentAttendacesQueriesSchema = z.object({
 export type StudentAttendacesQueriesSchema = z.infer<
   typeof studentAttendacesQueriesSchema
 >;
+
+export const attendanceSummaryQueries = z.object({
+  page,
+  sortOrder: SortOrderEnum,
+  searchQuery: z.string().optional(),
+});
+
+export type AttendanceSummaryQueriesSchema = z.infer<
+  typeof attendanceSummaryQueries
+>;
