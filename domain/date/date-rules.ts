@@ -4,10 +4,10 @@ import { badRequest } from "@/lib/errors";
 const today = new Date();
 today.setHours(23, 59, 59, 59);
 
-export function assertDateIsInCurrentSemester(attendanceDate: Date) {
+export function assertDateIsInCurrentSemester(date: Date) {
   const { start: semesterStart, end: semesterEnd } =
     getSemesterDateRange(today);
-  if (attendanceDate < semesterStart || attendanceDate > semesterEnd) {
+  if (date < semesterStart || date > semesterEnd) {
     const semesterNum = getSemester(today);
     throw badRequest(
       `Date is outside the current semester (Semester ${semesterNum}). ` +
