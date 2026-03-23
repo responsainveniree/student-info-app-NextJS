@@ -1,43 +1,22 @@
-import { prisma } from "@/db/prisma";
-import { badRequest, handleError } from "@/lib/errors";
-import { getSemester } from "@/lib/utils/date";
+import { handleError } from "@/lib/errors";
+import { printConsoleError } from "@/lib/utils/printError";
 import { validateManagementSession } from "@/lib/validation/guards";
+import { updateSemseter } from "@/services/semester/semester-service";
 
 export async function PATCH() {
   try {
     await validateManagementSession();
 
-    const currentDate = new Date();
-    const semester = getSemester(currentDate);
-    const transformSemester = semester == 1 ? "FIRST" : "SECOND";
+    const response = await updateSemseter();
 
-    // Check database semester
-    let databaseSemester = await prisma.gradebook.findFirst({
-      select: {
-        semester: true,
+    return Response.json(
+      {
+        message: `Semseter updated successfully. Now it's ${response.currentSemester ? "1" : "2"} semester`,
       },
-    });
-
-    if (!databaseSemester) databaseSemester = { semester: "FIRST" };
-
-    if (transformSemester === databaseSemester.semester) {
-      throw badRequest(
-        `You can't update the semester now. It's still in the ${semester} scope`,
-      );
-    }
-
-    await prisma.assessment.deleteMany();
-
-    await prisma.gradebook.updateMany({
-      data: {
-        semester: transformSemester,
-      },
-    });
+      { status: 200 },
+    );
   } catch (error) {
-    console.error("API_ERROR", {
-      route: "(PATCH) /api/staff/semester",
-      message: error instanceof Error ? error.message : String(error),
-    });
+    printConsoleError(error, "PATCH", "/api/staff/semester");
     return handleError(error);
   }
 }
