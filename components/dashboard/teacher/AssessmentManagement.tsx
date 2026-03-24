@@ -63,8 +63,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../../../components/ui/alert-dialog";
-import { UpdateStudentAssessmentSchema } from "../../../lib/utils/zodSchema";
 import { Session } from "@/lib/types/session";
+import { UpdateStudentAssessmentSchema } from "@/lib/zod/assessment";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -548,6 +548,8 @@ const AssessmentManagement = ({ session }: AssessmentManagementProps) => {
       : [];
 
   const totalStudents = students.length;
+
+  console.log(columns);
 
   // ── Render ───────────────────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 import { ASSESSMENT_KEYS } from "@/lib/constants/tanStackQueryKeys";
-import { UpdateStudentAssessmentSchema } from "@/lib/utils/zodSchema";
+import { UpdateStudentAssessmentSchema } from "@/lib/zod/assessment";
 
 const API_BASE = "/api/teacher/student-assessment";
 

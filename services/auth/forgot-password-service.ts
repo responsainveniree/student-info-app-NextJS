@@ -9,7 +9,7 @@ import hashing from "@/lib/utils/hashing";
 import { headers } from "next/headers";
 import crypto from "crypto";
 import { hashResetToken } from "@/lib/utils/hashToken";
-import { findUserByEmail } from "@/repositories/userRepository";
+import { findUserByEmail } from "@/repositories/user-repository";
 import { TOKEN_TTL } from "@/lib/constants/rate-limiter";
 import {
   assertForgotPasswordIpLimit,

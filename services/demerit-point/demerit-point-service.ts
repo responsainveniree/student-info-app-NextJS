@@ -24,7 +24,7 @@ import {
   findDemeritPointsByRecorder,
   findUniqueDemeritPoint,
 } from "@/repositories/demerit-repository";
-import { findUsersByIds } from "@/repositories/userRepository";
+import { findUsersByIds } from "@/repositories/user-repository";
 import { Prisma } from "@prisma/client";
 
 export async function createDemeritPoint(

@@ -8,7 +8,7 @@ import { validateTeachingStructure } from "@/lib/validation/teachingValidators";
 import { TeacherSignUpSchema } from "@/lib/zod/teacher";
 import { findUniqueClassroom } from "@/repositories/classroom-repository";
 import { findSubjects } from "@/repositories/subject-repository";
-import { findUserByEmail } from "@/repositories/userRepository";
+import { findUserByEmail } from "@/repositories/user-repository";
 import { Prisma } from "@prisma/client";
 
 type ResolvedTeachingAssignments = {

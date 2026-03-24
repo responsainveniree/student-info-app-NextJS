@@ -18,6 +18,7 @@ import {
   MAJOR_DISPLAY_MAP,
 } from "../../../lib/utils/labels";
 import { FileSpreadsheet, Download } from "lucide-react";
+import { getErrorMessage } from "@/lib/utils/getErrorMessage";
 
 const ExportStudentExcel = () => {
   const [loading, setLoading] = useState(false);
@@ -65,11 +66,8 @@ const ExportStudentExcel = () => {
       toast.success("Excel file downloaded successfully");
     } catch (error: any) {
       console.error("Download error:", error);
-      const msg =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to download file";
-      toast.error(msg);
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,18 @@
-import { ClassSection, Grade, Major } from "@/lib/constants/class";
 import { Prisma, PrismaClient } from "@prisma/client";
+
+export const createClassroomWhere = <T extends Prisma.ClassroomWhereInput>(
+  where: T,
+): T => where;
+
+export const createClassroomWhereUnique = <
+  T extends Prisma.ClassroomWhereUniqueInput,
+>(
+  where: T,
+): T => where;
+
+export const createClassroomSelect = <T extends Prisma.ClassroomSelect>(
+  select: T,
+): T => select;
 
 export const findClassrooms = async <T extends Prisma.ClassroomSelect>(
   whereQuery: Prisma.ClassroomWhereInput | {},

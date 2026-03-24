@@ -127,6 +127,19 @@ export async function findStudentById(userIdParam: string, tx: PrismaClient) {
   });
 }
 
+export const findStudents = async <T extends Prisma.StudentSelect>(
+  whereQuery: Prisma.StudentWhereInput,
+  selectData: Prisma.Subset<T, Prisma.StudentSelect>,
+  tx: PrismaClient | Prisma.TransactionClient,
+) => {
+  const result = tx.student.findMany({
+    where: whereQuery,
+    select: selectData,
+  });
+
+  return result as unknown as Prisma.StudentGetPayload<{ select: T }>[];
+};
+
 export async function findStudentProfilesByIds(
   userIds: string[],
   tx: PrismaClient,

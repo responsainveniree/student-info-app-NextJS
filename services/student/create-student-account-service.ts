@@ -5,7 +5,7 @@ import { getSemester } from "../../lib/utils/date";
 import { ensureSubjectsExist } from "../../domain/subject/subject-rules";
 import { validateEmailUniqueness } from "../../domain/account/emailRules";
 import { findSubjectsForClass } from "../../repositories/subject-repository";
-import { findUserByEmail } from "@/repositories/userRepository";
+import { findUserByEmail } from "@/repositories/user-repository";
 import { Prisma } from "@prisma/client";
 import { ensureClassroomExists } from "@/domain/classroom/classroom-rules";
 import { StudentSignUpSchema } from "@/lib/zod/student";

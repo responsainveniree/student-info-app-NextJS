@@ -2,7 +2,7 @@ import { prisma } from "@/db/prisma";
 import { auth } from "@/lib/auth/authNode";
 import { isClassSecretaryRole, isTeacherRole } from "@/lib/constants/roles";
 import { forbidden, notFound, unauthorized } from "@/lib/errors";
-import { findStudentById, findTeacher } from "@/repositories/userRepository";
+import { findStudentById, findTeacher } from "@/repositories/user-repository";
 
 export async function validateHomeroomTeacherSession() {
   const session = await auth();

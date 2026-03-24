@@ -1,7 +1,7 @@
 import { handleError } from "@/lib/errors";
 import { printConsoleError } from "@/lib/utils/printError";
 import { validateTeacherSession } from "@/lib/validation/guards";
-import { getTeachingAssignment } from "@/services/teacher/teacher-service";
+import { getTeachingAssignment } from "@/services/teaching-assignment/teaching-assignment-service";
 
 export async function GET() {
   try {

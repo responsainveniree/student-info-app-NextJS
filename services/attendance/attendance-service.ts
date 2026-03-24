@@ -24,7 +24,7 @@ import {
   findStudentProfilesByIds,
   findUsersByClassId,
   findUsersByName,
-} from "@/repositories/userRepository";
+} from "@/repositories/user-repository";
 import { Prisma } from "@prisma/client";
 
 export async function createAttendance(
