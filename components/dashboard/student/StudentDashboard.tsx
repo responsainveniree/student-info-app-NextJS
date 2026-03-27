@@ -33,7 +33,7 @@ interface StudentDashboardResponse {
   message: string;
   data: {
     attendanceRecords: AttendanceStats[];
-    problemPointRecords: DemeritPointData[];
+    demeritPointRecords: DemeritPointData[];
     totalSubject: number;
   };
 }
@@ -62,7 +62,7 @@ const StudentDashboard = ({ session }: DashboardProps) => {
   });
 
   const attendanceRecords = data?.data.attendanceRecords ?? [];
-  const problemPointRecords = data?.data.problemPointRecords ?? [];
+  const problemPointRecords = data?.data.demeritPointRecords ?? [];
   const totalSubject = data?.data.totalSubject ?? 0;
 
   const attendanceStats = attendanceRecords.reduce(

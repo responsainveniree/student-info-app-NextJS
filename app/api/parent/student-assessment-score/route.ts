@@ -1,9 +1,8 @@
-import { prisma } from "@/db/prisma";
 import { validateParentSession } from "@/domain/auth/role-guards";
-import { OFFSET, TAKE_RECORDS } from "@/lib/constants/pagination";
-import { badRequest, handleError, notFound } from "@/lib/errors";
-import { getSemester } from "@/lib/utils/date";
+import { handleError } from "@/lib/errors";
+import { printConsoleError } from "@/lib/utils/printError";
 import { getStudentAssessmentScoreSchema } from "@/lib/zod/assessment";
+import { getStudentAssessmentScore } from "@/services/parent/parent-service";
 
 export async function GET(req: Request) {
   try {
@@ -15,62 +14,17 @@ export async function GET(req: Request) {
 
     const data = getStudentAssessmentScoreSchema.parse(rawData);
 
-    if (!data.subjectId)
-      throw badRequest("Missing required query parameter: subjectId");
-
-    const semester = getSemester(new Date()) === 1 ? "FIRST" : "SECOND";
-
-    const gradebook = await prisma.gradebook.findUnique({
-      where: {
-        studentId_subjectId_semester: {
-          studentId: parentSession.studentId,
-          subjectId: data.subjectId,
-          semester: semester,
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!gradebook?.id) throw notFound("Gradebook not found");
-
-    const assessmentScores = await prisma.assessmentScore.findMany({
-      where: {
-        gradebookId: gradebook.id,
-      },
-      select: {
-        score: true,
-        assessment: {
-          select: {
-            givenAt: true,
-            dueAt: true,
-            title: true,
-            type: true,
-          },
-        },
-      },
-      skip: data.page * OFFSET,
-      take: TAKE_RECORDS,
-      orderBy: {
-        assessment: {
-          createdAt: "asc",
-        },
-      },
-    });
+    const response = await getStudentAssessmentScore(data, parentSession);
 
     return Response.json(
       {
         message: "Successfully retrieved assessment score data",
-        assessmentScores,
+        response: response.assessmentScores,
       },
       { status: 200 },
     );
   } catch (error) {
-    console.error("API_ERROR", {
-      route: "(GET) /api/student/assessment-score",
-      message: error instanceof Error ? error.message : String(error),
-    });
+    printConsoleError(error, "GET", "/api/parent/student-assessment-score");
     return handleError(error);
   }
 }

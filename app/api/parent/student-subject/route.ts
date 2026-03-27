@@ -1,39 +1,23 @@
-import { prisma } from "@/db/prisma";
 import { validateParentSession } from "@/domain/auth/role-guards";
-import { handleError, notFound } from "@/lib/errors";
+import { handleError } from "@/lib/errors";
+import { printConsoleError } from "@/lib/utils/printError";
+import { getStudentSubject } from "@/services/parent/parent-service";
 
 export async function GET() {
   try {
     const parentSession = await validateParentSession();
 
-    const subjects = await prisma.subject.findMany({
-      where: {
-        config: {
-          allowedGrades: {
-            has: parentSession.student.class?.grade,
-          },
-          allowedMajors: {
-            has: parentSession.student.class?.major,
-          },
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    if (subjects.length === 0) throw notFound("Subject data not found");
+    const response = await getStudentSubject(parentSession);
 
     return Response.json(
-      { message: "Successfully retrieved subject data", subjects },
+      {
+        message: "Successfully retrieved subject data",
+        subjects: response.subjects,
+      },
       { status: 200 },
     );
   } catch (error) {
-    console.error("API_ERROR", {
-      route: "(GET) /api/parent/student-subject",
-      message: error instanceof Error ? error.message : String(error),
-    });
+    printConsoleError(error, "GET", "/api/parent/student-subject");
     return handleError(error);
   }
 }

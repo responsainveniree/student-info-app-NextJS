@@ -242,4 +242,4 @@ export async function validateParentSession() {
   return parentProfile;
 }
 
-export type ParentSessino = Awaited<ReturnType<typeof validateParentSession>>;
+export type ParentSession = Awaited<ReturnType<typeof validateParentSession>>;

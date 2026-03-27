@@ -14,7 +14,7 @@ export async function GET() {
         mesasge: "Successfully retrieved student attendance stats",
         data: {
           attendanceRecords: response.attendanceRecords,
-          problemPointRecords: response.problemPointRecords,
+          demeritPointRecords: response.demeritPointRecords,
           totalSubject: response.totalSubjects,
         },
       },

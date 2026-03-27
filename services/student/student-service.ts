@@ -132,7 +132,7 @@ export const getStudentProfile = async (studentSession: StudentSession) => {
     date: true,
   });
 
-  const problemPointRecords = await findDemeritPoints(
+  const demeritPointRecords = await findDemeritPoints(
     demeritPointByStudentId,
     selectDemeritPointData,
     prisma,
@@ -144,7 +144,7 @@ export const getStudentProfile = async (studentSession: StudentSession) => {
 
   return {
     attendanceRecords,
-    problemPointRecords,
+    demeritPointRecords,
     totalSubjects,
   };
 };

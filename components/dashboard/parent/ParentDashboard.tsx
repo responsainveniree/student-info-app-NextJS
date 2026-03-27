@@ -3,7 +3,7 @@ import { GraduationCap, BookOpen, Calendar } from "lucide-react";
 import { AttendanceChart } from "../attendance/AttendanceChart";
 import { DemeritPointChart } from "../demerit-point/DemeritPointChart";
 import { DemeritPointList } from "../demerit-point/DemeritPointList";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { ValidInfractionType } from "../../../lib/constants/discplinary";
@@ -46,7 +46,7 @@ export default function ParentDashboard() {
     },
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isError) {
       toast.error("Something went wrong. Can't retrieve dashboard data");
     }
@@ -56,8 +56,10 @@ export default function ParentDashboard() {
     studentName = "",
     studentSubjects = 0,
     attendanceStats: rawAttendance = [],
-    problemPointRecords: rawDemeritPoints = [],
+    demeritPointRecords: rawDemeritPoints = [],
   } = profileData?.data || {};
+
+  console.log(profileData?.data);
 
   const subjects = studentSubjects;
 
