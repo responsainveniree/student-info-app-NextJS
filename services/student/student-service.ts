@@ -4,7 +4,12 @@ import { MIN_SEARCH_LENGTH } from "@/lib/constants/pagination";
 import { badRequest, notFound } from "@/lib/errors";
 import { getSemester } from "@/lib/utils/date";
 import { GetStudentAssessmentScoreSchema } from "@/lib/zod/assessment";
-import { GetStudentExportSchema, StudentQuerySchema } from "@/lib/zod/student";
+import {
+  GetStudentExportSchema,
+  StudentQuerySchema,
+  UpdateStudentProfileSchema,
+  UpdateStudentsClassSchema,
+} from "@/lib/zod/student";
 import {
   createAttendanceSelect,
   createAttendanceWhere,
@@ -31,7 +36,10 @@ import {
   countStudent,
   createStudentSelect,
   createStudentWhere,
+  createStudentWhereUnique,
+  createUserWhereUnique,
   findStudents,
+  updateSingleUser,
 } from "@/repositories/user-repository";
 import { Prisma } from "@prisma/client";
 import * as XLSX from "xlsx";
@@ -291,4 +299,98 @@ export const getStudentAssessmentScore = async (
     assessmentScores,
     totalRecords,
   };
+};
+
+export const editSingleStudent = async (data: UpdateStudentProfileSchema) => {
+  const studentById = createUserWhereUnique({
+    id: data.id,
+  });
+
+  const updateData = Prisma.validator<Prisma.UserUpdateInput>()({
+    name: data.name,
+    studentProfile: {
+      update: {
+        studentRole: data.role,
+        class: {
+          connect: {
+            grade_major_section: {
+              grade: data.classSchema.grade,
+              major: data.classSchema.major,
+              section: data.classSchema.section,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await updateSingleUser(studentById, updateData, prisma);
+};
+
+export const editBulkStudent = async (data: UpdateStudentsClassSchema) => {
+  const newGradebookToCreate: Prisma.GradebookCreateManyInput[] = [];
+  const [updatedClassroom, allSubjects] = await Promise.all([
+    await prisma.classroom.findUnique({
+      where: {
+        id: data.updatedClassId,
+      },
+    }),
+    await prisma.subject.findMany({ include: { config: true } }),
+  ]);
+
+  if (!updatedClassroom) {
+    throw notFound("Classroom data not found");
+  }
+
+  if (allSubjects.length === 0) {
+    throw notFound("Subjects data not found");
+  }
+
+  const currentDate = new Date();
+  const semester = getSemester(currentDate);
+  const transformSemester = semester == 1 ? "FIRST" : "SECOND";
+
+  for (const studentId of data.studentIds) {
+    const relevantSubjects = allSubjects.filter((subject) => {
+      const isGradeAllowed = subject.config.allowedGrades.includes(
+        updatedClassroom.grade as any,
+      );
+      const isMajorAllowed = subject.config.allowedMajors.includes(
+        updatedClassroom.major as any,
+      );
+      return isGradeAllowed && isMajorAllowed;
+    });
+    for (const subject of relevantSubjects) {
+      newGradebookToCreate.push({
+        studentId: studentId,
+        subjectId: subject.id,
+        semester: transformSemester,
+      });
+    }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.student.updateMany({
+      where: {
+        userId: {
+          in: data.studentIds,
+        },
+      },
+      data: {
+        classId: data.updatedClassId,
+      },
+    });
+
+    await prisma.gradebook.deleteMany({
+      where: {
+        studentId: {
+          in: data.studentIds,
+        },
+      },
+    });
+
+    await prisma.gradebook.createMany({
+      data: newGradebookToCreate,
+    });
+  });
 };

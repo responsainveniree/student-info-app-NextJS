@@ -40,3 +40,29 @@ export const getStudentExportSchema = z.object({
 });
 
 export type GetStudentExportSchema = z.infer<typeof getStudentExportSchema>;
+
+export const updateStudentProfileSchema = z.object({
+  id: z.string({ message: "Id field must be filled" }),
+  name: z.string({ message: "Name field must be filled" }),
+  role: StudentRoleEnum,
+  classSchema,
+});
+
+export type UpdateStudentProfileSchema = z.infer<
+  typeof updateStudentProfileSchema
+>;
+
+export const updateStudentsClassSchema = z.object({
+  updatedClassId: z.number({
+    required_error: "Class ID is required",
+    invalid_type_error: "Class ID must be a number",
+  }),
+
+  studentIds: z
+    .array(z.string().min(1))
+    .min(1, { message: "At least one student must be provided." }),
+});
+
+export type UpdateStudentsClassSchema = z.infer<
+  typeof updateStudentsClassSchema
+>;

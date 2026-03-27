@@ -2,6 +2,16 @@ import { OFFSET, TAKE_RECORDS } from "@/lib/constants/pagination";
 import { SortOrder } from "@/lib/constants/sortingAndFilltering";
 import { Prisma, PrismaClient } from "@prisma/client";
 
+export const createUserWhere = <T extends Prisma.UserWhereInput>(where: T): T =>
+  where;
+
+export const createUserWhereUnique = <T extends Prisma.UserWhereUniqueInput>(
+  where: T,
+): T => where;
+
+export const createUserSelect = <T extends Prisma.UserSelect>(select: T): T =>
+  select;
+
 export const createStudentWhere = <T extends Prisma.StudentWhereInput>(
   where: T,
 ): T => where;
@@ -34,14 +44,14 @@ export async function findUserByEmail(
 export async function findUsersByIds<T extends Prisma.UserSelect>(
   userIds: string[],
   // Use Prisma.Subset to ensure T only contains valid User keys
-  selectData: Prisma.Subset<T, Prisma.UserSelect>,
+  select: Prisma.Subset<T, Prisma.UserSelect>,
   tx: Prisma.TransactionClient | PrismaClient,
 ) {
   if (userIds.length === 0) return [];
 
   const result = await tx.user.findMany({
     where: { id: { in: userIds } },
-    select: selectData,
+    select: select,
   });
 
   return result as unknown as Prisma.UserGetPayload<{ select: T }>[];
@@ -96,6 +106,17 @@ export async function findUsersByClassId<T extends Prisma.UserSelect>(
   });
 }
 
+export const updateSingleUser = async (
+  where: Prisma.UserWhereUniqueInput,
+  data: Prisma.UserUpdateInput,
+  tx: Prisma.TransactionClient | PrismaClient,
+) => {
+  return tx.user.update({
+    where,
+    data,
+  });
+};
+
 // Teacher
 export async function findTeacher(userIdParam: string, tx: PrismaClient) {
   return tx.teacher.findUnique({
@@ -112,13 +133,13 @@ export async function findTeacher(userIdParam: string, tx: PrismaClient) {
 }
 
 export async function findTeachers<T extends Prisma.TeacherSelect>(
-  whereQuery: Prisma.TeacherWhereInput,
-  selectData: Prisma.Subset<T, Prisma.TeacherSelect>,
+  where: Prisma.TeacherWhereInput,
+  select: Prisma.Subset<T, Prisma.TeacherSelect>,
   tx: PrismaClient | Prisma.TransactionClient,
 ) {
   const result = tx.teacher.findMany({
-    where: whereQuery,
-    select: selectData,
+    where: where,
+    select: select,
   });
 
   return result as unknown as Prisma.TeacherGetPayload<{ select: T }>;
@@ -142,15 +163,15 @@ export async function findStudentById(userIdParam: string, tx: PrismaClient) {
 }
 
 export const findStudents = async <T extends Prisma.StudentSelect>(
-  whereQuery: Prisma.StudentWhereInput,
-  selectData: Prisma.Subset<T, Prisma.StudentSelect>,
+  where: Prisma.StudentWhereInput,
+  select: Prisma.Subset<T, Prisma.StudentSelect>,
   isPaginationActive: boolean,
   page: number,
   tx: PrismaClient | Prisma.TransactionClient,
 ) => {
   const result = tx.student.findMany({
-    where: whereQuery,
-    select: selectData,
+    where: where,
+    select: select,
     skip: isPaginationActive ? page * OFFSET : undefined,
     take: isPaginationActive ? TAKE_RECORDS : undefined,
   });
@@ -169,10 +190,10 @@ export async function findStudentProfilesByIds(
 }
 
 export const countStudent = async (
-  whereQuery: Prisma.StudentWhereInput,
+  where: Prisma.StudentWhereInput,
   tx: PrismaClient | Prisma.TransactionClient,
 ) => {
   return tx.student.count({
-    where: whereQuery,
+    where: where,
   });
 };

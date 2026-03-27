@@ -1,7 +1,9 @@
 import { prisma } from "@/db/prisma";
 import { handleError } from "../../../../../../lib/errors";
-import { updateStudentProfileSchema } from "../../../../../../lib/utils/zodSchema";
 import { validateManagementSession } from "@/domain/auth/role-guards";
+import { printConsoleError } from "@/lib/utils/printError";
+import { updateStudentProfileSchema } from "@/lib/zod/student";
+import { editSingleStudent } from "@/services/student/student-service";
 
 export async function PATCH(req: Request) {
   try {
@@ -10,35 +12,14 @@ export async function PATCH(req: Request) {
     const rawData = await req.json();
     const data = updateStudentProfileSchema.parse(rawData);
 
-    await prisma.user.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        name: data.name,
-        studentProfile: {
-          update: {
-            studentRole: data.role,
-            class: {
-              connect: {
-                grade_major_section: {
-                  grade: data.classSchema.grade,
-                  major: data.classSchema.major,
-                  section: data.classSchema.section,
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+    await editSingleStudent(data);
 
-    return Response.json({ message: "Student data updated successfully" });
+    return Response.json(
+      { message: "Student data updated successfully" },
+      { status: 200 },
+    );
   } catch (error) {
-    console.error("API_ERROR", {
-      route: "(POST) /api/staff/edit-user/single/student",
-      message: error instanceof Error ? error.message : String(error),
-    });
+    printConsoleError(error, "PATCH", "/api/staff/edit-user/single/student");
     return handleError(error);
   }
 }
