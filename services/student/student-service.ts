@@ -41,7 +41,6 @@ import {
   updateSingleUser,
 } from "@/repositories/user-repository";
 import { Prisma } from "@prisma/client";
-import { computeScatterPoints } from "recharts/types/cartesian/Scatter";
 import * as XLSX from "xlsx";
 
 export type Student = {
@@ -105,9 +104,6 @@ export const getStudents = async (data: StudentQuerySchema) => {
       data.page,
       prisma,
     );
-
-    console.log("find: ", data);
-    console.log("find:", students);
 
     totalStudents = await countStudent(studentsByClass, prisma);
   }

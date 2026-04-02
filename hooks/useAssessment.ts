@@ -90,7 +90,7 @@ export function useCreateAssessment() {
       });
     },
     onError: (error) => {
-      console.error("Failed to create assessment:", error);
+      // console.error("Failed to create assessment:", error);
       toast.error("Failed to create assessment column");
     },
   });
@@ -115,7 +115,7 @@ export function useUpdateAssessmentScores() {
       });
     },
     onError: (error) => {
-      console.error("Failed to update scores:", error);
+      // console.error("Failed to update scores:", error);
       toast.error("Failed to save marks");
     },
   });
@@ -145,7 +145,7 @@ export function useDeleteAssessment() {
       });
     },
     onError: (error) => {
-      console.error("Failed to delete assessment:", error);
+      // console.error("Failed to delete assessment:", error);
       toast.error("Failed to delete assessment");
     },
   });
@@ -167,7 +167,7 @@ export function useUpdateAssessment() {
       window.location.reload();
     },
     onError: (error) => {
-      console.error("Failed to update assessment:", error);
+      // console.error("Failed to update assessment:", error);
       toast.error("Failed to update assessment");
     },
   });

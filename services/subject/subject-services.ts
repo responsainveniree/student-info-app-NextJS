@@ -174,8 +174,6 @@ export async function getSubjects(data: SubjectQueriesSchema) {
     },
   });
 
-  console.log(data.getAll);
-
   const subjectRecords = await findSubjects(
     prisma,
     whereQuery,

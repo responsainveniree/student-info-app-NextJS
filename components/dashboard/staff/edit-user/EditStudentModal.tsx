@@ -80,6 +80,7 @@ const EditStudentModal = ({ open, onOpenChange }: EditStudentModalProps) => {
     },
     {
       enabled: !!selectedValue,
+      staleTime: 5 * 60 * 1000,
     },
   );
 

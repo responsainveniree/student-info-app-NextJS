@@ -41,6 +41,15 @@ export async function findUserByEmail(
   });
 }
 
+export const deleteUserById = async (
+  id: string,
+  tx: PrismaClient | Prisma.TransactionClient,
+) => {
+  return tx.user.delete({
+    where: { id },
+  });
+};
+
 export async function findUsersByIds<T extends Prisma.UserSelect>(
   userIds: string[],
   // Use Prisma.Subset to ensure T only contains valid User keys

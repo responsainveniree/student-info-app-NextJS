@@ -218,7 +218,7 @@ model TeachingAssignment {
 model Gradebook {
     id        Int     @id @default(autoincrement())
     studentId String
-    student   Student @relation(fields: [studentId], references: [userId])
+    student   Student @relation(fields: [studentId], references: [userId], onDelete: Cascade)
     subjectId Int
     subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
@@ -271,7 +271,7 @@ model AssessmentScore {
 model Attendance {
     id        Int     @id @default(autoincrement())
     studentId String
-    student   Student @relation(fields: [studentId], references: [userId])
+    student   Student @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
     date DateTime       @default(now()) @db.Date
     type AttendanceType
@@ -283,7 +283,7 @@ model Attendance {
 model DemeritPoint {
     id        Int     @id @default(autoincrement())
     studentId String
-    student   Student @relation(fields: [studentId], references: [userId])
+    student   Student @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
     points      Int
     category    InfractionCategory

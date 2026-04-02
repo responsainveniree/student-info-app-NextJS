@@ -398,8 +398,6 @@ const AssessmentManagement = ({ session }: AssessmentManagementProps) => {
   const handleImport = (importedData: any[]) => {
     const excelMap = new Map<string, Map<number, number>>();
 
-    // console.log(importedData);
-
     for (const row of importedData) {
       console.log(row);
       if (!row.id || !row.studentAssessments) continue;
