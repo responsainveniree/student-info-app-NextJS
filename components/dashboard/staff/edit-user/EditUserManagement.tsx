@@ -1,7 +1,7 @@
 "use client";
 import { BookOpen, Pen, Users } from "lucide-react";
 import React, { useState } from "react";
-import EditStudentModal from "./EditStudentModal";
+import EditStudentModal from "./student/EditStudentModal";
 
 const EditUserManagement = () => {
   const [openStudentModal, setOpenStudentModal] = useState(false);

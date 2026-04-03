@@ -8,13 +8,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useDeleteUser } from "@/services/user/user-hooks";
+import { useDeleteStudent } from "@/services/user/user-hooks";
 
 interface DeleteUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   username: string;
   userId: string;
+  userType: "STUDENT" | "STAFF";
 }
 
 const DeleteUserModal = ({
@@ -22,11 +23,19 @@ const DeleteUserModal = ({
   onOpenChange,
   username,
   userId,
+  userType,
 }: DeleteUserModalProps) => {
-  const deleteUserMutation = useDeleteUser();
+  const deleteUserMutation = useDeleteStudent();
 
   const handleDeleteUser = () => {
-    deleteUserMutation.mutate(userId);
+    if (userType === "STUDENT") {
+      deleteUserMutation.mutate(userId);
+    }
+
+    if (userType === "STAFF") {
+    }
+
+    onOpenChange(false);
   };
 
   return (

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { GraduationCap, Users, BookOpen } from "lucide-react";
 import TeacherFormModal from "./TeacherFormModal";
-import StudentFormModal from "./StudentFormModal";
+import CreateStudentFormModal from "./CreateStudentFormModal";
 
 const CreateAccountPage = () => {
   const [teacherModalOpen, setTeacherModalOpen] = useState(false);
@@ -84,7 +84,7 @@ const CreateAccountPage = () => {
         open={teacherModalOpen}
         onOpenChange={setTeacherModalOpen}
       />
-      <StudentFormModal
+      <CreateStudentFormModal
         open={studentModalOpen}
         onOpenChange={setStudentModalOpen}
       />

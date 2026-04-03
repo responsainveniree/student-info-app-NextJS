@@ -3,6 +3,7 @@ import { StudentSession } from "@/domain/auth/role-guards";
 import { MIN_SEARCH_LENGTH } from "@/lib/constants/pagination";
 import { badRequest, notFound } from "@/lib/errors";
 import { getSemester } from "@/lib/utils/date";
+import hashing from "@/lib/utils/hashing";
 import { GetStudentAssessmentScoreSchema } from "@/lib/zod/assessment";
 import {
   GetStudentExportSchema,
@@ -52,8 +53,6 @@ export type Student = {
 };
 
 export const getStudents = async (data: StudentQuerySchema) => {
-  let students: Student[], totalStudents: number;
-
   const selectUserData = createStudentSelect({
     user: {
       select: {
@@ -64,54 +63,33 @@ export const getStudents = async (data: StudentQuerySchema) => {
     },
   });
 
-  if (data.search?.length && data.search.length >= MIN_SEARCH_LENGTH) {
-    const studentsByNameAndClass = createStudentWhere({
-      user: {
-        name: {
-          mode: "insensitive",
-          contains: data.search,
-        },
-      },
-      class: {
-        grade: data.grade,
-        major: data.major,
-        section: data.section,
-      },
-    });
+  const where: Prisma.StudentWhereInput = {
+    class: {
+      grade: data.grade,
+      major: data.major,
+      section: data.section,
+    },
+  };
 
-    students = await findStudents(
-      studentsByNameAndClass,
-      selectUserData,
-      data.isPaginationActive,
-      data.page,
-      prisma,
-    );
-
-    totalStudents = await countStudent(studentsByNameAndClass, prisma);
-  } else {
-    const studentsByClass = createStudentWhere({
-      class: {
-        grade: data.grade,
-        major: data.major,
-        section: data.section,
-      },
-    });
-
-    students = await findStudents(
-      studentsByClass,
-      selectUserData,
-      data.isPaginationActive,
-      data.page,
-      prisma,
-    );
-
-    totalStudents = await countStudent(studentsByClass, prisma);
+  if (data.search && data.search.length >= MIN_SEARCH_LENGTH) {
+    where.user = {
+      name: { contains: data.search, mode: "insensitive" },
+    };
   }
 
-  return {
-    students,
-    totalStudents,
-  };
+  // 2. Execute in parallel
+  const [students, totalStudents] = await Promise.all([
+    findStudents(
+      where,
+      selectUserData,
+      data.isPaginationActive,
+      data.page,
+      prisma,
+    ),
+    countStudent(where, prisma),
+  ]);
+
+  return { students, totalStudents };
 };
 
 export const getStudentProfile = async (studentSession: StudentSession) => {
@@ -307,8 +285,20 @@ export const editSingleStudent = async (data: UpdateStudentProfileSchema) => {
     id: data.id,
   });
 
+  let password: null | string = null;
+
+  if (
+    data.passwordSchema?.password &&
+    data.passwordSchema.confirmPassword &&
+    data.passwordSchema.password === data.passwordSchema.confirmPassword
+  ) {
+    password = await hashing(data.passwordSchema.password);
+  }
+
   const updateData = Prisma.validator<Prisma.UserUpdateInput>()({
     name: data.name,
+    password: password ? data.passwordSchema!.password : undefined,
+    email: data.email,
     studentProfile: {
       update: {
         studentRole: data.role,
@@ -326,6 +316,10 @@ export const editSingleStudent = async (data: UpdateStudentProfileSchema) => {
   });
 
   await updateSingleUser(studentById, updateData, prisma);
+
+  return {
+    studentId: data.id,
+  };
 };
 
 export const editBulkStudent = async (data: UpdateStudentsClassSchema) => {

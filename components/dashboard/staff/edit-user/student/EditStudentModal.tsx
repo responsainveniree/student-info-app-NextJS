@@ -29,7 +29,8 @@ import { getFullClassLabel, getGradeNumber } from "@/lib/utils/labels";
 import { ClassSection, Grade, Major } from "@/lib/constants/class";
 import { useStudent } from "@/services/student/student-hooks";
 import LoadingForComponent from "@/components/ui/LoadingForComponent";
-import DeleteUserModal from "../delete-user/DeleteUserModal";
+import DeleteUserModal from "../../delete-user/DeleteUserModal";
+import EditStudentFormModal from "./EditStudentFormModal";
 
 interface EditStudentModalProps {
   open: boolean;
@@ -145,6 +146,14 @@ const EditStudentModal = ({ open, onOpenChange }: EditStudentModalProps) => {
           <DeleteUserModal
             open={isDeleteModalOpen}
             onOpenChange={setIsDeleteModalOpen}
+            userId={selectedStudent?.id as string}
+            username={selectedStudent?.name as string}
+            userType="STUDENT"
+          />
+
+          <EditStudentFormModal
+            open={isEditModalOpen}
+            onOpenChange={setIsEditModalOpen}
             userId={selectedStudent?.id as string}
             username={selectedStudent?.name as string}
           />

@@ -43,7 +43,11 @@ export type GetStudentExportSchema = z.infer<typeof getStudentExportSchema>;
 
 export const updateStudentProfileSchema = z.object({
   id: z.string({ message: "Id field must be filled" }),
-  name: z.string({ message: "Name field must be filled" }),
+  name: z
+    .string({ message: "Name field must be filled" })
+    .min(3, { message: "Name field must have 3 characters at least" }),
+  email: z.string({ message: "Email field must be filled" }),
+  passwordSchema: passwordSchema.optional(),
   role: StudentRoleEnum,
   classSchema,
 });

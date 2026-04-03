@@ -1,6 +1,7 @@
 import { Grade, Major } from "@/lib/constants/class";
 import { SubjectType } from "@/lib/constants/subject";
 import { PrismaClient } from "@prisma/client";
+import { create } from "domain";
 
 type SubjectSeed = {
   name: string;
@@ -202,7 +203,7 @@ export async function seedSubjects(prisma: PrismaClient) {
     }
 
     await prisma.$transaction(async (tx: any) => {
-      const config = await tx.subjectConfig.upsert({
+      const config = await tx.subjectConfig.create({
         data: {
           type: subject.type,
           allowedGrades: subject.grades,
@@ -210,7 +211,7 @@ export async function seedSubjects(prisma: PrismaClient) {
         },
       });
 
-      await tx.subject.upsert({
+      await tx.subject.create({
         data: {
           name: subject.name,
           type: subject.type,

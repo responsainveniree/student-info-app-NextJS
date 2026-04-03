@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import {
   Select,
@@ -47,12 +47,15 @@ import {
 } from "../../../lib/constants/roles";
 import { StudentSignUpSchema } from "@/lib/zod/student";
 
-interface StudentFormModalProps {
+interface CreateStudentFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
+const CreateStudentFormModal = ({
+  open,
+  onOpenChange,
+}: CreateStudentFormModalProps) => {
   // For handle change
   const [data, setData] = useState({
     username: "",
@@ -693,4 +696,4 @@ const StudentFormModal = ({ open, onOpenChange }: StudentFormModalProps) => {
   );
 };
 
-export default StudentFormModal;
+export default CreateStudentFormModal;

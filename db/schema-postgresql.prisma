@@ -167,6 +167,8 @@ model Student {
     gradebooks       Gradebook[]
     parent           Parent?
     assessmentScores AssessmentScore[]
+
+    @@index([classId])
 }
 
 model Teacher {

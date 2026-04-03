@@ -1,34 +1,52 @@
 import { z } from "zod";
 
-export const GradeEnum = z.enum(["TENTH", "ELEVENTH", "TWELFTH"]);
-export const MajorEnum = z.enum(["ACCOUNTING", "SOFTWARE_ENGINEERING"]);
-export const StudentRoleEnum = z.enum(["STUDENT", "CLASS_SECRETARY"]);
-export const AttendanceTypesEnum = z.enum([
-  "ALPHA",
-  "SICK",
-  "PERMISSION",
-  "LATE",
-  "PRESENT",
-]);
-export const ClassSectionEnum = z.enum(["none", "1", "2"]);
-export const SortOrderEnum = z.enum(["asc", "desc"]);
-export const DemeritCategoryEnum = z.enum([
-  "DISCIPLINE",
-  "ACADEMIC",
-  "SOCIAL",
-  "OTHER",
-  "LATE",
-  "UNIFORM",
-]);
-export const AssessmentType = z.enum([
-  "SCHOOLWORK",
-  "HOMEWORK",
-  "QUIZ",
-  "EXAM",
-  "PROJECT",
-  "GROUP_WORK",
-]);
-export const SubjectTypeEnum = z.enum(["GENERAL", "MAJOR"]);
+const enumError = (name: string) => ({
+  errorMap: (issue: z.ZodIssueOptionalMessage, ctx: z.ErrorMapCtx) => {
+    return { message: `Please select a valid ${name}` };
+  },
+});
+
+export const GradeEnum = z.enum(
+  ["TENTH", "ELEVENTH", "TWELFTH"],
+  enumError("Grade"),
+);
+
+export const MajorEnum = z.enum(
+  ["ACCOUNTING", "SOFTWARE_ENGINEERING"],
+  enumError("Major"),
+);
+
+export const StudentRoleEnum = z.enum(
+  ["STUDENT", "CLASS_SECRETARY"],
+  enumError("Student Role"),
+);
+
+export const AttendanceTypesEnum = z.enum(
+  ["ALPHA", "SICK", "PERMISSION", "LATE", "PRESENT"],
+  enumError("Attendance Type"),
+);
+
+export const ClassSectionEnum = z.enum(
+  ["none", "1", "2"],
+  enumError("Class Section"),
+);
+
+export const SortOrderEnum = z.enum(["asc", "desc"], enumError("Sort Order"));
+
+export const DemeritCategoryEnum = z.enum(
+  ["DISCIPLINE", "ACADEMIC", "SOCIAL", "OTHER", "LATE", "UNIFORM"],
+  enumError("Category"),
+);
+
+export const AssessmentType = z.enum(
+  ["SCHOOLWORK", "HOMEWORK", "QUIZ", "EXAM", "PROJECT", "GROUP_WORK"],
+  enumError("Assessment Type"),
+);
+
+export const SubjectTypeEnum = z.enum(
+  ["GENERAL", "MAJOR"],
+  enumError("Subject Type"),
+);
 
 export const page = z
   .string()
