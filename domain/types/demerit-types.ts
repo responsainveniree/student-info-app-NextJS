@@ -9,6 +9,7 @@ export const demeritCheckSelect = Prisma.validator<Prisma.UserSelect>()({
       demerits: {
         select: {
           category: true,
+          date: true
         },
       },
     },

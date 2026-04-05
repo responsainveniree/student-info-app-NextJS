@@ -53,7 +53,7 @@ export async function createDemeritPoints(
 
   for (const student of students) {
     if (isSinglePerDayCategory(data.demeritCategory)) {
-      validateDailyDemeritLimit(student);
+      validateDailyDemeritLimit(student, new Date(data.date));
     }
 
     demeritPointsToCreate.push({

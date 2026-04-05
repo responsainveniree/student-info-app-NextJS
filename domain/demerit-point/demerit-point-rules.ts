@@ -5,7 +5,6 @@ import {
   ValidInfractionType,
 } from "@/lib/constants/discplinary";
 import {
-  DemeritPointWithStudent,
   StudentWithDemerits,
 } from "../types/demerit-types";
 import { badRequest } from "@/lib/errors";
@@ -18,10 +17,10 @@ export function isSinglePerDayCategory(
 }
 
 // The limit is once / day
-export function validateDailyDemeritLimit(student: StudentWithDemerits) {
+export function validateDailyDemeritLimit(student: StudentWithDemerits, date: Date) {
   const demerits = student.studentProfile?.demerits || [];
 
-  const conflict = demerits.find((d) => isSinglePerDayCategory(d.category));
+  const conflict = demerits.find((d) => isSinglePerDayCategory(d.category) && date == d.date);
 
   if (conflict) {
     throw badRequest(
