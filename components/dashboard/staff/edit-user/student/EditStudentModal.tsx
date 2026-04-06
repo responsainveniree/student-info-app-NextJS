@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,7 @@ const EditStudentModal = ({ open, onOpenChange }: EditStudentModalProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAdvanceClassModalOpen, setIsAdvanceClassModalOpen] = useState(false);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
   const handleEdit = (student: StudentTableData) => {
     setSelectedStudent(student);
@@ -72,31 +73,33 @@ const EditStudentModal = ({ open, onOpenChange }: EditStudentModalProps) => {
 
   const [grade, major, section] = selectedValue ? selectedValue.split("-") : [];
 
-  const { data: studentData, isLoading } = useStudent(
-    {
-      isPaginationActive: false,
-      page: 0,
-      grade: grade as Grade,
-      major: major as Major,
-      section: section as ClassSection,
-      search: "",
-    },
-    {
-      enabled: !!selectedValue,
-      staleTime: 5 * 60 * 1000,
-    },
-  );
+  const studentQueryParams = {
+    isPaginationActive: false,
+    page: 0,
+    grade: grade as Grade,
+    major: major as Major,
+    section: section as ClassSection,
+    search: "",
+  };
 
-  const transformStudentData: StudentTableData[] =
-    studentData?.students && studentData?.students.length > 0
-      ? studentData?.students.map((student) => {
-          return {
-            id: student.user.id,
-            name: student.user.name,
-            email: student.user.email,
-          };
-        })
-      : [];
+  const { data: studentData, isLoading } = useStudent(studentQueryParams, {
+    enabled: !!selectedValue,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const transformStudentData = React.useMemo(() => {
+    return (
+      studentData?.students?.map((student) => ({
+        id: student.user.id,
+        name: student.user.name,
+        email: student.user.email,
+      })) ?? []
+    );
+  }, [studentData]);
+
+  // const getStudentIds = (importedData: string[]) => {
+  //   setSelectedStudentIds(importedData);
+  // };
 
   return (
     <div className="w-full h-full">
@@ -148,7 +151,11 @@ const EditStudentModal = ({ open, onOpenChange }: EditStudentModalProps) => {
           {isLoading ? (
             <LoadingForComponent />
           ) : (
-            <UserDataTable columns={columns} data={transformStudentData} />
+            <UserDataTable
+              columns={columns}
+              data={transformStudentData}
+              onSelectionChange={setSelectedStudentIds}
+            />
           )}
 
           <DeleteUserModal
@@ -171,6 +178,8 @@ const EditStudentModal = ({ open, onOpenChange }: EditStudentModalProps) => {
             open={isAdvanceClassModalOpen}
             classroomData={sortedClassroomData}
             currentClassroom={selectedValue}
+            currentQueryParams={studentQueryParams}
+            studentIds={selectedStudentIds}
           />
         </DialogContent>
       </Dialog>

@@ -27,11 +27,13 @@ import { Button } from "@/components/ui/button";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onSelectionChange: (ids: string[]) => void;
 }
 
 export function UserDataTable<TData, TValue>({
   columns,
   data,
+  onSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -46,7 +48,20 @@ export function UserDataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: (updater) => {
+      const nextSelection =
+        typeof updater === "function" ? updater(rowSelection) : updater;
+
+      console.log(nextSelection);
+
+      setRowSelection(nextSelection);
+
+      const selectedIds = Object.keys(nextSelection).map(
+        (index) => (data[Number(index)] as any).id,
+      );
+
+      onSelectionChange?.(selectedIds);
+    },
     state: {
       sorting,
       columnFilters,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Field, FieldGroup } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClassroomWithTeacher } from "@/services/classroom/classroom-definitions";
 import {
@@ -25,12 +24,21 @@ import {
 } from "@/components/ui/select";
 import { getFullClassLabel } from "@/lib/utils/labels";
 import { ClassSection } from "@/lib/constants/class";
+import {
+  StudentQuerySchema,
+  UpdateStudentsClassSchema,
+} from "@/lib/zod/student";
+import { useUpdateStudentsClass } from "@/services/student/student-hooks";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils/getErrorMessage";
 
 interface AdvanceClassModalProps {
   open: boolean;
   onOpenChange: (bool: boolean) => void;
   classroomData: ClassroomWithTeacher[] | undefined;
   currentClassroom: string | undefined;
+  currentQueryParams: StudentQuerySchema;
+  studentIds: string[];
 }
 
 const AdvanceClassModal = ({
@@ -38,10 +46,52 @@ const AdvanceClassModal = ({
   onOpenChange,
   classroomData,
   currentClassroom,
+  currentQueryParams,
+  studentIds,
 }: AdvanceClassModalProps) => {
   const [selectedClassroom, setSelectedClassroom] = useState<string>(
     currentClassroom ?? "",
   );
+
+  const updateClass = useUpdateStudentsClass(currentQueryParams);
+
+  const onSubmit = () => {
+    try {
+      // Notes: .find method return the element itself
+      const matchedClassroom = classroomData?.find(
+        (item) =>
+          `${item.grade}-${item.major}-${item.section}` === selectedClassroom,
+      );
+
+      const classroomId = matchedClassroom?.id;
+
+      if (!classroomId) {
+        throw new Error("Something went wrong. Try again later");
+      }
+
+      if (selectedClassroom === currentClassroom) {
+        throw new Error(
+          "You're still in the same class. Please change it into something different",
+        );
+      }
+
+      const data: UpdateStudentsClassSchema = {
+        studentIds: studentIds,
+        updatedClassId: classroomId,
+      };
+
+      updateClass.mutate(data);
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage || "test");
+    }
+  };
+
+  useEffect(() => {
+    if (open && currentClassroom) {
+      setSelectedClassroom(currentClassroom);
+    }
+  }, [open, currentClassroom]);
 
   return (
     <>
@@ -88,7 +138,9 @@ const AdvanceClassModal = ({
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit">Save changes</Button>
+              <Button type="submit" onClick={onSubmit}>
+                Save changes
+              </Button>
             </DialogFooter>
           </DialogContent>
         </form>

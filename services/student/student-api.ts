@@ -2,6 +2,7 @@ import { api } from "@/lib/api-client";
 import {
   StudentQuerySchema,
   UpdateStudentProfileSchema,
+  UpdateStudentsClassSchema,
 } from "@/lib/zod/student";
 import { StudentProfileResponse, StudentReponse } from "./student-types";
 
@@ -27,6 +28,11 @@ export const StudentApi = {
       "/staff/user/edit/single/student",
       payload,
     );
+
+    return response.data;
+  },
+  updateStudentsClass: async (payload: UpdateStudentsClassSchema) => {
+    const response = await api.patch("staff/user/edit/bulk/student", payload);
 
     return response.data;
   },
