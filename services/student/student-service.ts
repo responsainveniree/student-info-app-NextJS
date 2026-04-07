@@ -377,6 +377,14 @@ export const editBulkStudent = async (data: UpdateStudentsClassSchema) => {
   }
 
   await prisma.$transaction(async (tx) => {
+    await tx.attendance.deleteMany({
+      where: {
+        studentId: {
+          in: data.studentIds,
+        },
+      },
+    });
+
     await tx.student.updateMany({
       where: {
         userId: {
