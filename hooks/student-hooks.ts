@@ -4,7 +4,7 @@ import {
   UpdateStudentProfileSchema,
   UpdateStudentsClassSchema,
 } from "@/lib/zod/student";
-import { StudentApi } from "@/services/student/student-api";
+import { studentApi } from "@/services/student/student-api";
 import {
   StudentProfileResponse,
   StudentReponse,
@@ -23,7 +23,7 @@ export const useStudent = (
 ) => {
   return useQuery({
     queryKey: STUDENT_KEY.list(queries),
-    queryFn: () => StudentApi.getAllByClass(queries),
+    queryFn: () => studentApi.getAllByClass(queries),
     ...options,
   });
 };
@@ -34,7 +34,7 @@ export const useStudentProfile = (
 ) => {
   return useQuery({
     queryKey: STUDENT_KEY.detail(id),
-    queryFn: () => StudentApi.getProfile(id),
+    queryFn: () => studentApi.getProfile(id),
     ...options,
   });
 };
@@ -44,7 +44,7 @@ export const useUpdateStudent = () => {
 
   return useMutation({
     mutationFn: (payload: UpdateStudentProfileSchema) =>
-      StudentApi.updateStudent(payload),
+      studentApi.updateStudent(payload),
     onSuccess: (res) => {
       toast.success(res.message || "Student profile updated successfully");
       queryClient.invalidateQueries({
@@ -67,7 +67,7 @@ export const useUpdateStudentsClass = (queryParams: StudentQuerySchema) => {
 
   return useMutation({
     mutationFn: (payload: UpdateStudentsClassSchema) =>
-      StudentApi.updateStudentsClass(payload),
+      studentApi.updateStudentsClass(payload),
     onSuccess: (res) => {
       toast.success(res.message || "Students class updated successfully");
       queryClient.invalidateQueries({

@@ -6,7 +6,7 @@ import {
 } from "@/lib/zod/student";
 import { StudentProfileResponse, StudentReponse } from "./student-types";
 
-export const StudentApi = {
+export const studentApi = {
   getAllByClass: async (queries: StudentQuerySchema) => {
     const response = await api.get("/student", {
       params: queries,

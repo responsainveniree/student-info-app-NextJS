@@ -24,13 +24,13 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onSelectionChange: (ids: string[]) => void;
 }
 
-export function UserDataTable<TData, TValue>({
+export function UserDataTable<TData extends { id: string }, TValue>({
   columns,
   data,
   onSelectionChange,
@@ -48,17 +48,14 @@ export function UserDataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getRowId: (row) => row.id,
     onRowSelectionChange: (updater) => {
       const nextSelection =
         typeof updater === "function" ? updater(rowSelection) : updater;
 
-      console.log(nextSelection);
-
       setRowSelection(nextSelection);
 
-      const selectedIds = Object.keys(nextSelection).map(
-        (index) => (data[Number(index)] as any).id,
-      );
+      const selectedIds = Object.keys(nextSelection);
 
       onSelectionChange?.(selectedIds);
     },

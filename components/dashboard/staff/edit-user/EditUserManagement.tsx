@@ -1,7 +1,8 @@
 "use client";
 import { BookOpen, Pen, Users } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import EditStudentModal from "./student/EditStudentModal";
+import EditTeacherModal from "@/features/staff/components/EditTeacherModal";
 
 const EditUserManagement = () => {
   const [openStudentModal, setOpenStudentModal] = useState(false);
@@ -30,6 +31,7 @@ const EditUserManagement = () => {
                 <button
                   className="group relative bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-2 border-blue-200 hover:border-blue-400 rounded-2xl p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                   data-testid="create-teacher-btn"
+                  onClick={() => setOpenTeacherModal((prev) => !prev)}
                 >
                   <div className="flex flex-col items-center text-center">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
@@ -71,6 +73,11 @@ const EditUserManagement = () => {
       <EditStudentModal
         open={openStudentModal}
         onOpenChange={setOpenStudentModal}
+      />
+
+      <EditTeacherModal
+        open={openTeacherModal}
+        onOpenChange={setOpenTeacherModal}
       />
     </>
   );

@@ -46,3 +46,5 @@ db/prisma/src/generated/prisma/
 test-results
 playwright-report
 playwright/.auth/
+
+*.http
