@@ -2,7 +2,7 @@ import { validateManagementSession } from "@/domain/auth/role-guards";
 import { TEACHER_FETCH_TYPE, TeacherFetchType } from "@/lib/constants/teacher";
 import { badRequest, handleError } from "@/lib/errors";
 import { printConsoleError } from "@/lib/utils/printError";
-import { getTeachers } from "@/services/teacher/teacher-service";
+import { getTeachers } from "@/features/teacher/server/services/teacher-service";
 
 export async function GET(req: Request) {
   try {

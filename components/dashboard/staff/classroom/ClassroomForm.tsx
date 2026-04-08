@@ -103,7 +103,7 @@ const ClassroomForm = ({
   }, [mode, initialData, form]);
 
   // Fetch teachers
-  const { data: teachersData, isLoading: isLoadingTeachers } = useQuery({
+  const { data: teacherData, isLoading: isLoadingTeachers } = useQuery({
     queryKey: CLASSROOM_KEYS.nonHomeroom(),
     queryFn: async () => {
       const response = await axios.get("/api/teacher?get=nonHomeroom");
@@ -112,7 +112,7 @@ const ClassroomForm = ({
   });
 
   const availableTeachers = React.useMemo(() => {
-    let teachers = teachersData || [];
+    let teachers = teacherData || [];
     // If editing and we have a current teacher, make sure they are in the list
     if (mode === "edit" && initialData?.homeroomTeacher?.user) {
       const currentTeacherIncluded = teachers.some(
@@ -132,7 +132,7 @@ const ClassroomForm = ({
       }
     }
     return teachers;
-  }, [teachersData, mode, initialData]);
+  }, [teacherData, mode, initialData]);
 
   const createMutation = useMutation({
     mutationFn: async (values: ClassroomFormValues) => {

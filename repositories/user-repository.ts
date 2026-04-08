@@ -151,7 +151,7 @@ export async function findTeachers<T extends Prisma.TeacherSelect>(
     select: select,
   });
 
-  return result as unknown as Prisma.TeacherGetPayload<{ select: T }>;
+  return result as unknown as Prisma.TeacherGetPayload<{ select: T }>[];
 }
 
 // Student
