@@ -57,9 +57,9 @@ export type UpdateStudentProfileSchema = z.infer<
 >;
 
 export const updateStudentsClassSchema = z.object({
-  updatedClassId: z.number({
+  updatedClassId: z.string({
     required_error: "Class ID is required",
-    invalid_type_error: "Class ID must be a number",
+    invalid_type_error: "Class ID must be a string",
   }),
 
   studentIds: z

@@ -22,12 +22,12 @@ export async function GET(req: Request) {
       throw badRequest("Invalid fetch type. Use 'all' or 'nonHomeroom'.");
     }
 
-    const response = await getTeachers(teacherFetchType as TeacherFetchType);
+    const teachers = await getTeachers(teacherFetchType as TeacherFetchType);
 
     return Response.json(
       {
         message: "Teachers data retrieved successfully",
-        data: response.teachers ?? [],
+        data: teachers ?? [],
       },
       { status: 200 },
     );

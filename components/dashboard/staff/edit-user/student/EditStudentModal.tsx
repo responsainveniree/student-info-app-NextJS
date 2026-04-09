@@ -97,10 +97,6 @@ const EditStudentModal = ({ open, onOpenChange }: EditStudentModalProps) => {
     );
   }, [studentData]);
 
-  // const getStudentIds = (importedData: string[]) => {
-  //   setSelectedStudentIds(importedData);
-  // };
-
   return (
     <div className="w-full h-full">
       <Dialog open={open} onOpenChange={onOpenChange}>

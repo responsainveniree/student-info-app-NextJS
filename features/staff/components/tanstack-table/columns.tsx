@@ -13,7 +13,7 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserTableData } from "../../types/user";
 
-export const teacherColumns = (
+export const tableColumns = (
   onEdit: (teacher: UserTableData) => void,
   onDelete: (teacher: UserTableData) => void,
 ): ColumnDef<UserTableData>[] => [

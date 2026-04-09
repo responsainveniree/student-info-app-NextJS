@@ -31,9 +31,5 @@ export const getTeachers = async (teacherFetchType: TeacherFetchType) => {
     prisma,
   );
 
-  
-
-  return {
-    teachers,
-  };
+  return teachers;
 };
