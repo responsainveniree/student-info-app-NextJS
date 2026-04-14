@@ -1,6 +1,24 @@
+import { Prisma } from "@prisma/client";
+
+type SubjectWithConfig = Prisma.SubjectGetPayload<{
+  select: {
+    config: {
+      select: {
+        allowedGrades: true;
+        type: true;
+        allowedMajors: true;
+      };
+    };
+    name: true;
+    id: true;
+  };
+}>;
+
 type GroupedSubjects = Record<string, any[]>;
 
-export const groupSubjects = (subjects: any[]): GroupedSubjects => {
+export const groupSubjects = (
+  subjects: SubjectWithConfig[],
+): GroupedSubjects => {
   const grouped: GroupedSubjects = {
     general: [],
     accounting: [],
@@ -8,16 +26,16 @@ export const groupSubjects = (subjects: any[]): GroupedSubjects => {
   };
 
   subjects.forEach((subject) => {
-    if (subject.subjectConfig.type === "GENERAL") {
+    if (subject.config.type === "GENERAL") {
       grouped.general.push(subject);
     } else if (
-      subject.subjectConfig.type === "MAJOR" &&
-      subject.subjectConfig.allowedMajors.includes("ACCOUNTING")
+      subject.config.type === "MAJOR" &&
+      subject.config.allowedMajors.includes("ACCOUNTING")
     ) {
       grouped.accounting.push(subject);
     } else if (
-      subject.subjectConfig.type === "MAJOR" &&
-      subject.subjectConfig.allowedMajors.includes("SOFTWARE_ENGINEERING")
+      subject.config.type === "MAJOR" &&
+      subject.config.allowedMajors.includes("SOFTWARE_ENGINEERING")
     ) {
       grouped.software_engineering.push(subject);
     }

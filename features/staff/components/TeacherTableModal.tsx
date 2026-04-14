@@ -88,7 +88,7 @@ const TeacherTableModal = ({ open, onOpenChange }: EditTeacherModalProps) => {
       <EditTeacherFormModal
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
-        teacherData={selectedTeacher as UserTableData}
+        teacherId={selectedTeacher?.id as string}
       />
     </div>
   );

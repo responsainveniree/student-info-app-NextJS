@@ -139,7 +139,7 @@ model Classroom {
     id      String     @id @default(cuid())
     grade   GradeLevel
     major   Major
-    section String // e.g., "A", "B", "1"
+    section String //
 
     // One class has one Homeroom Teacher
     homeroomTeacherId String?  @unique

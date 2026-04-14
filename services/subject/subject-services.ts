@@ -184,8 +184,8 @@ export async function getSubjects(data: SubjectQueriesSchema) {
   );
   const formattedSubjects = subjectRecords.map((subject) => ({
     id: subject.id,
-    subjectName: subject.name,
-    subjectConfig: subject.config,
+    name: subject.name,
+    config: subject.config,
   }));
 
   const totalSubject = await prisma.subject.count({

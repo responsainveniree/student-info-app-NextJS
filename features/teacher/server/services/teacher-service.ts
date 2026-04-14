@@ -15,7 +15,7 @@ import {
 } from "@/features/teacher/server/repository/teacher-repositories";
 import { ClassSection, Grade } from "@/lib/constants/class";
 import { TeacherFetchType } from "@/lib/constants/teacher";
-import { badRequest } from "@/lib/errors";
+import { badRequest, notFound } from "@/lib/errors";
 import hashing from "@/lib/utils/hashing";
 import {
   findMissingTeachingAssignment,
@@ -202,7 +202,7 @@ export const updateTeacher = async (
     const missingAssignments = findMissingTeachingAssignment(
       teacherServerData.assignments,
       data.teachingAssignments,
-    );
+    ).filter((id) => id !== undefined && id !== null && id !== "");
 
     const teacherUpdateData = Prisma.validator<Prisma.TeacherUpdateInput>()({
       user: {
@@ -234,4 +234,54 @@ export const updateTeacher = async (
       isTeacherUpdated: false,
     };
   }
+};
+
+export const getTeacherProfile = async (id: string) => {
+  const teacherById = createTeacherWhereUnique({
+    userId: id,
+  });
+
+  const selectTeacherData = createTeacherSelect({
+    user: {
+      select: {
+        name: true,
+        email: true,
+      },
+    },
+    assignments: {
+      include: {
+        class: true,
+        subject: true,
+      },
+    },
+    homeroom: true,
+  });
+
+  const teacher = await findTeacher(teacherById, selectTeacherData, prisma);
+
+  const tranformTeacher: TeacherUpdateSchema = {
+    name: teacher?.user.name as string,
+    email: teacher?.user.email as string,
+    homeroomClass: {
+      grade: teacher?.homeroom?.grade as Grade,
+      major: teacher?.homeroom?.major as Major,
+      section: teacher?.homeroom?.section as ClassSection,
+    },
+    teachingAssignments: (teacher?.assignments ?? []).map((assignment) => {
+      return {
+        grade: assignment.class.grade as Grade,
+        major: assignment.class.major as Major,
+        section: assignment.class.section as ClassSection,
+        subjectId: assignment.subjectId as string,
+        subjectName: assignment.subject.name as string,
+        teachingAssignmentId: assignment.id as string,
+      };
+    }),
+    passwordSchema: {
+      confirmPassword: "",
+      password: "",
+    },
+  };
+
+  return { teacher: tranformTeacher };
 };

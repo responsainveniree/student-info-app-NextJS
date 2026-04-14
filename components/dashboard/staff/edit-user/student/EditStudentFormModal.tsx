@@ -26,7 +26,6 @@ import {
   STUDENT_POSITIONS_ARRAY,
   StudentPosition,
 } from "@/lib/constants/roles";
-import { Button } from "@react-email/components";
 import {
   Select,
   SelectContent,
@@ -109,6 +108,9 @@ const EditStudentFormModal = ({
         },
         role: profile?.studentRole as StudentPosition,
       });
+
+      setShowConfirmPassword(false);
+      setShowPassword(false);
     }
   }, [open, userId, reset, currentStudentProfile.data]);
 
