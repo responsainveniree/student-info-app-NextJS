@@ -114,14 +114,15 @@ const SignIn = () => {
               </div>
 
               {/* Remember & Forgot */}
-              <div className="flex justify-end items-center text-sm">
+              {/* Disable for a while */}
+              {/* <div className="flex justify-end items-center text-sm">
                 <Link
                   href="/forgot-password"
                   className="text-[#1E3A8A] hover:text-[#3B82F6] font-medium"
                 >
                   Forgot password?
                 </Link>
-              </div>
+              </div> */}
 
               {/* Sign In Button */}
               <Button
