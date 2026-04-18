@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth/authNode";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "SMK Advent Student Info App",
+  title: "SMK Advent",
   description: "SMK Advent",
 
   verification: {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "SMK Advent Student Info App",
+    title: "SMK Advent",
     description: "SMK Advent",
     url: "https://smk-advent.vercel.app",
     siteName: "SMK Advent",
