@@ -32,6 +32,8 @@ import {
 import SubjectForm from "./SubjectForm";
 import { getErrorMessage } from "@/lib/utils/getErrorMessage";
 import { PatchSubjectSchema, SubjectQueriesSchema } from "@/lib/zod/subject";
+import { subjectApi } from "@/features/subject/services/subject-api";
+import { GetSubjectResponse } from "@/features/subject/types/subject-types";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -92,18 +94,10 @@ const ManageSubjectForm = () => {
   // Edit mode
   const [editItem, setEditItem] = useState<PatchSubjectSchema | null>(null);
 
-  const fetchSubjects = async () => {
-    const response = await axios.get("/api/staff/subject", {
-      params: filters,
-    });
-
-    return response.data;
-  };
-
   // Query
-  const subjects = useQuery({
+  const subjects = useQuery<GetSubjectResponse>({
     queryKey: SUBJECT_KEYS.list(filters),
-    queryFn: fetchSubjects,
+    queryFn: subjectApi.getAll,
   });
 
   const queryClient = useQueryClient();
@@ -223,7 +217,7 @@ const ManageSubjectForm = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {subjects.data?.subjects?.map((item: any) => (
+            {subjects.data?.subjects?.map((item) => (
               <div
                 key={item.id}
                 className="flex flex-col md:flex-row gap-4 p-4 bg-white border rounded-lg hover:shadow-sm transition-shadow"
@@ -235,20 +229,18 @@ const ManageSubjectForm = () => {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0 space-y-1.5">
-                  <h4 className="font-semibold text-gray-800">
-                    {item.subjectName}
-                  </h4>
+                  <h4 className="font-semibold text-gray-800">{item.name}</h4>
 
                   <div className="flex flex-wrap items-center gap-2">
                     {/* Subject Type Badge */}
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${SUBJECT_TYPE_COLORS[item.subjectConfig?.type] || "bg-gray-100 text-gray-700"}`}
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${SUBJECT_TYPE_COLORS[item.config?.type] || "bg-gray-100 text-gray-700"}`}
                     >
-                      {item.subjectConfig?.type}
+                      {item.config?.type}
                     </span>
 
                     {/* Grade Badges */}
-                    {item.subjectConfig?.allowedGrades?.map((g: string) => (
+                    {item.config?.allowedGrades?.map((g: string) => (
                       <span
                         key={g}
                         className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium"
@@ -258,7 +250,7 @@ const ManageSubjectForm = () => {
                     ))}
 
                     {/* Major Badges */}
-                    {item.subjectConfig?.allowedMajors?.map((m: string) => (
+                    {item.config?.allowedMajors?.map((m: string) => (
                       <span
                         key={m}
                         className="text-xs px-2 py-0.5 rounded-full bg-teal-100 text-teal-700 font-medium"
@@ -278,8 +270,8 @@ const ManageSubjectForm = () => {
                     onClick={() =>
                       setEditItem({
                         subjectId: item.id,
-                        subjectName: item.subjectName,
-                        subjectConfig: item.subjectConfig,
+                        subjectName: item.name,
+                        subjectConfig: item.config,
                       })
                     }
                   >

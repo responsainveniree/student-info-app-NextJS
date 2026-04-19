@@ -27,10 +27,7 @@ export const createSubjectSchema = z.object({
 export const getSubjectQueriesSchema = z.object({
   page,
   sortOrder: SortOrderEnum,
-  subjectName: z
-    .string()
-    .min(3, { message: "At least must be 3 characters" })
-    .optional(),
+  subjectName: z.string().optional(),
   grade: GradeEnum.optional(),
   major: MajorEnum.optional(),
   subjectType: SubjectTypeEnum.optional(),

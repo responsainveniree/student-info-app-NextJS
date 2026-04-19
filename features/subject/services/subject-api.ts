@@ -1,6 +1,5 @@
 import { api } from "@/lib/api-client";
 import { GetSubjectResponse } from "../types/subject-types";
-import { SubjectQueriesSchema } from "@/lib/zod/subject";
 
 export const subjectApi = {
   getAll: async () => {
