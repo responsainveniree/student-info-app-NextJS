@@ -13,11 +13,12 @@ export const metadata: Metadata = {
   },
 
   keywords: [
-    "SMK Advent Batam",
-    "Sekolah Advent Batam",
-    "Portal siswa SMK Advent",
-    "SMK Batam",
-    "Sekolah Kejuruan Batam",
+    "portal siswa SMK Advent Batam",
+    "aplikasi siswa SMK Advent Batam",
+    "login siswa SMK Advent Batam",
+    "sistem informasi siswa SMK Advent Batam",
+    "website siswa SMK Advent Batam",
+    "cara login portal siswa SMK Advent Batam",
   ],
 
   openGraph: {
