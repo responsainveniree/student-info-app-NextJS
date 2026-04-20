@@ -3,7 +3,7 @@ import { GetSubjectResponse } from "../types/subject-types";
 
 export const subjectApi = {
   getAll: async () => {
-    const response = await api.get("/api/staff/subject", {
+    const response = await api.get("/staff/subject", {
       params: {
         getAll: "true",
         sortOrder: "asc",
