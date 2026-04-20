@@ -4,7 +4,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://smk-advent.vercel.app"),
-  title: "SMK Advent Batam | Portal Resmi Sekolah & Informasi Siswa",
+  title:
+    "Portal Siswa SMK Advent Batam | Portal Resmi Sekolah & Informasi Siswa",
   description:
     "Portal resmi SMK Advent Batam untuk informasi siswa seputar nilai, absensi, dan poin pelanggaran.",
 
