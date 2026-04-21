@@ -3,6 +3,7 @@ import { getStudentExport } from "@/services/student/student-service";
 import { getStudentExportSchema } from "@/lib/zod/student";
 import { printConsoleError } from "@/lib/utils/printError";
 import { validateManagementSession } from "@/domain/auth/role-guards";
+import { getFullClassLabel } from "@/lib/utils/labels";
 
 export async function GET(req: Request) {
   try {
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
       headers: {
         "Content-Type":
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": "attachment; filename=Student-Data.xlsx",
+        "Content-Disposition": `attachment; filename=Student-${getFullClassLabel(data.grade, data.major, data.section)}.xlsx"`,
       },
     });
   } catch (error) {

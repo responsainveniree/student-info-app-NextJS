@@ -181,8 +181,8 @@ export const getStudentExport = async (data: GetStudentExportSchema) => {
     prisma,
   );
 
-  if (studentRecords?.students.length === 0) {
-    throw notFound("Student not found");
+  if (!studentRecords || studentRecords.students.length === 0) {
+    throw new Error("No students found for this classroom");
   }
 
   const studentsWorksheet = XLSX.utils.json_to_sheet(
