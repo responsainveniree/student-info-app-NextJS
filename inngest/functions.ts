@@ -15,54 +15,77 @@ export const generateStudentsExcel = inngest.createFunction(
     triggers: { event: "app/students.export.requested" },
   },
   async ({ event, step }) => {
-    const { payload, userEmail, userName } = event.data;
+    const { payload, userEmail, username } = event.data;
 
-    const { studentBuffer } = await step.run("generate-excel", async () => {
-      return await getStudentExport(payload);
+    // 1. Match the key name here
+    const { buffer } = await step.run("generate-excel", async () => {
+      const result = await getStudentExport(payload);
+      return { buffer: result };
     });
 
-    // Upload to Vercel Blob
-    // const downloadUrl = await step.run("upload-to-storage", async () => {
-    //   const blob = await put(
-    //     `exports/students-${payload.major}.xlsx`,
-    //     studentBuffer,
-    //     {
-    //       access: "public",
-    //     },
-    //   );
-    //   return blob.url;
+    // 2. Use that same key here
+    const downloadUrl = await step.run("upload-to-storage", async () => {
+      const bufferToUpload = Buffer.from(buffer.studentBuffer);
+
+      const blob = await put(`students-${payload.major}.xlsx`, bufferToUpload, {
+        access: "public",
+        addRandomSuffix: false, // Keeps the name clean
+        allowOverwrite: true, // This fixes your current error
+      });
+      return blob.url;
+    });
+
+    //  local
+
+    // const downloadUrl = await step.run("save-locally", async () => {
+    //   const fileName = `students-${getFullClassLabel(
+    //     payload.grade,
+    //     payload.major,
+    //     payload.section,
+    //   )}.xlsx`;
+    //   // This path points to your Next.js /public folder
+    //   const filePath = path.join(process.cwd(), "public", "exports", fileName);
+
+    //   // Create folder if it doesn't exist
+    //   await fs.mkdir(path.dirname(filePath), { recursive: true });
+
+    //   // Write the file
+    //   await fs.writeFile(filePath, studentBuffer);
+
+    //   // Return the localhost URL
+    //   return `http://localhost:3000/exports/${fileName}`;
     // });
 
-    const downloadUrl = await step.run("save-locally", async () => {
-      const fileName = `students-${payload.major}.xlsx`;
-      // This path points to your Next.js /public folder
-      const filePath = path.join(process.cwd(), "public", "exports", fileName);
+    console.log(payload);
 
-      // Create folder if it doesn't exist
-      await fs.mkdir(path.dirname(filePath), { recursive: true });
-
-      // Write the file
-      await fs.writeFile(filePath, studentBuffer);
-
-      // Return the localhost URL
-      return `http://localhost:3000/exports/${fileName}`;
-    });
-
-    const html = render(ExcelDownloadEmail({
-      schoolName: "SMK ADVENT",
-      teacherName: userName,
-      classroom: getFullClassLabel(
-        payload.major,
-        payload.grade,
-        payload.section,
-      ),
-      currentYear: new Date().getFullYear(),
-      downloadUrl: downloadUrl,
-    }));
+    const html = await render(
+      ExcelDownloadEmail({
+        schoolName: "SMK ADVENT",
+        teacherName: username,
+        classroom: getFullClassLabel(
+          payload.grade,
+          payload.major,
+          payload.section,
+        ),
+        currentTime: new Date().toLocaleString("id-ID", {
+          dateStyle: "full",
+          timeStyle: "short",
+        }),
+        downloadUrl: downloadUrl,
+      }),
+    );
 
     //Work on here
     await step.run("send-email", async () => {
-      sendEmail({email: userEmail, html: html, subject: })
+      sendEmail({
+        email: userEmail,
+        html,
+        subject: `${getFullClassLabel(
+          payload.grade,
+          payload.major,
+          payload.section,
+        )} Data in Excel Format`,
+      });
     });
 
     return { downloadUrl };

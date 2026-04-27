@@ -14,7 +14,7 @@ type ExcelDownloadEmailProps = {
   teacherName: string;
   classroom: string; // e.g., "XII RPL 1"
   downloadUrl: string;
-  currentYear: number;
+  currentTime: string;
 };
 
 export default function ExcelDownloadEmail({
@@ -22,7 +22,7 @@ export default function ExcelDownloadEmail({
   teacherName,
   classroom,
   downloadUrl,
-  currentYear,
+  currentTime,
 }: ExcelDownloadEmailProps) {
   return (
     <Html lang="en">
@@ -30,6 +30,7 @@ export default function ExcelDownloadEmail({
       <Body style={styles.body}>
         <Container style={styles.container}>
           {/* Header */}
+          <Text style={styles.hidden}>{currentTime}</Text>
           <Section style={styles.header}>
             <Text style={styles.headerTitle}>{schoolName}</Text>
             <Text style={styles.headerSubtitle}>Data Management Assistant</Text>
@@ -67,8 +68,10 @@ export default function ExcelDownloadEmail({
           {/* Footer */}
           <Section style={styles.footer}>
             <Text style={styles.footerText}>
-              © {currentYear} {schoolName} Admin Portal
+              © {new Date().getFullYear()} | {schoolName} Admin Portal
             </Text>
+            {/* Move the unique ID here, hidden */}
+            <div style={styles.hidden}>ID: {currentTime}</div>
           </Section>
         </Container>
       </Body>
@@ -77,6 +80,16 @@ export default function ExcelDownloadEmail({
 }
 
 const styles = {
+  hidden: {
+    display: "none",
+    fontSize: "1px",
+    color: "#ffffff",
+    lineHeight: "1px",
+    maxHeight: "0px",
+    maxWidth: "0px",
+    opacity: 0,
+    overflow: "hidden",
+  },
   body: {
     backgroundColor: "#f3f4f6",
     fontFamily: "Inter, -apple-system, sans-serif",

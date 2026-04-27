@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       data: {
         payload: data,
         userEmail: session.user.email,
-        userName: session.user.name,
+        username: session.user.name,
       },
     });
 

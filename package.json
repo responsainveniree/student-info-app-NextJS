@@ -13,7 +13,8 @@
     "prisma:delete-migration": "rm -rf ./db/migration",
     "prisma:reset": "npx prisma migrate reset --schema=./db/schema-postgresql.prisma",
     "prisma:generate": "npx prisma generate --schema=./db/schema-postgresql.prisma",
-    "prisma:studio": "npx prisma studio --schema=./db/schema-postgresql.prisma"
+    "prisma:studio": "npx prisma studio --schema=./db/schema-postgresql.prisma",
+    "inngest": "npx inngest-cli@latest dev"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
